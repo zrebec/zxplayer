@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Local archives and generated reports
+archive/
+coverage/
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+
+# Editor and local environment files
+.vscode/
+.idea/
+.env
+.env.*

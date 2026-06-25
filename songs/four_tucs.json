@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "four_tucs",
+  "title": "4 tucs",
+  "artist": "Fox",
+  "channels": {
+    "A": {
+      "patterns": {
+        "tucs": {
+          "notes": "A0 r B0 r A0 r B0 r r r r",
+          "options": { "dur": 180, "noise": true }
+        }
+      },
+      "arrangement": [{ "pattern": "tucs", "repeat": 3 }]
+    },
+    "B": {
+      "patterns": {
+        "silent": {
+          "notes": "r r r r r r r r",
+          "options": { "dur": 180 }
+        }
+      },
+      "arrangement": [{ "pattern": "silent", "repeat": 1 }]
+    },
+    "C": {
+      "patterns": {
+        "silent": {
+          "notes": "r r r r r r r r",
+          "options": { "dur": 180 }
+        }
+      },
+      "arrangement": [{ "pattern": "silent", "repeat": 1 }]
+    }
+  }
+}

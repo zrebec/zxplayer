@@ -1,0 +1,16 @@
+{
+  "name": "zx-kit-player",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "songs:generate": "node scripts/generate-song-library.mjs",
+    "build": "npm run songs:generate",
+    "archive": "npm run build && node scripts/archive-project.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.8.4",
+    "zip-lib": "1.4.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "songs": [
+    {
+      "id": "four_tucs",
+      "title": "4 tucs",
+      "artist": "Fox",
+      "file": "four_tucs.json"
+    },
+    {
+      "id": "chaosbunny_escape",
+      "title": "Chaosbunny Escape",
+      "artist": "Fox",
+      "file": "chaosbunny_escape.json"
+    },
+    {
+      "id": "ode_to_joy",
+      "title": "Ode to Joy",
+      "artist": "Ludwig van Beethoven",
+      "file": "ode_to_joy.json"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="sk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZX-KIT PLAYER</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <div class="app__content">
+        <h1 class="app__title">ZX-KIT PLAYER</h1>
+        <p id="songTitle" class="app__subtitle">NAČÍTAVAM HUDOBNÚ KNIŽNICU…</p>
+
+        <section class="library" aria-labelledby="libraryLabel">
+          <label id="libraryLabel" class="library__label" for="songSelect">SKLADBA</label>
+          <select id="songSelect" class="library__select" disabled>
+            <option>Načítavam…</option>
+          </select>
+          <p id="songMeta" class="library__meta">Každý JSON v <code>songs/</code> reprezentuje jednu skladbu.</p>
+        </section>
+
+        <div class="controls" aria-label="Ovládanie prehrávača">
+          <button id="playBtn" class="controls__button" type="button" disabled>▶ PLAY</button>
+          <button id="stopBtn" class="controls__button controls__button--stop" type="button" disabled>■ STOP</button>
+        </div>
+
+        <p id="status" class="app__status" aria-live="polite">Načítavam register skladieb…</p>
+
+        <section class="monitor" aria-labelledby="monitorTitle">
+          <header class="monitor__header">
+            <p id="monitorTitle" class="monitor__title">AY CHANNEL MONITOR</p>
+            <p id="monitorTime" class="monitor__time">0:00.00 / 0:00.00</p>
+          </header>
+
+          <div class="monitor__channels">
+            <div id="channelA" class="monitor__channel monitor__channel--a" aria-label="Kanál A">
+              <p class="channel__head" data-role="channel-name">A / CHANNEL</p>
+              <p class="channel__label">SEQUENCE</p>
+              <p class="channel__value" data-role="sequence">WAITING</p>
+              <p class="channel__label">PASS</p>
+              <p class="channel__value" data-role="pass">—</p>
+              <p class="channel__label">STEP</p>
+              <p class="channel__value" data-role="step">—</p>
+              <p class="channel__state" data-role="state">○ WAITING</p>
+            </div>
+
+            <div id="channelB" class="monitor__channel monitor__channel--b" aria-label="Kanál B">
+              <p class="channel__head" data-role="channel-name">B / CHANNEL</p>
+              <p class="channel__label">SEQUENCE</p>
+              <p class="channel__value" data-role="sequence">WAITING</p>
+              <p class="channel__label">PASS</p>
+              <p class="channel__value" data-role="pass">—</p>
+              <p class="channel__label">STEP</p>
+              <p class="channel__value" data-role="step">—</p>
+              <p class="channel__state" data-role="state">○ WAITING</p>
+            </div>
+
+            <div id="channelC" class="monitor__channel monitor__channel--c" aria-label="Kanál C">
+              <p class="channel__head" data-role="channel-name">C / CHANNEL</p>
+              <p class="channel__label">SEQUENCE</p>
+              <p class="channel__value" data-role="sequence">WAITING</p>
+              <p class="channel__label">PASS</p>
+              <p class="channel__value" data-role="pass">—</p>
+              <p class="channel__label">STEP</p>
+              <p class="channel__value" data-role="step">—</p>
+              <p class="channel__state" data-role="state">○ WAITING</p>
+            </div>
+          </div>
+
+          <div class="monitor__progress" aria-hidden="true">
+            <div id="monitorProgress" class="monitor__progress-fill"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="scripts/player.js"></script>
+  </body>
+</html>

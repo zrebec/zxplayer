@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "my_new_song",
+  "title": "My New Song",
+  "artist": "Your name",
+  "description": "Krátky opis skladby.",
+  "channels": {
+    "A": {
+      "label": "BASS",
+      "patterns": {
+        "bassPattern": {
+          "notes": "C2 r C2 r",
+          "options": { "dur": 180 }
+        }
+      },
+      "arrangement": [{ "pattern": "bassPattern", "repeat": 8 }]
+    },
+    "B": {
+      "label": "LEAD",
+      "patterns": {
+        "leadPattern": {
+          "notes": "C4 E4 G4 E4",
+          "options": { "dur": 180 }
+        }
+      },
+      "arrangement": [{ "pattern": "leadPattern", "repeat": 8 }]
+    },
+    "C": {
+      "label": "DRUMS",
+      "patterns": {
+        "drumPattern": {
+          "notes": "r C2 r C2",
+          "options": { "dur": 180, "noise": true, "noisePeriod": 24 }
+        }
+      },
+      "arrangement": [{ "pattern": "drumPattern", "repeat": 8 }]
+    }
+  }
+}
