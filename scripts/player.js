@@ -1,6 +1,15 @@
-import { AY_ENVELOPE_SHAPES, noteToFreq, playAY, seq } from 'https://cdn.jsdelivr.net/npm/zx-kit@0.36.0/dist/index.js';
+import {
+  AY_ENVELOPE_SHAPES,
+  beep,
+  getAudioContext,
+  noteToFreq,
+  playAY,
+  seq,
+} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.36.0/dist/index.js';
 
-const CHANNELS = ['A', 'B', 'C'];
+const AY_CHANNELS = ['A', 'B', 'C'];
+const BEEPER_CHANNEL = 'BEEPER';
+const MONITOR_CHANNELS = [...AY_CHANNELS, BEEPER_CHANNEL];
 const SUPPORTED_SCHEMA_VERSION = 1;
 const AY_NOTE_OPTION_KEYS = ['vol', 'noise', 'noisePeriod', 'envShape', 'envCycleDurMs'];
 const songSelect = document.getElementById('songSelect');
@@ -13,12 +22,16 @@ const monitorTime = document.getElementById('monitorTime');
 const monitorProgress = document.getElementById('monitorProgress');
 
 const channelViews = Object.fromEntries(
-  CHANNELS.map((channel) => [channel, createChannelView(document.getElementById(`channel${channel}`))]),
+  MONITOR_CHANNELS.map((channel) => [
+    channel,
+    createChannelView(document.getElementById(channel === BEEPER_CHANNEL ? 'channelBeeper' : `channel${channel}`)),
+  ]),
 );
 
 let library = [];
 let selectedSong = null;
 let activeHandle = null;
+let activeBeeperHandle = null;
 let animationFrameId = 0;
 let completionTimerId = 0;
 let playbackId = 0;
@@ -88,7 +101,9 @@ async function selectSong(songId) {
     songMeta.textContent = describeSong(song);
     updateChannelLabels(song);
     resetMonitor();
-    status.textContent = 'Pripravené. PLAY odomkne AudioContext a spustí všetky tri AY kanály.';
+    status.textContent = song.beeper
+      ? 'Pripravené. PLAY spustí tri AY kanály a samostatnú beeper stopu.'
+      : 'Pripravené. PLAY odomkne AudioContext a spustí všetky tri AY kanály.';
     playBtn.disabled = false;
   } catch (error) {
     songTitle.textContent = 'CHYBNÝ SONG JSON';
@@ -111,6 +126,7 @@ function startPlayback(song) {
     c: tracks.C,
     pan: getAYPan(song),
   });
+  activeBeeperHandle = startBeeperTrack(tracks.BEEPER, song.beeper?.pan ?? 0, startedAt);
 
   playBtn.disabled = true;
   stopBtn.disabled = false;
@@ -124,13 +140,13 @@ function startPlayback(song) {
 }
 
 function buildSong(song) {
-  const tracks = { A: [], B: [], C: [] };
-  const timelines = { A: [], B: [], C: [] };
+  const tracks = { A: [], B: [], C: [], BEEPER: [] };
+  const timelines = { A: [], B: [], C: [], BEEPER: [] };
 
-  for (const channel of CHANNELS) {
+  for (const channel of AY_CHANNELS) {
     const channelData = song.channels[channel];
     const patterns = Object.fromEntries(
-      Object.entries(channelData.patterns).map(([name, definition]) => [name, createPattern(name, definition)]),
+      Object.entries(channelData.patterns).map(([name, definition]) => [name, createAYPattern(name, definition)]),
     );
 
     for (const entry of channelData.arrangement) {
@@ -142,14 +158,26 @@ function buildSong(song) {
     }
   }
 
+  if (song.beeper) {
+    const patterns = Object.fromEntries(
+      Object.entries(song.beeper.patterns).map(([name, definition]) => [name, createBeeperPattern(name, definition)]),
+    );
+
+    for (const entry of song.beeper.arrangement) {
+      const pattern = patterns[entry.pattern];
+      if (!pattern) throw new Error(`Beeper: neexistujúci pattern „${entry.pattern}".`);
+      appendPattern(tracks.BEEPER, timelines.BEEPER, pattern, entry.repeat ?? 1);
+    }
+  }
+
   return {
     tracks,
     timelines,
-    totalDurationMs: Math.max(...CHANNELS.map((channel) => getTimelineDuration(timelines[channel]))),
+    totalDurationMs: Math.max(...MONITOR_CHANNELS.map((channel) => getTimelineDuration(timelines[channel]))),
   };
 }
 
-function createPattern(name, definition) {
+function createAYPattern(name, definition) {
   const options = definition.options ?? {};
   let notes;
   let tokens;
@@ -178,6 +206,52 @@ function createPattern(name, definition) {
     duration: notes.reduce((total, note) => total + note.dur, 0),
     steps: notes.map((note, index) => ({ note, token: tokens[index] })),
   };
+}
+
+function createBeeperPattern(name, definition) {
+  const options = definition.options ?? {};
+  let notes;
+  let tokens;
+
+  if (typeof definition.notes === 'string') {
+    notes = seq(definition.notes, { dur: options.dur }).map(({ freq, dur }) => ({ freq, dur }));
+    tokens = definition.notes.trim().split(/\s+/);
+  } else if (Array.isArray(definition.events)) {
+    notes = definition.events.map((event, index) => createBeeperNoteFromEvent(name, event, options, index));
+    tokens = definition.events.map((event) => event.token ?? event.note ?? formatFrequencyToken(event.freq));
+  } else {
+    throw new Error(`Beeper pattern „${name}" potrebuje notes alebo events.`);
+  }
+
+  if (notes.length === 0) throw new Error(`Beeper pattern „${name}" je prázdny.`);
+  if (notes.length !== tokens.length) throw new Error(`Beeper pattern „${name}" sa nepodarilo rozparsovať.`);
+  notes.forEach((note, index) => validateBeeperNote(note, `Beeper pattern „${name}", krok ${index + 1}`));
+
+  return {
+    name,
+    notes,
+    duration: notes.reduce((total, note) => total + note.dur, 0),
+    steps: notes.map((note, index) => ({ note, token: tokens[index] })),
+  };
+}
+
+function createBeeperNoteFromEvent(patternName, event, defaults, index) {
+  if (!event || typeof event !== 'object') {
+    throw new Error(`Beeper pattern „${patternName}", event ${index + 1}: očakávam objekt.`);
+  }
+
+  const hasNamedNote = typeof event.note === 'string';
+  const hasFrequency = Number.isFinite(event.freq);
+  if (hasNamedNote === hasFrequency) {
+    throw new Error(`Beeper pattern „${patternName}", event ${index + 1}: zadaj práve jedno z note alebo freq.`);
+  }
+
+  const note = {
+    freq: hasNamedNote ? noteToFreq(event.note) : event.freq,
+    dur: event.dur ?? defaults.dur ?? 200,
+  };
+  validateBeeperNote(note, `Beeper pattern „${patternName}", event ${index + 1}`);
+  return note;
 }
 
 function createAYNoteFromEvent(patternName, event, defaults, index) {
@@ -228,12 +302,57 @@ function appendPattern(track, timeline, pattern, repeat) {
   }
 }
 
+function startBeeperTrack(notes, pan, startedAt) {
+  const audio = getAudioContext();
+  if (!audio || notes.length === 0) return null;
+
+  const events = [];
+  let offsetMs = 0;
+  for (const note of notes) {
+    if (note.freq > 0) events.push({ ...note, startMs: offsetMs });
+    offsetMs += note.dur;
+  }
+  if (events.length === 0) return null;
+
+  let nextEvent = 0;
+  let timerId = 0;
+  let stopped = false;
+
+  const scheduleNext = () => {
+    if (stopped || nextEvent >= events.length) return;
+    const event = events[nextEvent];
+    const dueAt = startedAt + event.startMs;
+    timerId = globalThis.setTimeout(
+      () => {
+        if (stopped) return;
+        nextEvent += 1;
+
+        const latenessMs = Math.max(0, performance.now() - dueAt);
+        const remainingMs = event.dur - latenessMs;
+        const currentAudio = getAudioContext();
+        if (currentAudio && remainingMs > 0) beep(event.freq, remainingMs, currentAudio.currentTime, pan);
+        scheduleNext();
+      },
+      Math.max(0, dueAt - performance.now()),
+    );
+  };
+
+  scheduleNext();
+  return {
+    stop() {
+      if (stopped) return;
+      stopped = true;
+      globalThis.clearTimeout(timerId);
+    },
+  };
+}
+
 function renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId) {
   if (currentPlaybackId !== playbackId) return;
 
   const elapsedMs = Math.min(performance.now() - startedAt, totalDurationMs);
-  for (const channel of CHANNELS) {
-    updateChannel(channel, getPlaybackState(timelines[channel], elapsedMs));
+  for (const channel of MONITOR_CHANNELS) {
+    updateChannel(channel, getPlaybackState(timelines[channel], elapsedMs, channel === BEEPER_CHANNEL));
   }
 
   monitorTime.textContent = `${formatTime(elapsedMs)} / ${formatTime(totalDurationMs)}`;
@@ -246,7 +365,8 @@ function renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId)
   }
 }
 
-function getPlaybackState(timeline, elapsedMs) {
+function getPlaybackState(timeline, elapsedMs, isBeeper = false) {
+  if (timeline.length === 0) return { unused: true };
   const segment = timeline.find(({ start, end }) => elapsedMs >= start && elapsedMs < end);
   if (!segment) return { ended: true };
 
@@ -261,13 +381,16 @@ function getPlaybackState(timeline, elapsedMs) {
   const hasNoise = step.note.noise === true;
   let soundType;
 
-  if (hasTone && hasNoise) soundType = 'TONE + NOISE';
+  if (isBeeper && hasTone) soundType = 'BEEP';
+  else if (hasTone && hasNoise) soundType = 'TONE + NOISE';
   else if (hasTone) soundType = 'TONE';
   else if (hasNoise) soundType = 'NOISE';
   else soundType = 'REST';
 
   const soundDetails = [];
-  if ((hasTone || hasNoise) && step.note.envShape !== undefined) {
+  if (isBeeper) {
+    // The beeper has no AY volume register, envelope generator, or noise period.
+  } else if ((hasTone || hasNoise) && step.note.envShape !== undefined) {
     soundDetails.push(`ENV ${step.note.envShape} ${AY_ENVELOPE_SHAPES[step.note.envShape]}`);
   } else if (hasTone || hasNoise) {
     soundDetails.push(`VOL ${step.note.vol ?? 15}`);
@@ -288,6 +411,14 @@ function getPlaybackState(timeline, elapsedMs) {
 
 function updateChannel(channel, playbackState) {
   const view = channelViews[channel];
+  if (playbackState.unused) {
+    view.element.classList.remove('is-playing');
+    view.sequence.textContent = '— UNUSED —';
+    view.pass.textContent = '—';
+    view.step.textContent = '—';
+    view.state.textContent = '○ SILENT';
+    return;
+  }
   if (playbackState.ended) {
     view.element.classList.remove('is-playing');
     view.sequence.textContent = '— END —';
@@ -305,12 +436,17 @@ function updateChannel(channel, playbackState) {
 }
 
 function updateChannelLabels(song) {
-  for (const channel of CHANNELS) {
+  for (const channel of AY_CHANNELS) {
     const label = song.channels[channel].label ?? 'CHANNEL';
     const view = channelViews[channel];
     view.name.textContent = `${channel} / ${label}`;
     view.element.setAttribute('aria-label', `Kanál ${channel}, ${label}`);
   }
+
+  const beeperLabel = song.beeper?.label ?? 'UNUSED';
+  const beeperView = channelViews.BEEPER;
+  beeperView.name.textContent = `BEEPER / ${beeperLabel}`;
+  beeperView.element.setAttribute('aria-label', `Beeper, ${beeperLabel}`);
 }
 
 function resetMonitor() {
@@ -318,19 +454,22 @@ function resetMonitor() {
   monitorTime.textContent = '0:00.00 / 0:00.00';
   monitorProgress.style.width = '0%';
 
-  for (const channel of CHANNELS) {
+  for (const channel of MONITOR_CHANNELS) {
     const view = channelViews[channel];
     view.element.classList.remove('is-playing');
-    view.sequence.textContent = 'WAITING';
+    const unused = channel === BEEPER_CHANNEL && !selectedSong?.beeper;
+    view.sequence.textContent = unused ? '— UNUSED —' : 'WAITING';
     view.pass.textContent = '—';
     view.step.textContent = '—';
-    view.state.textContent = '○ WAITING';
+    view.state.textContent = unused ? '○ SILENT' : '○ WAITING';
   }
 }
 
 function finishPlayback(totalDurationMs) {
   cancelAnimationFrame(animationFrameId);
   activeHandle = null;
+  activeBeeperHandle?.stop();
+  activeBeeperHandle = null;
   playBtn.disabled = false;
   stopBtn.disabled = true;
   status.textContent = `Hotovo. Prehraté za ${formatTime(totalDurationMs)}.`;
@@ -342,6 +481,8 @@ function stopCurrentPlayback({ resetMonitor: shouldResetMonitor }) {
   playbackId += 1;
   activeHandle?.stop();
   activeHandle = null;
+  activeBeeperHandle?.stop();
+  activeBeeperHandle = null;
   stopBtn.disabled = true;
   playBtn.disabled = selectedSong === null;
   if (shouldResetMonitor) resetMonitor();
@@ -364,7 +505,7 @@ function getTimelineDuration(timeline) {
 
 function describeSong(song) {
   const author = song.artist ? `Autor: ${song.artist}. ` : '';
-  return `${author}${song.description ?? 'Tri AY kanály riadené cez JSON patterny.'}`;
+  return `${author}${song.description ?? 'Tri AY kanály a voliteľná beeper stopa riadené cez JSON patterny.'}`;
 }
 
 function validateSong(song) {
@@ -379,7 +520,7 @@ function validateSong(song) {
 
   if (song.ay?.pan !== undefined) {
     if (!song.ay.pan || typeof song.ay.pan !== 'object') throw new Error('ay.pan musí byť objekt.');
-    for (const channel of CHANNELS) {
+    for (const channel of AY_CHANNELS) {
       const value = song.ay.pan[channel];
       if (value !== undefined && (!Number.isFinite(value) || value < -1 || value > 1)) {
         throw new Error(`ay.pan.${channel} musí byť číslo od -1 do 1.`);
@@ -387,7 +528,7 @@ function validateSong(song) {
     }
   }
 
-  for (const channel of CHANNELS) {
+  for (const channel of AY_CHANNELS) {
     const channelData = song.channels[channel];
     if (!channelData?.patterns || !Array.isArray(channelData.arrangement)) {
       throw new Error(`Kanál ${channel} potrebuje patterns a arrangement.`);
@@ -405,6 +546,63 @@ function validateSong(song) {
         throw new Error(`Kanál ${channel}, arrangement ${index + 1}: repeat musí byť kladné celé číslo.`);
       }
     }
+  }
+
+  if (song.beeper !== undefined) validateBeeperDefinition(song.beeper);
+}
+
+function validateBeeperDefinition(beeper) {
+  if (!beeper || typeof beeper !== 'object') throw new Error('beeper musí byť objekt.');
+  if (!beeper.patterns || typeof beeper.patterns !== 'object' || !Array.isArray(beeper.arrangement)) {
+    throw new Error('Beeper potrebuje patterns a arrangement.');
+  }
+  if (beeper.label !== undefined && typeof beeper.label !== 'string') {
+    throw new Error('beeper.label musí byť string.');
+  }
+  if (beeper.pan !== undefined && (!Number.isFinite(beeper.pan) || beeper.pan < -1 || beeper.pan > 1)) {
+    throw new Error('beeper.pan musí byť číslo od -1 do 1.');
+  }
+
+  for (const [name, definition] of Object.entries(beeper.patterns)) {
+    validateBeeperPatternDefinition(name, definition);
+  }
+  for (const [index, entry] of beeper.arrangement.entries()) {
+    if (!entry || typeof entry.pattern !== 'string' || !beeper.patterns[entry.pattern]) {
+      throw new Error(`Beeper, arrangement ${index + 1}: neplatný pattern.`);
+    }
+    if (entry.repeat !== undefined && (!Number.isInteger(entry.repeat) || entry.repeat < 1)) {
+      throw new Error(`Beeper, arrangement ${index + 1}: repeat musí byť kladné celé číslo.`);
+    }
+  }
+}
+
+function validateBeeperPatternDefinition(name, definition) {
+  if (!definition || typeof definition !== 'object') {
+    throw new Error(`Beeper pattern „${name}": očakávam objekt.`);
+  }
+  const hasNotes = typeof definition.notes === 'string';
+  const hasEvents = Array.isArray(definition.events);
+  if (hasNotes === hasEvents) {
+    throw new Error(`Beeper pattern „${name}": zadaj práve jedno z notes alebo events.`);
+  }
+  validateBeeperOptions(definition.options ?? {}, `Beeper pattern „${name}", options`);
+  if (hasEvents) {
+    for (const [index, event] of definition.events.entries()) {
+      if (!event || typeof event !== 'object') {
+        throw new Error(`Beeper pattern „${name}", event ${index + 1}: očakávam objekt.`);
+      }
+      validateBeeperOptions(event, `Beeper pattern „${name}", event ${index + 1}`);
+    }
+  }
+}
+
+function validateBeeperOptions(options, location) {
+  if (!options || typeof options !== 'object') throw new Error(`${location}: očakávam objekt.`);
+  if (options.dur !== undefined && (!Number.isFinite(options.dur) || options.dur <= 0)) {
+    throw new Error(`${location}: dur musí byť kladné číslo.`);
+  }
+  for (const key of [...AY_NOTE_OPTION_KEYS, 'pan']) {
+    if (options[key] !== undefined) throw new Error(`${location}: ${key} nepatrí do beeper options.`);
   }
 }
 
@@ -459,6 +657,11 @@ function validateAYNote(note, location) {
   if (!Number.isFinite(note.freq) || note.freq < 0) throw new Error(`${location}: freq musí byť nezáporné číslo.`);
   if (!Number.isFinite(note.dur) || note.dur <= 0) throw new Error(`${location}: dur musí byť kladné číslo.`);
   validateAYOptions(note, location);
+}
+
+function validateBeeperNote(note, location) {
+  if (!Number.isFinite(note.freq) || note.freq < 0) throw new Error(`${location}: freq musí byť nezáporné číslo.`);
+  if (!Number.isFinite(note.dur) || note.dur <= 0) throw new Error(`${location}: dur musí byť kladné číslo.`);
 }
 
 function formatTime(milliseconds) {

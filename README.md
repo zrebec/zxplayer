@@ -1,8 +1,8 @@
 # ZX-KIT Player
 
-A lightweight, data-driven browser player for three-channel AY music written with [`zx-kit`](https://www.npmjs.com/package/zx-kit).
+A lightweight, data-driven browser player for three-channel AY music with an optional, independent ZX beeper track, written with [`zx-kit`](https://www.npmjs.com/package/zx-kit).
 
-Each song lives in its own JSON file. The player builds three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, then shows a live monitor of the pattern, pass, step, and sound state currently active on every channel.
+Each song lives in its own JSON file. The player builds three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements. A song may also declare a separate one-bit beeper track that plays in parallel as a "fake" fourth voice without changing the AY emulation.
 
 ![ZX-KIT Player screenshot](assets/screenshot.png)
 
@@ -11,9 +11,10 @@ Each song lives in its own JSON file. The player builds three AY tracks—channe
 - One JSON file per song in `songs/`.
 - Automatically generated song catalogue for the dropdown menu.
 - Separate **Play** and **Stop** controls.
-- Live AY monitor for channels A, B, and C.
+- Live monitor for AY channels A/B/C and the optional beeper track.
 - Full `zx-kit` AY notes: per-note duration, amplitude, noise period, hardware envelope shape, and envelope cycle.
 - Optional per-channel stereo pan.
+- Optional pattern/arrangement-driven beeper track using `zx-kit`'s independent `beep()` path.
 - Pattern-level timeline visualisation: active pattern, pass, step, token, tone/noise/rest, volume, and envelope.
 - No frontend build tool or framework required.
 - Formatting enforced with Prettier.
@@ -72,6 +73,7 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 ├── scripts/
 │   ├── archive-project.mjs
 │   ├── generate-song-library.mjs
+│   ├── validate-songs.mjs
 │   └── player.js
 ├── songs/
 │   ├── _new_song.json.example
@@ -105,7 +107,7 @@ The browser cannot enumerate files in `songs/` by itself. `scripts/generate-song
 
 ## Song Format
 
-A song reserves `schemaVersion: 1` for future compatibility and contains three AY channel definitions: `A`, `B`, and `C`.
+A song with `schemaVersion: 1` contains three required AY channel definitions: `A`, `B`, and `C`. It may additionally contain an optional top-level `beeper` track. This is an additive schema extension: existing version 1 songs remain valid and silent on the beeper path.
 
 ```json
 {
@@ -153,11 +155,22 @@ A song reserves `schemaVersion: 1` for future compatibility and contains three A
       },
       "arrangement": [{ "pattern": "eventPattern", "repeat": 8 }]
     }
+  },
+  "beeper": {
+    "label": "ONE-BIT ACCENTS",
+    "pan": 0,
+    "patterns": {
+      "accentPattern": {
+        "options": { "dur": 40 },
+        "events": [{ "freq": 1200 }, { "note": "r", "dur": 680 }]
+      }
+    },
+    "arrangement": [{ "pattern": "accentPattern", "repeat": 8 }]
   }
 }
 ```
 
-### Pattern Fields
+### AY Pattern Fields
 
 | Field                   | Meaning                                                                                  |
 | ----------------------- | ---------------------------------------------------------------------------------------- |
@@ -189,18 +202,52 @@ A song reserves `schemaVersion: 1` for future compatibility and contains three A
 
 Event values override pattern defaults. `note` and `freq` are mutually exclusive. Noise-only events use a rest frequency together with noise, for example `{ "note": "r", "noise": true, "noisePeriod": 24 }`.
 
-## Live AY Monitor
+### Optional Beeper Track
+
+`beeper` is a sibling of `channels`, not an AY option and not a fourth AY register channel. It uses the same named-pattern and arrangement model, but its notes support only frequency and duration. `beeper.pan` sets the stereo position for the entire beeper track.
+
+```json
+{
+  "beeper": {
+    "label": "PERCUSSION",
+    "pan": 0,
+    "patterns": {
+      "hitAndRest": {
+        "options": { "dur": 40 },
+        "events": [{ "freq": 1200 }, { "note": "r", "dur": 680 }]
+      }
+    },
+    "arrangement": [{ "pattern": "hitAndRest", "repeat": 8 }]
+  }
+}
+```
+
+| Field                   | Meaning                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `beeper.label`          | Optional monitor label.                                                        |
+| `beeper.pan`            | Track pan from `-1` (left) through `0` (centre) to `1` (right).                |
+| `notes`                 | Compact note/rest sequence with optional `:durMs` token durations.             |
+| `events`                | Explicit events containing exactly one of `note` or `freq`, plus optional dur. |
+| `options.dur`           | Default beeper event duration; defaults to 200 ms.                             |
+| `arrangement[].pattern` | Pattern declared in `beeper.patterns`.                                         |
+| `arrangement[].repeat`  | Number of repetitions; defaults to `1`.                                        |
+
+Short hits should be followed by an explicit rest so their duration and rhythmic spacing remain independent. AY-only fields such as `vol`, `noise`, and `envShape` are rejected in beeper options.
+
+The player schedules one upcoming beeper event at a time. Pressing **Stop** cancels all future beeper events; a short hit that is already sounding finishes naturally. AY playback is stopped independently through its `AYHandle`.
+
+## Live Audio Monitor
 
 While a song is playing, each channel card shows:
 
 - the current named pattern;
 - its current repeat pass;
 - the current sequence step and note token;
-- whether the current step is **TONE**, **NOISE**, **TONE + NOISE**, or **REST**;
+- whether the current step is **TONE**, **NOISE**, **TONE + NOISE**, **BEEP**, or **REST**;
 - its effective `VOL`, envelope shape (`ENV`), and noise period (`NP`);
 - a flashing active state when that channel is producing tone or noise.
 
-The monitor is derived from the same generated pattern timeline used for playback. It is not an audio analyser, so its labels stay deterministic and directly map back to the JSON arrangement.
+The monitor is derived from the same generated pattern timeline used for playback. It is not an audio analyser, so its labels stay deterministic and directly map back to the JSON arrangement. Songs without a `beeper` section show the fourth card as `UNUSED`.
 
 ## Creating a Source Archive
 
@@ -284,7 +331,7 @@ Select a song and press **Play** manually. Browser autoplay policy blocks Web Au
 
 ### A song shows “Invalid song JSON”
 
-Every channel `A`, `B`, and `C` must contain a `patterns` object and an `arrangement` array. Every arrangement entry must refer to a pattern defined in that same channel.
+Every AY channel `A`, `B`, and `C` must contain a `patterns` object and an `arrangement` array. Every arrangement entry must refer to a pattern defined in that same channel. If present, `beeper` must also contain its own `patterns` and `arrangement`.
 
 ## Development Notes
 

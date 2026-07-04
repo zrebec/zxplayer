@@ -43,5 +43,16 @@
       },
       "arrangement": [{ "pattern": "eventPattern", "repeat": 8 }]
     }
+  },
+  "beeper": {
+    "label": "ONE-BIT ACCENTS",
+    "pan": 0,
+    "patterns": {
+      "accentPattern": {
+        "options": { "dur": 40 },
+        "events": [{ "freq": 1200 }, { "note": "r", "dur": 680 }]
+      }
+    },
+    "arrangement": [{ "pattern": "accentPattern", "repeat": 8 }]
   }
 }
