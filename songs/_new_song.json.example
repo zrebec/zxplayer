@@ -4,13 +4,16 @@
   "title": "My New Song",
   "artist": "Your name",
   "description": "Krátky opis skladby.",
+  "ay": {
+    "pan": { "A": -0.4, "B": 0, "C": 0.4 }
+  },
   "channels": {
     "A": {
       "label": "BASS",
       "patterns": {
         "bassPattern": {
           "notes": "C2 r C2 r",
-          "options": { "dur": 180 }
+          "options": { "dur": 180, "vol": 10 }
         }
       },
       "arrangement": [{ "pattern": "bassPattern", "repeat": 8 }]
@@ -20,20 +23,25 @@
       "patterns": {
         "leadPattern": {
           "notes": "C4 E4 G4 E4",
-          "options": { "dur": 180 }
+          "options": { "dur": 180, "envShape": 13, "envCycleDurMs": 20 }
         }
       },
       "arrangement": [{ "pattern": "leadPattern", "repeat": 8 }]
     },
     "C": {
-      "label": "DRUMS",
+      "label": "AY EVENTS",
       "patterns": {
-        "drumPattern": {
-          "notes": "r C2 r C2",
-          "options": { "dur": 180, "noise": true, "noisePeriod": 24 }
+        "eventPattern": {
+          "options": { "dur": 180, "vol": 8 },
+          "events": [
+            { "note": "C3" },
+            { "note": "r" },
+            { "freq": 196, "dur": 360, "envShape": 10, "envCycleDurMs": 90 },
+            { "note": "r", "dur": 360 }
+          ]
         }
       },
-      "arrangement": [{ "pattern": "drumPattern", "repeat": 8 }]
+      "arrangement": [{ "pattern": "eventPattern", "repeat": 8 }]
     }
   }
 }

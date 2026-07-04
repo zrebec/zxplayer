@@ -1,7 +1,8 @@
-import { seq, playAY } from 'https://cdn.jsdelivr.net/npm/zx-kit@0.35.0/dist/index.js';
+import { AY_ENVELOPE_SHAPES, noteToFreq, playAY, seq } from 'https://cdn.jsdelivr.net/npm/zx-kit@0.36.0/dist/index.js';
 
 const CHANNELS = ['A', 'B', 'C'];
 const SUPPORTED_SCHEMA_VERSION = 1;
+const AY_NOTE_OPTION_KEYS = ['vol', 'noise', 'noisePeriod', 'envShape', 'envCycleDurMs'];
 const songSelect = document.getElementById('songSelect');
 const playBtn = document.getElementById('playBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -81,6 +82,7 @@ async function selectSong(songId) {
 
     const song = await response.json();
     validateSong(song);
+    buildSong(song);
     selectedSong = song;
     songTitle.textContent = song.title.toUpperCase();
     songMeta.textContent = describeSong(song);
@@ -107,6 +109,7 @@ function startPlayback(song) {
     a: tracks.A,
     b: tracks.B,
     c: tracks.C,
+    pan: getAYPan(song),
   });
 
   playBtn.disabled = true;
@@ -127,10 +130,7 @@ function buildSong(song) {
   for (const channel of CHANNELS) {
     const channelData = song.channels[channel];
     const patterns = Object.fromEntries(
-      Object.entries(channelData.patterns).map(([name, definition]) => [
-        name,
-        createPattern(name, definition.notes, definition.options ?? {}),
-      ]),
+      Object.entries(channelData.patterns).map(([name, definition]) => [name, createPattern(name, definition)]),
     );
 
     for (const entry of channelData.arrangement) {
@@ -149,12 +149,28 @@ function buildSong(song) {
   };
 }
 
-function createPattern(name, notesSpec, options) {
-  const notes = seq(notesSpec, options);
-  const tokens = notesSpec.trim().split(/\s+/);
+function createPattern(name, definition) {
+  const options = definition.options ?? {};
+  let notes;
+  let tokens;
+
+  if (typeof definition.notes === 'string') {
+    notes = seq(definition.notes, {
+      dur: options.dur,
+      noise: options.noise,
+      noisePeriod: options.noisePeriod,
+    }).map((note) => applyAYNoteOptions(note, options));
+    tokens = definition.notes.trim().split(/\s+/);
+  } else if (Array.isArray(definition.events)) {
+    notes = definition.events.map((event, index) => createAYNoteFromEvent(name, event, options, index));
+    tokens = definition.events.map((event) => event.token ?? event.note ?? formatFrequencyToken(event.freq));
+  } else {
+    throw new Error(`Pattern „${name}" potrebuje notes alebo events.`);
+  }
 
   if (notes.length === 0) throw new Error(`Pattern „${name}" je prázdny.`);
   if (notes.length !== tokens.length) throw new Error(`Pattern „${name}" sa nepodarilo rozparsovať.`);
+  notes.forEach((note, index) => validateAYNote(note, `Pattern „${name}", krok ${index + 1}`));
 
   return {
     name,
@@ -162,6 +178,45 @@ function createPattern(name, notesSpec, options) {
     duration: notes.reduce((total, note) => total + note.dur, 0),
     steps: notes.map((note, index) => ({ note, token: tokens[index] })),
   };
+}
+
+function createAYNoteFromEvent(patternName, event, defaults, index) {
+  if (!event || typeof event !== 'object') {
+    throw new Error(`Pattern „${patternName}", event ${index + 1}: očakávam objekt.`);
+  }
+
+  const hasNamedNote = typeof event.note === 'string';
+  const hasFrequency = Number.isFinite(event.freq);
+  if (hasNamedNote === hasFrequency) {
+    throw new Error(`Pattern „${patternName}", event ${index + 1}: zadaj práve jedno z note alebo freq.`);
+  }
+
+  const dur = event.dur ?? defaults.dur;
+  const note = {
+    freq: hasNamedNote ? noteToFreq(event.note) : event.freq,
+    dur,
+  };
+  applyAYNoteOptions(note, defaults);
+  applyAYNoteOptions(note, event);
+  validateAYNote(note, `Pattern „${patternName}", event ${index + 1}`);
+  return note;
+}
+
+function applyAYNoteOptions(note, source) {
+  for (const key of AY_NOTE_OPTION_KEYS) {
+    if (source[key] !== undefined) note[key] = source[key];
+  }
+  return note;
+}
+
+function formatFrequencyToken(frequency) {
+  return Number.isFinite(frequency) ? `${frequency}Hz` : '?';
+}
+
+function getAYPan(song) {
+  const pan = song.ay?.pan;
+  if (!pan) return undefined;
+  return { a: pan.A, b: pan.B, c: pan.C };
 }
 
 function appendPattern(track, timeline, pattern, repeat) {
@@ -211,6 +266,14 @@ function getPlaybackState(timeline, elapsedMs) {
   else if (hasNoise) soundType = 'NOISE';
   else soundType = 'REST';
 
+  const soundDetails = [];
+  if ((hasTone || hasNoise) && step.note.envShape !== undefined) {
+    soundDetails.push(`ENV ${step.note.envShape} ${AY_ENVELOPE_SHAPES[step.note.envShape]}`);
+  } else if (hasTone || hasNoise) {
+    soundDetails.push(`VOL ${step.note.vol ?? 15}`);
+  }
+  if (hasNoise) soundDetails.push(`NP ${step.note.noisePeriod ?? 8}`);
+
   return {
     ended: false,
     patternName: segment.name,
@@ -219,7 +282,7 @@ function getPlaybackState(timeline, elapsedMs) {
     stepIndex: safeStepIndex + 1,
     stepCount: segment.steps.length,
     isPlaying: hasTone || hasNoise,
-    soundType,
+    soundType: [soundType, ...soundDetails].join(' · '),
   };
 }
 
@@ -314,12 +377,88 @@ function validateSong(song) {
   if (!song.id || !song.title) throw new Error('Chýba povinné id alebo title.');
   if (!song.channels || typeof song.channels !== 'object') throw new Error('Chýba objekt channels.');
 
+  if (song.ay?.pan !== undefined) {
+    if (!song.ay.pan || typeof song.ay.pan !== 'object') throw new Error('ay.pan musí byť objekt.');
+    for (const channel of CHANNELS) {
+      const value = song.ay.pan[channel];
+      if (value !== undefined && (!Number.isFinite(value) || value < -1 || value > 1)) {
+        throw new Error(`ay.pan.${channel} musí byť číslo od -1 do 1.`);
+      }
+    }
+  }
+
   for (const channel of CHANNELS) {
     const channelData = song.channels[channel];
     if (!channelData?.patterns || !Array.isArray(channelData.arrangement)) {
       throw new Error(`Kanál ${channel} potrebuje patterns a arrangement.`);
     }
+
+    for (const [name, definition] of Object.entries(channelData.patterns)) {
+      validatePatternDefinition(channel, name, definition);
+    }
+
+    for (const [index, entry] of channelData.arrangement.entries()) {
+      if (!entry || typeof entry.pattern !== 'string' || !channelData.patterns[entry.pattern]) {
+        throw new Error(`Kanál ${channel}, arrangement ${index + 1}: neplatný pattern.`);
+      }
+      if (entry.repeat !== undefined && (!Number.isInteger(entry.repeat) || entry.repeat < 1)) {
+        throw new Error(`Kanál ${channel}, arrangement ${index + 1}: repeat musí byť kladné celé číslo.`);
+      }
+    }
   }
+}
+
+function validatePatternDefinition(channel, name, definition) {
+  if (!definition || typeof definition !== 'object') {
+    throw new Error(`Kanál ${channel}, pattern „${name}": očakávam objekt.`);
+  }
+
+  const hasNotes = typeof definition.notes === 'string';
+  const hasEvents = Array.isArray(definition.events);
+  if (hasNotes === hasEvents) {
+    throw new Error(`Kanál ${channel}, pattern „${name}": zadaj práve jedno z notes alebo events.`);
+  }
+
+  validateAYOptions(definition.options ?? {}, `Kanál ${channel}, pattern „${name}", options`);
+  if (hasEvents) {
+    for (const [index, event] of definition.events.entries()) {
+      validateAYOptions(event, `Kanál ${channel}, pattern „${name}", event ${index + 1}`);
+    }
+  }
+}
+
+function validateAYOptions(options, location) {
+  if (!options || typeof options !== 'object') throw new Error(`${location}: očakávam objekt.`);
+  if (options.dur !== undefined && (!Number.isFinite(options.dur) || options.dur <= 0)) {
+    throw new Error(`${location}: dur musí byť kladné číslo.`);
+  }
+  if (options.vol !== undefined && (!Number.isInteger(options.vol) || options.vol < 0 || options.vol > 15)) {
+    throw new Error(`${location}: vol musí byť celé číslo od 0 do 15.`);
+  }
+  if (options.noise !== undefined && typeof options.noise !== 'boolean') {
+    throw new Error(`${location}: noise musí byť boolean.`);
+  }
+  if (
+    options.noisePeriod !== undefined &&
+    (!Number.isInteger(options.noisePeriod) || options.noisePeriod < 1 || options.noisePeriod > 31)
+  ) {
+    throw new Error(`${location}: noisePeriod musí byť celé číslo od 1 do 31.`);
+  }
+  if (
+    options.envShape !== undefined &&
+    (!Number.isInteger(options.envShape) || options.envShape < 0 || options.envShape > 15)
+  ) {
+    throw new Error(`${location}: envShape musí byť celé číslo od 0 do 15.`);
+  }
+  if (options.envCycleDurMs !== undefined && (!Number.isFinite(options.envCycleDurMs) || options.envCycleDurMs <= 0)) {
+    throw new Error(`${location}: envCycleDurMs musí byť kladné číslo.`);
+  }
+}
+
+function validateAYNote(note, location) {
+  if (!Number.isFinite(note.freq) || note.freq < 0) throw new Error(`${location}: freq musí byť nezáporné číslo.`);
+  if (!Number.isFinite(note.dur) || note.dur <= 0) throw new Error(`${location}: dur musí byť kladné číslo.`);
+  validateAYOptions(note, location);
 }
 
 function formatTime(milliseconds) {

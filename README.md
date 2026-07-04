@@ -12,14 +12,16 @@ Each song lives in its own JSON file. The player builds three AY tracks—channe
 - Automatically generated song catalogue for the dropdown menu.
 - Separate **Play** and **Stop** controls.
 - Live AY monitor for channels A, B, and C.
-- Pattern-level timeline visualisation: active pattern, pass number, note step, token, and tone/noise/rest state.
+- Full `zx-kit` AY notes: per-note duration, amplitude, noise period, hardware envelope shape, and envelope cycle.
+- Optional per-channel stereo pan.
+- Pattern-level timeline visualisation: active pattern, pass, step, token, tone/noise/rest, volume, and envelope.
 - No frontend build tool or framework required.
 - Formatting enforced with Prettier.
 - Reproducible source archives via `npm run archive`.
 
 ## Requirements
 
-- Node.js 18 or newer.
+- Node.js 22 or newer (required by the development dependency on `zx-kit`).
 - A modern browser with ES modules, `fetch()`, Web Audio support, and JavaScript enabled.
 - An HTTP server for local development. Opening the page directly with `file://` will not work because browsers block JSON loading via `fetch()` in that context.
 
@@ -52,13 +54,14 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 
 ## NPM Commands
 
-| Command                  | Purpose                                                                              |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                                 |
-| `npm run build`          | Runs the song catalogue generator. Use it after adding, renaming, or removing songs. |
-| `npm run format`         | Formats the project with Prettier.                                                   |
-| `npm run format:check`   | Checks whether the project already matches the configured Prettier style.            |
-| `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`.       |
+| Command                  | Purpose                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                           |
+| `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.              |
+| `npm run build`          | Regenerates the catalogue and validates every song.                            |
+| `npm run format`         | Formats the project with Prettier.                                             |
+| `npm run format:check`   | Checks whether the project already matches the configured Prettier style.      |
+| `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`. |
 
 ## Project Structure
 
@@ -111,13 +114,16 @@ A song reserves `schemaVersion: 1` for future compatibility and contains three A
   "title": "My New Song",
   "artist": "Your name",
   "description": "A short description.",
+  "ay": {
+    "pan": { "A": -0.4, "B": 0, "C": 0.4 }
+  },
   "channels": {
     "A": {
       "label": "BASS",
       "patterns": {
         "bassPattern": {
           "notes": "C2 r C2 r",
-          "options": { "dur": 180 }
+          "options": { "dur": 180, "vol": 10 }
         }
       },
       "arrangement": [{ "pattern": "bassPattern", "repeat": 8 }]
@@ -127,20 +133,25 @@ A song reserves `schemaVersion: 1` for future compatibility and contains three A
       "patterns": {
         "leadPattern": {
           "notes": "C4 E4 G4 E4",
-          "options": { "dur": 180 }
+          "options": { "dur": 180, "envShape": 13, "envCycleDurMs": 20 }
         }
       },
       "arrangement": [{ "pattern": "leadPattern", "repeat": 8 }]
     },
     "C": {
-      "label": "DRUMS",
+      "label": "AY EVENTS",
       "patterns": {
-        "drumPattern": {
-          "notes": "r C2 r C2",
-          "options": { "dur": 180, "noise": true, "noisePeriod": 24 }
+        "eventPattern": {
+          "options": { "dur": 180, "vol": 8 },
+          "events": [
+            { "note": "C3" },
+            { "note": "r" },
+            { "freq": 196, "dur": 360, "envShape": 10, "envCycleDurMs": 90 },
+            { "note": "r", "dur": 360 }
+          ]
         }
       },
-      "arrangement": [{ "pattern": "drumPattern", "repeat": 8 }]
+      "arrangement": [{ "pattern": "eventPattern", "repeat": 8 }]
     }
   }
 }
@@ -148,16 +159,35 @@ A song reserves `schemaVersion: 1` for future compatibility and contains three A
 
 ### Pattern Fields
 
-| Field                   | Meaning                                                          |
-| ----------------------- | ---------------------------------------------------------------- |
-| `notes`                 | A `zx-kit` `seq()` note string. `r` represents a rest.           |
-| `options.dur`           | Duration of each note step in milliseconds.                      |
-| `options.noise`         | Enables AY noise for the pattern.                                |
-| `options.noisePeriod`   | AY noise period, normally in the range `1–31` (register R6).     |
-| `arrangement[].pattern` | Name of a pattern declared in the same channel.                  |
-| `arrangement[].repeat`  | Number of consecutive repetitions. Defaults to `1` when omitted. |
+| Field                   | Meaning                                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| `ay.pan.A/B/C`          | Optional channel pan from `-1` (left) through `0` (centre) to `1` (right).               |
+| `notes`                 | A `zx-kit` `seq()` string. Tokens accept `Note` or `Note:durMs`; `r` is a rest.          |
+| `events`                | Alternative full AY event array. Use exactly one of `notes` or `events` in each pattern. |
+| `options.dur`           | Default step/event duration in milliseconds.                                             |
+| `options.vol`           | AY amplitude `0–15`. Ignored when an envelope is active.                                 |
+| `options.noise`         | Mixes the shared AY LFSR noise generator into the event.                                 |
+| `options.noisePeriod`   | AY noise period `1–31` (R6); higher values sound darker.                                 |
+| `options.envShape`      | AY hardware envelope shape `0–15` (R13).                                                 |
+| `options.envCycleDurMs` | Duration of one envelope ramp in milliseconds.                                           |
+| `arrangement[].pattern` | Name of a pattern declared in the same channel.                                          |
+| `arrangement[].repeat`  | Number of consecutive repetitions. Defaults to `1`.                                      |
 
-The player constructs the actual AY note arrays by passing each pattern's `notes` and `options` to `zx-kit`'s `seq()` function.
+`options` supplies defaults for every note in a pattern. A compact `notes` pattern is parsed by `zx-kit`'s `seq()` and then receives the additional AY fields. An `events` pattern maps directly to `AYNote[]`; every event accepts either a note name or a raw frequency:
+
+```json
+{
+  "options": { "dur": 180, "vol": 9 },
+  "events": [
+    { "note": "C4" },
+    { "note": "E4", "dur": 360, "vol": 12 },
+    { "freq": 392, "envShape": 10, "envCycleDurMs": 90 },
+    { "note": "r", "dur": 540 }
+  ]
+}
+```
+
+Event values override pattern defaults. `note` and `freq` are mutually exclusive. Noise-only events use a rest frequency together with noise, for example `{ "note": "r", "noise": true, "noisePeriod": 24 }`.
 
 ## Live AY Monitor
 
@@ -167,6 +197,7 @@ While a song is playing, each channel card shows:
 - its current repeat pass;
 - the current sequence step and note token;
 - whether the current step is **TONE**, **NOISE**, **TONE + NOISE**, or **REST**;
+- its effective `VOL`, envelope shape (`ENV`), and noise period (`NP`);
 - a flashing active state when that channel is producing tone or noise.
 
 The monitor is derived from the same generated pattern timeline used for playback. It is not an audio analyser, so its labels stay deterministic and directly map back to the JSON arrangement.
@@ -262,7 +293,7 @@ The frontend is intentionally simple: static HTML, CSS, and ES modules. The play
 `zx-kit` is currently imported from:
 
 ```text
-https://cdn.jsdelivr.net/npm/zx-kit@0.35.0/dist/index.js
+https://cdn.jsdelivr.net/npm/zx-kit@0.36.0/dist/index.js
 ```
 
 Update that version only after validating the player with the target release.
