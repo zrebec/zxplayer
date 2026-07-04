@@ -13,10 +13,28 @@
       "file": "chaosbunny_escape.json"
     },
     {
+      "id": "korobeiniki",
+      "title": "Korobeiniki (Tetris Theme A)",
+      "artist": "Traditional Russian folk song",
+      "file": "korobeiniki.json"
+    },
+    {
+      "id": "nad_tatrou_sa_blyska",
+      "title": "Nad Tatrou sa blýska",
+      "artist": "Traditional Slovak melody",
+      "file": "nad_tatrou_sa_blyska.json"
+    },
+    {
       "id": "ode_to_joy",
       "title": "Ode to Joy",
       "artist": "Ludwig van Beethoven",
       "file": "ode_to_joy.json"
+    },
+    {
+      "id": "wilhelmus",
+      "title": "Wilhelmus",
+      "artist": "Traditional Dutch melody",
+      "file": "wilhelmus.json"
     }
   ]
 }
