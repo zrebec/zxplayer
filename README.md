@@ -2,13 +2,15 @@
 
 A lightweight, data-driven browser player for three-channel AY music written with [`zx-kit`](https://www.npmjs.com/package/zx-kit).
 
-Each song lives in its own JSON file. The player builds three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, then shows a live monitor of the pattern, pass, step, and sound state currently active on every channel.
+Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs build three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements. PSG songs use `zx-kit` 0.37 `aydump` playback for raw AY chip register streams.
 
 ![ZX-KIT Player screenshot](assets/screenshot.png)
 
 ## Features
 
 - One JSON file per song in `songs/`.
+- PSG register-dump playback through `zx-kit` `loadPSG()` / `playAYDump()`.
+- PT3 files are listed as source material and must be converted offline to PSG before playback.
 - Automatically generated song catalogue for the dropdown menu.
 - Separate **Play** and **Stop** controls.
 - Live AY monitor for channels A, B, and C.
@@ -84,7 +86,7 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 └── style.css
 ```
 
-## Adding a Song
+## Adding a JSON Song
 
 1. Copy `songs/_new_song.json.example` to a new filename, for example `songs/moon_run.json`.
 2. Set a unique `id`, title, artist, description, patterns, and arrangements.
@@ -99,6 +101,12 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 The browser cannot enumerate files in `songs/` by itself. `scripts/generate-song-library.mjs` solves this by collecting every real `*.json` song file, excluding `songs/index.json`, and generating the catalogue consumed by the player.
 
 `_new_song.json.example` is deliberately ignored by the generator because it does not have a `.json` extension.
+
+## Adding PSG / PT3 Music
+
+PSG is the runtime format for real AY scene music in this player. Put a `.psg` file into `songs/`, run `npm run build`, reload the page, and the file appears in the dropdown with a `[PSG]` suffix.
+
+PT3 is not directly playable at runtime. Keep `.pt3` files in `songs/` as source material — `npm run build` (via `npm run songs:convert`, `scripts/PT3PSGConverter.mjs`) renders them to `.psg` register dumps in `songs/generated/`, which the player then lists like any other PSG file. Native runtime PT3 playback still belongs in a future `zx-kit` `pt3.ts` module built on top of `AYChipCore`, not in `zxplayer`.
 
 ## Song Format
 
@@ -262,7 +270,7 @@ The frontend is intentionally simple: static HTML, CSS, and ES modules. The play
 `zx-kit` is currently imported from:
 
 ```text
-https://cdn.jsdelivr.net/npm/zx-kit@0.35.0/dist/index.js
+https://cdn.jsdelivr.net/npm/zx-kit@0.37.0/dist/index.js
 ```
 
 Update that version only after validating the player with the target release.
