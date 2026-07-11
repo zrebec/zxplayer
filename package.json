@@ -2,9 +2,13 @@
   "name": "zx-kit-player",
   "private": true,
   "type": "module",
+  "dependencies": {
+    "zx-kit": "^0.37.0"
+  },
   "scripts": {
+    "songs:convert": "node scripts/PT3PSGConverter.mjs",
     "songs:generate": "node scripts/generate-song-library.mjs",
-    "build": "npm run songs:generate",
+    "build": "npm run songs:convert && npm run songs:generate",
     "archive": "npm run build && node scripts/archive-project.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

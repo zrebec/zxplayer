@@ -8,14 +8,27 @@ const songsDirectory = path.join(projectDirectory, 'songs');
 const catalogFile = path.join(songsDirectory, 'index.json');
 const SUPPORTED_SCHEMA_VERSION = 1;
 
-const songFiles = (await readdir(songsDirectory, { withFileTypes: true }))
-  .filter((entry) => entry.isFile() && entry.name.endsWith('.json') && entry.name !== 'index.json')
-  .map((entry) => entry.name)
-  .sort((left, right) => left.localeCompare(right));
+const songFiles = await findSongFiles();
 
 const songs = [];
 for (const file of songFiles) {
   const fullPath = path.join(songsDirectory, file);
+  const type = getSongType(file);
+
+  if (type !== 'json') {
+    const meta = metadataFromPSGFilename(file);
+    songs.push({
+      id: slugFromFile(file),
+      title: meta.title,
+      ...(meta.artist ? { artist: meta.artist } : {}),
+      file,
+      type,
+      machine: 'melodik',
+      loop: true,
+    });
+    continue;
+  }
+
   const parsed = JSON.parse(await readFile(fullPath, 'utf8'));
 
   if (parsed.schemaVersion !== SUPPORTED_SCHEMA_VERSION) {
@@ -24,8 +37,8 @@ for (const file of songFiles) {
     );
   }
 
-  if (!parsed.id || !parsed.title || !parsed.channels) {
-    throw new Error(`${file}: očakávam id, title a channels.`);
+  if (!parsed.id || !parsed.title || (!parsed.channels && !parsed.effect)) {
+    throw new Error(`${file}: očakávam id, title a channels (alebo effect).`);
   }
 
   songs.push({
@@ -33,6 +46,7 @@ for (const file of songFiles) {
     title: parsed.title,
     ...(parsed.artist ? { artist: parsed.artist } : {}),
     file,
+    type,
   });
 }
 
@@ -40,3 +54,53 @@ songs.sort((left, right) => left.title.localeCompare(right.title, 'sk'));
 await mkdir(songsDirectory, { recursive: true });
 await writeFile(catalogFile, `${JSON.stringify({ songs }, null, 2)}\n`, 'utf8');
 console.log(`Vygenerovaný songs/index.json: ${songs.length} skladba(y).`);
+
+async function findSongFiles() {
+  const rootEntries = await readdir(songsDirectory, { withFileTypes: true });
+  const rootFiles = rootEntries
+    .filter((entry) => entry.isFile() && isSupportedSongFile(entry.name))
+    .map((entry) => entry.name);
+
+  const generatedPath = path.join(songsDirectory, 'generated');
+  let generatedFiles = [];
+  try {
+    const generatedEntries = await readdir(generatedPath, { withFileTypes: true });
+    generatedFiles = generatedEntries
+      .filter((entry) => entry.isFile() && path.extname(entry.name).toLowerCase() === '.psg')
+      .map((entry) => path.join('generated', entry.name));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+  }
+
+  return [...rootFiles, ...generatedFiles].sort((left, right) => left.localeCompare(right));
+}
+
+function isSupportedSongFile(file) {
+  if (file === 'index.json') return false;
+  return ['.json', '.psg'].includes(path.extname(file).toLowerCase());
+}
+
+function getSongType(file) {
+  const extension = path.extname(file).toLowerCase();
+  if (extension === '.psg') return 'psg';
+  return 'json';
+}
+
+function slugFromFile(file) {
+  const extension = path.extname(file);
+  const base = file.slice(0, file.length - extension.length);
+  return base
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function metadataFromPSGFilename(file) {
+  const title = path.basename(file, path.extname(file)).replace(/[_]+/g, ' ').trim();
+  const separator = title.indexOf(' - ');
+  if (separator === -1) return { title };
+  return {
+    artist: title.slice(0, separator).trim(),
+    title: title.slice(separator + 3).trim(),
+  };
+}
