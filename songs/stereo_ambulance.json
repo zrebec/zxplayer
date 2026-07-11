@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "stereo": true,
+  "effect": "ambulance",
+  "id": "stereo_ambulance",
+  "title": "Sanitka (Doppler)",
+  "artist": "Fox",
+  "description": "Stojíš pri ceste. Sanitka sa blíži sprava (~4 s, len pravé ucho, tón silnie), preletí ponad hlavu s Dopplerom (pravé → stred/both → ľavé, výška klesá) a vzďaľuje sa doľava — tón slabne.",
+  "ambulance": {
+    "approachMs": 4000,
+    "passMs": 2800,
+    "recedeMs": 5200,
+    "panFrom": 1,
+    "panTo": -1,
+    "sirenHi": 760,
+    "sirenLo": 580,
+    "sirenStepMs": 560,
+    "dopplerApproach": 1.06,
+    "dopplerRecede": 0.9
+  }
+}

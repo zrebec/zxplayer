@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "id": "wilhelmus",
+  "title": "Wilhelmus",
+  "artist": "Traditional Dutch melody",
+  "description": "A compact AY interpretation of the public-domain Dutch national anthem. The stately melody is supported by widely spaced bass and ceremonial chord replies, with no noise.",
+  "ay": {
+    "pan": { "A": -0.45, "B": 0, "C": 0.45 }
+  },
+  "channels": {
+    "A": {
+      "label": "STATELY BASS",
+      "patterns": {
+        "bassG": {
+          "notes": "G2 r r r D3 r r r G2 r r r D3 r r r",
+          "options": { "dur": 350, "vol": 9 }
+        },
+        "bassC": {
+          "notes": "C2 r r r G2 r r r C3 r r r G2 r r r",
+          "options": { "dur": 350, "vol": 9 }
+        },
+        "bassD": {
+          "notes": "D2 r r r A2 r r r D3 r r r A2 r r r",
+          "options": { "dur": 350, "vol": 9 }
+        },
+        "bassEmD": {
+          "notes": "E2 r r r B2 r r r D2 r r r A2 r r r",
+          "options": { "dur": 350, "vol": 9 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "bassG" },
+        { "pattern": "bassC" },
+        { "pattern": "bassG" },
+        { "pattern": "bassD" },
+        { "pattern": "bassEmD" },
+        { "pattern": "bassG" }
+      ]
+    },
+    "B": {
+      "label": "ROYAL MELODY",
+      "patterns": {
+        "royal01": {
+          "notes": "D4 r G4 G4 A4 B4 C5 A4 B4 r A4 B4 C5 r B4 r",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        },
+        "royal02": {
+          "notes": "A4 G4 A4 r G4 r r r D4 r G4 G4 A4 B4 C5 A4",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        },
+        "royal03": {
+          "notes": "B4 r A4 B4 C5 r B4 r A4 G4 A4 r G4 r r r",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        },
+        "royal04": {
+          "notes": "B4 C5 D5 D5 E5 r D5 D5 C5 r B4 A4 B4 C5 B4 A4",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        },
+        "royal05": {
+          "notes": "G4 A4 r r D4 G4 F#4 G4 A4 B4 A4 r G4 F#4 D4 E4",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        },
+        "royal06": {
+          "notes": "F#4 G4 r G4 F#4 G4 r r r r r r r r r r",
+          "options": { "dur": 350, "envShape": 13, "envCycleDurMs": 25 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "royal01" },
+        { "pattern": "royal02" },
+        { "pattern": "royal03" },
+        { "pattern": "royal04" },
+        { "pattern": "royal05" },
+        { "pattern": "royal06" }
+      ]
+    },
+    "C": {
+      "label": "CEREMONIAL REPLY",
+      "patterns": {
+        "replyG": {
+          "options": { "dur": 350, "envShape": 0, "envCycleDurMs": 120 },
+          "events": [
+            { "note": "r", "dur": 700 },
+            { "note": "B3" },
+            { "note": "r", "dur": 2450 },
+            { "note": "D4" },
+            { "note": "r", "dur": 1750 }
+          ]
+        },
+        "replyC": {
+          "notes": "r r E4 r r r r r r r G3 r r r r r",
+          "options": { "dur": 350, "envShape": 0, "envCycleDurMs": 120 }
+        },
+        "replyD": {
+          "notes": "r r F#4 r r r r r r r A3 r r r r r",
+          "options": { "dur": 350, "envShape": 0, "envCycleDurMs": 120 }
+        },
+        "replyEmD": {
+          "notes": "r r G4 r r r r r r r F#4 r r r r r",
+          "options": { "dur": 350, "envShape": 0, "envCycleDurMs": 120 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "replyG" },
+        { "pattern": "replyC" },
+        { "pattern": "replyG" },
+        { "pattern": "replyD" },
+        { "pattern": "replyEmD" },
+        { "pattern": "replyG" }
+      ]
+    }
+  }
+}

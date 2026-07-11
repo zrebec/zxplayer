@@ -4,19 +4,81 @@
       "id": "four_tucs",
       "title": "4 tucs",
       "artist": "Fox",
-      "file": "four_tucs.json"
+      "file": "four_tucs.json",
+      "type": "json"
+    },
+    {
+      "id": "dnb_ears",
+      "title": "DnB Ears (L/R stab)",
+      "artist": "Fox",
+      "file": "dnb_ears.json",
+      "type": "json"
     },
     {
       "id": "chaosbunny_escape",
       "title": "Chaosbunny Escape",
       "artist": "Fox",
-      "file": "chaosbunny_escape.json"
+      "file": "chaosbunny_escape.json",
+      "type": "json"
+    },
+    {
+      "id": "generated_je_main_trigger5",
+      "title": "je main trigger5",
+      "file": "generated/je_main_trigger5.psg",
+      "type": "psg",
+      "machine": "melodik",
+      "loop": true
+    },
+    {
+      "id": "korobeiniki",
+      "title": "Korobeiniki (Tetris Theme A)",
+      "artist": "Traditional Russian folk song",
+      "file": "korobeiniki.json",
+      "type": "json"
+    },
+    {
+      "id": "nad_tatrou_sa_blyska",
+      "title": "Nad Tatrou sa blýska",
+      "artist": "Traditional Slovak melody",
+      "file": "nad_tatrou_sa_blyska.json",
+      "type": "json"
     },
     {
       "id": "ode_to_joy",
       "title": "Ode to Joy",
       "artist": "Ludwig van Beethoven",
-      "file": "ode_to_joy.json"
+      "file": "ode_to_joy.json",
+      "type": "json"
+    },
+    {
+      "id": "nq_rgbk_2026",
+      "title": "rgbk+ (2026)",
+      "artist": "nq",
+      "file": "nq - rgbk+ (2026).psg",
+      "type": "psg",
+      "machine": "melodik",
+      "loop": true
+    },
+    {
+      "id": "stereo_ambulance",
+      "title": "Sanitka (Doppler)",
+      "artist": "Fox",
+      "file": "stereo_ambulance.json",
+      "type": "json"
+    },
+    {
+      "id": "stereo_pingpong",
+      "title": "Stereo Ping-Pong (L / R)",
+      "artist": "Fox",
+      "file": "stereo_pingpong.json",
+      "type": "json"
+    },
+    {
+      "id": "wilhelmus",
+      "title": "Wilhelmus",
+      "artist": "Traditional Dutch melody",
+      "file": "wilhelmus.json",
+      "type": "json"
     }
   ]
 }

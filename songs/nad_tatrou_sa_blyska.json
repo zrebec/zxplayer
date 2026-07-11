@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "id": "nad_tatrou_sa_blyska",
+  "title": "Nad Tatrou sa blýska",
+  "artist": "Traditional Slovak melody",
+  "description": "A restrained two-stanza AY setting of the Slovak national anthem in G minor and 2/4. Four fully silent bars separate the stanzas, while the articulated melody, sparse bass, and chord tones use no noise.",
+  "channels": {
+    "A": {
+      "label": "CEREMONIAL BASS",
+      "patterns": {
+        "bassGm": {
+          "notes": "G2 G2 r r D3 D3 r r G2 G2 r r D3 D3 r r",
+          "options": { "dur": 200 }
+        },
+        "bassEbGm": {
+          "notes": "D#2 D#2 r r A#2 A#2 r r G2 G2 r r D3 D3 r r",
+          "options": { "dur": 200 }
+        },
+        "bassBb": {
+          "notes": "A#2 A#2 r r F3 F3 r r A#2 A#2 r r F3 F3 r r",
+          "options": { "dur": 200 }
+        },
+        "bassCmBb": {
+          "notes": "C2 C2 r r G2 G2 r r A#2 A#2 r r F3 F3 r r",
+          "options": { "dur": 200 }
+        },
+        "bassBbF": {
+          "notes": "A#2 A#2 r r F3 F3 r r F2 F2 r r C3 C3 r r",
+          "options": { "dur": 200 }
+        },
+        "bassCmGm": {
+          "notes": "C2 C2 r r G2 G2 r r G2 G2 r r D3 D3 r r",
+          "options": { "dur": 200 }
+        },
+        "fourBarRest": {
+          "notes": "r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r",
+          "options": { "dur": 200 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "bassGm" },
+        { "pattern": "bassEbGm" },
+        { "pattern": "bassBb" },
+        { "pattern": "bassCmBb" },
+        { "pattern": "bassBbF" },
+        { "pattern": "bassCmGm" },
+        { "pattern": "bassEbGm" },
+        { "pattern": "bassBbF" },
+        { "pattern": "bassCmGm" },
+        { "pattern": "bassEbGm" },
+        { "pattern": "fourBarRest" },
+        { "pattern": "bassGm" },
+        { "pattern": "bassEbGm" },
+        { "pattern": "bassBb" },
+        { "pattern": "bassCmBb" },
+        { "pattern": "bassBbF" },
+        { "pattern": "bassCmGm" },
+        { "pattern": "bassEbGm" },
+        { "pattern": "bassBbF" },
+        { "pattern": "bassCmGm" },
+        { "pattern": "bassEbGm" }
+      ]
+    },
+    "B": {
+      "label": "ANTHEM MELODY",
+      "patterns": {
+        "anthem01": {
+          "notes": "G4 r A4 r A#4 A#4 A#4 r A#4 A#4 A#4 r A#4 r A#4 r",
+          "options": { "dur": 200 }
+        },
+        "anthem02": {
+          "notes": "A4 r A#4 r C5 r A#4 r A4 A4 A4 r G4 G4 G4 r",
+          "options": { "dur": 200 }
+        },
+        "anthem03": {
+          "notes": "A#4 r C5 r D5 D5 D5 r D5 D5 D5 r D5 r D5 r",
+          "options": { "dur": 200 }
+        },
+        "anthem04": {
+          "notes": "C5 r D5 r D#5 r D5 r C5 C5 C5 r A#4 A#4 A#4 r",
+          "options": { "dur": 200 }
+        },
+        "anthem05": {
+          "notes": "D5 r D5 r D5 D5 D5 r C5 C5 C5 r C5 r C5 r",
+          "options": { "dur": 200 }
+        },
+        "anthem06": {
+          "notes": "C5 r D5 r C5 C5 C5 r A#4 A#4 A#4 r A#4 r A#4 r",
+          "options": { "dur": 200 }
+        },
+        "fourBarRest": {
+          "notes": "r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r",
+          "options": { "dur": 200 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "anthem01" },
+        { "pattern": "anthem02" },
+        { "pattern": "anthem03" },
+        { "pattern": "anthem04" },
+        { "pattern": "anthem05" },
+        { "pattern": "anthem06" },
+        { "pattern": "anthem02" },
+        { "pattern": "anthem05" },
+        { "pattern": "anthem06" },
+        { "pattern": "anthem02" },
+        { "pattern": "fourBarRest" },
+        { "pattern": "anthem01" },
+        { "pattern": "anthem02" },
+        { "pattern": "anthem03" },
+        { "pattern": "anthem04" },
+        { "pattern": "anthem05" },
+        { "pattern": "anthem06" },
+        { "pattern": "anthem02" },
+        { "pattern": "anthem05" },
+        { "pattern": "anthem06" },
+        { "pattern": "anthem02" }
+      ]
+    },
+    "C": {
+      "label": "BRASS ANSWERS",
+      "patterns": {
+        "answerGm": {
+          "notes": "r r r D4 r r r r r r r A#3 r r r r",
+          "options": { "dur": 200 }
+        },
+        "answerEbGm": {
+          "notes": "r r r G4 r r r r r r r A#3 r r r r",
+          "options": { "dur": 200 }
+        },
+        "answerBb": {
+          "notes": "r r r D4 r r r r r r r F4 r r r r",
+          "options": { "dur": 200 }
+        },
+        "answerCmBb": {
+          "notes": "r r r D#4 r r r r r r r D4 r r r r",
+          "options": { "dur": 200 }
+        },
+        "answerBbF": {
+          "notes": "r r r D4 r r r r r r r A3 r r r r",
+          "options": { "dur": 200 }
+        },
+        "answerCmGm": {
+          "notes": "r r r D#4 r r r r r r r D4 r r r r",
+          "options": { "dur": 200 }
+        },
+        "fourBarRest": {
+          "notes": "r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r r",
+          "options": { "dur": 200 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "answerGm" },
+        { "pattern": "answerEbGm" },
+        { "pattern": "answerBb" },
+        { "pattern": "answerCmBb" },
+        { "pattern": "answerBbF" },
+        { "pattern": "answerCmGm" },
+        { "pattern": "answerEbGm" },
+        { "pattern": "answerBbF" },
+        { "pattern": "answerCmGm" },
+        { "pattern": "answerEbGm" },
+        { "pattern": "fourBarRest" },
+        { "pattern": "answerGm" },
+        { "pattern": "answerEbGm" },
+        { "pattern": "answerBb" },
+        { "pattern": "answerCmBb" },
+        { "pattern": "answerBbF" },
+        { "pattern": "answerCmGm" },
+        { "pattern": "answerEbGm" },
+        { "pattern": "answerBbF" },
+        { "pattern": "answerCmGm" },
+        { "pattern": "answerEbGm" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "stereo": true,
+  "id": "stereo_pingpong",
+  "title": "Stereo Ping-Pong (L / R)",
+  "artist": "Fox",
+  "description": "Slepý stereo test: 2 s hrá IBA ľavé ucho (všetko ostatné ticho), loptička preletí nad hlavou doprava, 2 s hrá IBA pravé ucho, prelet späť. 3 cykly.",
+  "channels": {
+    "A": {
+      "label": "LEFT",
+      "patterns": {
+        "leftBips": {
+          "notes": "E5 r E5 r",
+          "options": { "dur": 500 },
+          "pan": -1
+        },
+        "holdRest": {
+          "notes": "r r r r",
+          "options": { "dur": 500 },
+          "pan": -1
+        },
+        "arcRest": {
+          "notes": "r",
+          "options": { "dur": 600 },
+          "pan": -1
+        }
+      },
+      "arrangement": [
+        { "pattern": "leftBips" },
+        { "pattern": "arcRest" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" },
+        { "pattern": "leftBips" },
+        { "pattern": "arcRest" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" },
+        { "pattern": "leftBips" },
+        { "pattern": "arcRest" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" }
+      ]
+    },
+    "B": {
+      "label": "ARC (over head)",
+      "patterns": {
+        "holdRest": {
+          "notes": "r r r r",
+          "options": { "dur": 500 },
+          "pan": 0
+        },
+        "arcLR": {
+          "notes": "A4",
+          "options": { "dur": 600 },
+          "sweep": { "from": -1, "to": 1 }
+        },
+        "arcRL": {
+          "notes": "A4",
+          "options": { "dur": 600 },
+          "sweep": { "from": 1, "to": -1 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "holdRest" },
+        { "pattern": "arcLR" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRL" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcLR" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRL" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcLR" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRL" }
+      ]
+    },
+    "C": {
+      "label": "RIGHT",
+      "patterns": {
+        "holdRest": {
+          "notes": "r r r r",
+          "options": { "dur": 500 },
+          "pan": 1
+        },
+        "arcRest": {
+          "notes": "r",
+          "options": { "dur": 600 },
+          "pan": 1
+        },
+        "rightBips": {
+          "notes": "E5 r E5 r",
+          "options": { "dur": 500 },
+          "pan": 1
+        }
+      },
+      "arrangement": [
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" },
+        { "pattern": "rightBips" },
+        { "pattern": "arcRest" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" },
+        { "pattern": "rightBips" },
+        { "pattern": "arcRest" },
+        { "pattern": "holdRest" },
+        { "pattern": "arcRest" },
+        { "pattern": "rightBips" },
+        { "pattern": "arcRest" }
+      ]
+    }
+  }
+}
