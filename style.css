@@ -243,6 +243,55 @@ body {
   font-weight: bold;
 }
 
+.channel__pan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.channel__pan-end {
+  font-size: 0.7rem;
+  font-weight: bold;
+  opacity: 0.7;
+}
+
+.channel__pan-track {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  border: 2px solid currentColor;
+  background: transparent;
+}
+
+.channel__pan-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  opacity: 0.3;
+  transform: translate(-50%, -50%);
+  transition: left 60ms linear;
+}
+
+.channel__pan-dot.is-active {
+  opacity: 1;
+}
+
+.channel__pan-label {
+  min-height: 1.1em;
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-weight: bold;
+  opacity: 0.5;
+}
+
+.channel__pan-label.is-active {
+  opacity: 1;
+}
+
 .monitor__progress {
   height: 12px;
   border-top: 2px solid #00cd00;

@@ -3,16 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "songs:convert": "node scripts/PT3PSGConverter.mjs",
     "songs:generate": "node scripts/generate-song-library.mjs",
     "songs:validate": "node scripts/validate-songs.mjs",
-    "build": "npm run songs:generate && npm run songs:validate",
+    "build": "npm run songs:convert && npm run songs:generate && npm run songs:validate",
     "archive": "npm run build && node scripts/archive-project.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "dev": "vite"
   },
   "devDependencies": {
-    "zx-kit": "^0.36.0",
+    "zx-kit": "^0.38.0",
     "prettier": "^3.8.4",
     "vite": "^8.1.3",
     "zip-lib": "1.4.0"

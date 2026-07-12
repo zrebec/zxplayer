@@ -29,6 +29,15 @@ function validateSong(song, file) {
   if (songIds.has(song.id)) fail(file, `duplicitné id „${song.id}"`);
   songIds.add(song.id);
   if (typeof song.title !== 'string' || !song.title) fail(file, 'chýba title');
+
+  // Efektové songy (napr. Dopplerovská sanitka) nemajú AY kanály — vlastný objekt stačí.
+  if (song.effect === 'ambulance') {
+    if (!song.ambulance || typeof song.ambulance !== 'object') {
+      fail(file, 'efekt „ambulance" potrebuje objekt ambulance');
+    }
+    return;
+  }
+
   validatePan(song.ay?.pan, file);
 
   for (const channel of AY_CHANNELS) {
@@ -118,6 +127,24 @@ function compilePattern(file, channel, name, definition) {
   const hasNotes = typeof definition.notes === 'string';
   const hasEvents = Array.isArray(definition.events);
   if (hasNotes === hasEvents) fail(location, 'zadaj práve jedno z notes alebo events');
+
+  // Pattern-level stereo: statický pan alebo sweep { from, to } pre songy so "stereo": true.
+  if (definition.pan !== undefined && (!Number.isFinite(definition.pan) || definition.pan < -1 || definition.pan > 1)) {
+    fail(location, 'pan musí byť číslo od -1 do 1');
+  }
+  if (definition.sweep !== undefined) {
+    const sweep = definition.sweep;
+    const sweepValid =
+      sweep &&
+      typeof sweep === 'object' &&
+      Number.isFinite(sweep.from) &&
+      sweep.from >= -1 &&
+      sweep.from <= 1 &&
+      Number.isFinite(sweep.to) &&
+      sweep.to >= -1 &&
+      sweep.to <= 1;
+    if (!sweepValid) fail(location, 'sweep musí byť objekt { from, to } s číslami od -1 do 1');
+  }
 
   const options = definition.options ?? {};
   validateOptions(options, `${location}, options`);

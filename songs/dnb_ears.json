@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "stereo": true,
+  "id": "dnb_ears",
+  "title": "DnB Ears (L/R stab)",
+  "artist": "Fox",
+  "description": "Drum & Bass: basa a bicie v strede, lead stáb skáče po bare ľavé↔pravé.",
+  "channels": {
+    "A": {
+      "label": "SUB BASS",
+      "patterns": {
+        "bass": {
+          "notes": "C2 r C2 r C2 r C2 r D#2 r C2 r F2 r C2 r",
+          "options": { "dur": 90 },
+          "pan": 0
+        }
+      },
+      "arrangement": [{ "pattern": "bass", "repeat": 8 }]
+    },
+    "B": {
+      "label": "DRUMS",
+      "patterns": {
+        "break": {
+          "notes": "C5 r C5 C5 D5 r C5 r C5 r C5 C5 D5 r C5 r",
+          "options": { "dur": 90, "noise": true, "noisePeriod": 16 },
+          "pan": 0
+        }
+      },
+      "arrangement": [{ "pattern": "break", "repeat": 8 }]
+    },
+    "C": {
+      "label": "STAB L/R",
+      "patterns": {
+        "stabL": {
+          "notes": "G4 r r r A#4 r r r G4 r D5 r r r r r",
+          "options": { "dur": 90 },
+          "pan": -1
+        },
+        "stabR": {
+          "notes": "D5 r r r C5 r r r A#4 r G4 r r r r r",
+          "options": { "dur": 90 },
+          "pan": 1
+        }
+      },
+      "arrangement": [
+        { "pattern": "stabL" },
+        { "pattern": "stabR" },
+        { "pattern": "stabL" },
+        { "pattern": "stabR" },
+        { "pattern": "stabL" },
+        { "pattern": "stabR" },
+        { "pattern": "stabL" },
+        { "pattern": "stabR" }
+      ]
+    }
+  }
+}
