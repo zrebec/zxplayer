@@ -10,62 +10,150 @@
       "patterns": {
         "bassAm": {
           "notes": "A2 A2 r r E3 E3 r r A2 A2 r r E3 E3 r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bassDm": {
           "notes": "D2 D2 r r A2 A2 r r D2 D2 r r A2 A2 r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bassE": {
           "notes": "E2 E2 r r B2 B2 r r E2 E2 r r B2 B2 r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bassEtoAm": {
           "notes": "E2 E2 r r B2 B2 r r A2 A2 r r E3 E3 r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         }
       },
       "arrangement": [
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassEtoAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassDm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassEtoAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassDm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassEtoAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassDm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassEtoAm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassDm" },
-        { "pattern": "bassAm" },
-        { "pattern": "bassE" },
-        { "pattern": "bassAm" }
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassEtoAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassDm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassEtoAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassDm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassEtoAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassDm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassEtoAm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassDm"
+        },
+        {
+          "pattern": "bassAm"
+        },
+        {
+          "pattern": "bassE"
+        },
+        {
+          "pattern": "bassAm"
+        }
       ]
     },
     "B": {
@@ -73,110 +161,222 @@
       "patterns": {
         "theme01": {
           "notes": "E5 E5 E5 r B4 r C5 r D5 D5 D5 r C5 r B4 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme02": {
           "notes": "A4 A4 A4 r A4 r C5 r E5 E5 E5 r D5 r C5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme03": {
           "notes": "B4 B4 B4 B4 B4 r C5 r D5 D5 D5 r E5 E5 E5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme04": {
           "notes": "C5 C5 C5 r A4 A4 A4 r A4 r A4 r B4 r C5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme05": {
           "notes": "D5 D5 D5 D5 D5 r F5 r A5 A5 A5 r G5 r F5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme06": {
           "notes": "E5 E5 E5 E5 E5 r C5 r E5 E5 E5 r D5 r C5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme07": {
           "notes": "B4 B4 B4 r B4 r C5 r D5 D5 D5 r E5 E5 E5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "theme08": {
           "notes": "C5 C5 C5 r A4 A4 A4 r A4 A4 A4 r r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge01": {
           "notes": "E5 E5 E5 E5 E5 E5 E5 r C5 C5 C5 C5 C5 C5 C5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge02": {
           "notes": "D5 D5 D5 D5 D5 D5 D5 r B4 B4 B4 B4 B4 B4 B4 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge03": {
           "notes": "C5 C5 C5 C5 C5 C5 C5 r A4 A4 A4 A4 A4 A4 A4 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge04": {
           "notes": "G#4 G#4 G#4 G#4 G#4 G#4 G#4 r B4 B4 B4 r r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge05": {
           "notes": "E5 E5 E5 E5 E5 E5 E5 r C5 C5 C5 C5 C5 C5 C5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge06": {
           "notes": "D5 D5 D5 D5 D5 D5 D5 r B4 B4 B4 B4 B4 B4 B4 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge07": {
           "notes": "C5 C5 C5 r E5 E5 E5 r A5 A5 A5 A5 A5 A5 A5 r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "bridge08": {
           "notes": "G#5 G#5 G#5 G#5 G#5 G#5 G#5 r r r r r r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         }
       },
       "arrangement": [
-        { "pattern": "theme01" },
-        { "pattern": "theme02" },
-        { "pattern": "theme03" },
-        { "pattern": "theme04" },
-        { "pattern": "theme05" },
-        { "pattern": "theme06" },
-        { "pattern": "theme07" },
-        { "pattern": "theme08" },
-        { "pattern": "theme01" },
-        { "pattern": "theme02" },
-        { "pattern": "theme03" },
-        { "pattern": "theme04" },
-        { "pattern": "theme05" },
-        { "pattern": "theme06" },
-        { "pattern": "theme07" },
-        { "pattern": "theme08" },
-        { "pattern": "bridge01" },
-        { "pattern": "bridge02" },
-        { "pattern": "bridge03" },
-        { "pattern": "bridge04" },
-        { "pattern": "bridge05" },
-        { "pattern": "bridge06" },
-        { "pattern": "bridge07" },
-        { "pattern": "bridge08" },
-        { "pattern": "theme01" },
-        { "pattern": "theme02" },
-        { "pattern": "theme03" },
-        { "pattern": "theme04" },
-        { "pattern": "theme05" },
-        { "pattern": "theme06" },
-        { "pattern": "theme07" },
-        { "pattern": "theme08" },
-        { "pattern": "theme01" },
-        { "pattern": "theme02" },
-        { "pattern": "theme03" },
-        { "pattern": "theme04" },
-        { "pattern": "theme05" },
-        { "pattern": "theme06" },
-        { "pattern": "theme07" },
-        { "pattern": "theme08" }
+        {
+          "pattern": "theme01"
+        },
+        {
+          "pattern": "theme02"
+        },
+        {
+          "pattern": "theme03"
+        },
+        {
+          "pattern": "theme04"
+        },
+        {
+          "pattern": "theme05"
+        },
+        {
+          "pattern": "theme06"
+        },
+        {
+          "pattern": "theme07"
+        },
+        {
+          "pattern": "theme08"
+        },
+        {
+          "pattern": "theme01"
+        },
+        {
+          "pattern": "theme02"
+        },
+        {
+          "pattern": "theme03"
+        },
+        {
+          "pattern": "theme04"
+        },
+        {
+          "pattern": "theme05"
+        },
+        {
+          "pattern": "theme06"
+        },
+        {
+          "pattern": "theme07"
+        },
+        {
+          "pattern": "theme08"
+        },
+        {
+          "pattern": "bridge01"
+        },
+        {
+          "pattern": "bridge02"
+        },
+        {
+          "pattern": "bridge03"
+        },
+        {
+          "pattern": "bridge04"
+        },
+        {
+          "pattern": "bridge05"
+        },
+        {
+          "pattern": "bridge06"
+        },
+        {
+          "pattern": "bridge07"
+        },
+        {
+          "pattern": "bridge08"
+        },
+        {
+          "pattern": "theme01"
+        },
+        {
+          "pattern": "theme02"
+        },
+        {
+          "pattern": "theme03"
+        },
+        {
+          "pattern": "theme04"
+        },
+        {
+          "pattern": "theme05"
+        },
+        {
+          "pattern": "theme06"
+        },
+        {
+          "pattern": "theme07"
+        },
+        {
+          "pattern": "theme08"
+        },
+        {
+          "pattern": "theme01"
+        },
+        {
+          "pattern": "theme02"
+        },
+        {
+          "pattern": "theme03"
+        },
+        {
+          "pattern": "theme04"
+        },
+        {
+          "pattern": "theme05"
+        },
+        {
+          "pattern": "theme06"
+        },
+        {
+          "pattern": "theme07"
+        },
+        {
+          "pattern": "theme08"
+        }
       ]
     },
     "C": {
@@ -184,63 +384,177 @@
       "patterns": {
         "chordAm": {
           "notes": "r r r E4 r r r r r r r C4 r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "chordDm": {
           "notes": "r r r A3 r r r r r r r F4 r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "chordE": {
           "notes": "r r r B3 r r r r r r r G#4 r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         },
         "chordEtoAm": {
           "notes": "r r r B3 r r r r r r r C4 r r r r",
-          "options": { "dur": 105 }
+          "options": {
+            "dur": 105
+          }
         }
       },
       "arrangement": [
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordEtoAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordDm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordEtoAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordDm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordEtoAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordDm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordEtoAm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordDm" },
-        { "pattern": "chordAm" },
-        { "pattern": "chordE" },
-        { "pattern": "chordAm" }
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordEtoAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordDm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordEtoAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordDm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordEtoAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordDm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordEtoAm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordDm"
+        },
+        {
+          "pattern": "chordAm"
+        },
+        {
+          "pattern": "chordE"
+        },
+        {
+          "pattern": "chordAm"
+        }
       ]
     }
+  },
+  "beeper": {
+    "label": "OFFBEAT TICKS",
+    "pan": -0.2,
+    "patterns": {
+      "offbeat": {
+        "notes": "r:210 E6:25 r:185 r:210 E6:25 r:185 r:210 E6:25 r:185 r:210 E6:25 r:185"
+      },
+      "quiet": {
+        "notes": "r:1680"
+      }
+    },
+    "arrangement": [
+      {
+        "pattern": "offbeat",
+        "repeat": 16
+      },
+      {
+        "pattern": "quiet",
+        "repeat": 8
+      },
+      {
+        "pattern": "offbeat",
+        "repeat": 16
+      }
+    ]
   }
 }

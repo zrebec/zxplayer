@@ -10,26 +10,46 @@
       "patterns": {
         "bassSilence": {
           "notes": "r r r r r r r r",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "bassDeep": {
           "notes": "C2 r C2 C2 r C2 r C2",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "bassDrive": {
           "notes": "C2 C2 D#2 C2 F2 C2 D#2 C2",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "bassPanic": {
           "notes": "G2 G2 A#2 G2 C3 G2 A#2 G2",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         }
       },
       "arrangement": [
-        { "pattern": "bassSilence", "repeat": 4 },
-        { "pattern": "bassDeep", "repeat": 8 },
-        { "pattern": "bassDrive", "repeat": 8 },
-        { "pattern": "bassPanic", "repeat": 12 }
+        {
+          "pattern": "bassSilence",
+          "repeat": 4
+        },
+        {
+          "pattern": "bassDeep",
+          "repeat": 8
+        },
+        {
+          "pattern": "bassDrive",
+          "repeat": 8
+        },
+        {
+          "pattern": "bassPanic",
+          "repeat": 12
+        }
       ]
     },
     "B": {
@@ -37,26 +57,46 @@
       "patterns": {
         "arpSilence": {
           "notes": "r r r r r r r r",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "arpEcho": {
           "notes": "C4 G4 C5 G4 C4 G4 C5 G4",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "arpClimb": {
           "notes": "C4 D#4 G4 C5 G4 D#4 C4 G3",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "leadMelody": {
           "notes": "C5:440 r:440 G5:440 r:440",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         }
       },
       "arrangement": [
-        { "pattern": "arpEcho", "repeat": 4 },
-        { "pattern": "arpSilence", "repeat": 8 },
-        { "pattern": "arpClimb", "repeat": 8 },
-        { "pattern": "leadMelody", "repeat": 3 }
+        {
+          "pattern": "arpEcho",
+          "repeat": 4
+        },
+        {
+          "pattern": "arpSilence",
+          "repeat": 8
+        },
+        {
+          "pattern": "arpClimb",
+          "repeat": 8
+        },
+        {
+          "pattern": "leadMelody",
+          "repeat": 3
+        }
       ]
     },
     "C": {
@@ -64,23 +104,74 @@
       "patterns": {
         "drumSilence": {
           "notes": "r r r r r r r r",
-          "options": { "dur": 110 }
+          "options": {
+            "dur": 110
+          }
         },
         "drumBuild": {
           "notes": "r A2 r A2 r A2 r A2",
-          "options": { "dur": 110, "noise": true, "noisePeriod": 31 }
+          "options": {
+            "dur": 110,
+            "noise": true,
+            "noisePeriod": 31
+          }
         },
         "drumFull": {
           "notes": "C2 C2 C2 C2 C2 C2 C2 C2",
-          "options": { "dur": 110, "noise": true, "noisePeriod": 31 }
+          "options": {
+            "dur": 110,
+            "noise": true,
+            "noisePeriod": 31
+          }
         }
       },
       "arrangement": [
-        { "pattern": "drumSilence", "repeat": 4 },
-        { "pattern": "drumBuild", "repeat": 8 },
-        { "pattern": "drumBuild", "repeat": 8 },
-        { "pattern": "drumFull", "repeat": 12 }
+        {
+          "pattern": "drumSilence",
+          "repeat": 4
+        },
+        {
+          "pattern": "drumBuild",
+          "repeat": 8
+        },
+        {
+          "pattern": "drumBuild",
+          "repeat": 8
+        },
+        {
+          "pattern": "drumFull",
+          "repeat": 12
+        }
       ]
     }
+  },
+  "beeper": {
+    "label": "ESCAPE TICKS",
+    "pan": 0.25,
+    "patterns": {
+      "quiet": {
+        "notes": "r:880"
+      },
+      "tickHalf": {
+        "notes": "r:220 C6:30 r:630"
+      },
+      "tickPanic": {
+        "notes": "r:110 C6:30 r:190 G6:30 r:190 C6:30 r:300"
+      }
+    },
+    "arrangement": [
+      {
+        "pattern": "quiet",
+        "repeat": 12
+      },
+      {
+        "pattern": "tickHalf",
+        "repeat": 8
+      },
+      {
+        "pattern": "tickPanic",
+        "repeat": 12
+      }
+    ]
   }
 }

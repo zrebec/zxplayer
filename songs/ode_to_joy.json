@@ -10,30 +10,62 @@
       "patterns": {
         "bassC": {
           "notes": "C2 r G2 r C2 r G2 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "bassF": {
           "notes": "F2 r C3 r F2 r C3 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "bassG": {
           "notes": "G2 r D3 r G2 r D3 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "bassAm": {
           "notes": "A2 r E3 r A2 r E3 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         }
       },
       "arrangement": [
-        { "pattern": "bassC", "repeat": 1 },
-        { "pattern": "bassC", "repeat": 1 },
-        { "pattern": "bassC", "repeat": 1 },
-        { "pattern": "bassC", "repeat": 1 },
-        { "pattern": "bassG", "repeat": 1 },
-        { "pattern": "bassF", "repeat": 1 },
-        { "pattern": "bassG", "repeat": 1 },
-        { "pattern": "bassC", "repeat": 1 }
+        {
+          "pattern": "bassC",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassC",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassC",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassC",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassG",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassF",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassG",
+          "repeat": 1
+        },
+        {
+          "pattern": "bassC",
+          "repeat": 1
+        }
       ]
     },
     "B": {
@@ -41,42 +73,80 @@
       "patterns": {
         "joyPhrase01": {
           "notes": "E4 E4 F4 G4 G4 F4 E4 D4",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyPhrase02": {
           "notes": "C4 C4 D4 E4 E4 D4 D4 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyPhrase03": {
           "notes": "C4 C4 D4 E4 D4 C4 C4 r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyBridge01": {
           "notes": "D4 D4 E4 C4 D4 E4 F4 E4",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyBridge02": {
           "notes": "C4 D4 E4 F4 E4 D4 C4 D4",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyFinal": {
           "notes": "G3 D4 E4 E4 F4 G4 G4 F4",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         },
         "joyResolve": {
           "notes": "E4 D4 C4 C4 r r r r",
-          "options": { "dur": 280 }
+          "options": {
+            "dur": 280
+          }
         }
       },
       "arrangement": [
-        { "pattern": "joyPhrase01", "repeat": 1 },
-        { "pattern": "joyPhrase02", "repeat": 1 },
-        { "pattern": "joyPhrase01", "repeat": 1 },
-        { "pattern": "joyPhrase03", "repeat": 1 },
-        { "pattern": "joyBridge01", "repeat": 1 },
-        { "pattern": "joyBridge02", "repeat": 1 },
-        { "pattern": "joyFinal", "repeat": 1 },
-        { "pattern": "joyResolve", "repeat": 1 }
+        {
+          "pattern": "joyPhrase01",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyPhrase02",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyPhrase01",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyPhrase03",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyBridge01",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyBridge02",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyFinal",
+          "repeat": 1
+        },
+        {
+          "pattern": "joyResolve",
+          "repeat": 1
+        }
       ]
     },
     "C": {
@@ -84,22 +154,96 @@
       "patterns": {
         "pulseSoft": {
           "notes": "C3 G2 C3 G2 C3 G2 C3 G2",
-          "options": { "dur": 280, "noise": true, "noisePeriod": 31 }
+          "options": {
+            "dur": 280,
+            "noise": true,
+            "noisePeriod": 31
+          }
         },
         "pulseMarch": {
           "notes": "C3 C3 G2 C3 C3 C3 G2 C3",
-          "options": { "dur": 280, "noise": true, "noisePeriod": 31 }
+          "options": {
+            "dur": 280,
+            "noise": true,
+            "noisePeriod": 31
+          }
         },
         "pulseFinal": {
           "notes": "C3 G2 C3 G2 C3 G2 C3 C3",
-          "options": { "dur": 280, "noise": true, "noisePeriod": 31 }
+          "options": {
+            "dur": 280,
+            "noise": true,
+            "noisePeriod": 31
+          }
         }
       },
       "arrangement": [
-        { "pattern": "pulseSoft", "repeat": 2 },
-        { "pattern": "pulseMarch", "repeat": 4 },
-        { "pattern": "pulseFinal", "repeat": 2 }
+        {
+          "pattern": "pulseSoft",
+          "repeat": 2
+        },
+        {
+          "pattern": "pulseMarch",
+          "repeat": 4
+        },
+        {
+          "pattern": "pulseFinal",
+          "repeat": 2
+        }
       ]
     }
+  },
+  "beeper": {
+    "label": "PHRASE PEAKS",
+    "pan": 0.15,
+    "patterns": {
+      "peakPhrase01": {
+        "notes": "r:840 G5:60 r:1340"
+      },
+      "peakPhrase02": {
+        "notes": "r:840 E5:60 r:1340"
+      },
+      "peakPhrase03": {
+        "notes": "r:840 E5:60 r:1340"
+      },
+      "peakBridge01": {
+        "notes": "r:1680 F5:60 r:500"
+      },
+      "peakBridge02": {
+        "notes": "r:840 F5:60 r:1340"
+      },
+      "peakFinal": {
+        "notes": "r:1400 G5:60 r:780"
+      },
+      "peakResolve": {
+        "notes": "E5:60 r:2180"
+      }
+    },
+    "arrangement": [
+      {
+        "pattern": "peakPhrase01"
+      },
+      {
+        "pattern": "peakPhrase02"
+      },
+      {
+        "pattern": "peakPhrase01"
+      },
+      {
+        "pattern": "peakPhrase03"
+      },
+      {
+        "pattern": "peakBridge01"
+      },
+      {
+        "pattern": "peakBridge02"
+      },
+      {
+        "pattern": "peakFinal"
+      },
+      {
+        "pattern": "peakResolve"
+      }
+    ]
   }
 }

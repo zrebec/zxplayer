@@ -8,28 +8,65 @@
       "patterns": {
         "tucs": {
           "notes": "A0 r B0 r A0 r B0 r r r r",
-          "options": { "dur": 180, "noise": true }
+          "options": {
+            "dur": 180,
+            "noise": true
+          }
         }
       },
-      "arrangement": [{ "pattern": "tucs", "repeat": 3 }]
+      "arrangement": [
+        {
+          "pattern": "tucs",
+          "repeat": 3
+        }
+      ]
     },
     "B": {
       "patterns": {
         "silent": {
           "notes": "r r r r r r r r",
-          "options": { "dur": 180 }
+          "options": {
+            "dur": 180
+          }
         }
       },
-      "arrangement": [{ "pattern": "silent", "repeat": 1 }]
+      "arrangement": [
+        {
+          "pattern": "silent",
+          "repeat": 1
+        }
+      ]
     },
     "C": {
       "patterns": {
         "silent": {
           "notes": "r r r r r r r r",
-          "options": { "dur": 180 }
+          "options": {
+            "dur": 180
+          }
         }
       },
-      "arrangement": [{ "pattern": "silent", "repeat": 1 }]
+      "arrangement": [
+        {
+          "pattern": "silent",
+          "repeat": 1
+        }
+      ]
     }
+  },
+  "beeper": {
+    "label": "TUCS MIRROR",
+    "pan": 0,
+    "patterns": {
+      "tucsHigh": {
+        "notes": "A4:40 r:140 B4:40 r:140 A4:40 r:140 B4:40 r:140 r:180 r:180 r:180"
+      }
+    },
+    "arrangement": [
+      {
+        "pattern": "tucsHigh",
+        "repeat": 3
+      }
+    ]
   }
 }
