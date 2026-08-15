@@ -9,7 +9,7 @@ import {
   playAY,
   playAYDump,
   seq,
-} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.38.0/dist/index.js';
+} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
 
 const AY_CHANNELS = ['A', 'B', 'C'];
 const BEEPER_CHANNEL = 'BEEPER';

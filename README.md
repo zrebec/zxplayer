@@ -348,7 +348,7 @@ The frontend is intentionally simple: static HTML, CSS, and ES modules. The play
 `zx-kit` is currently imported from:
 
 ```text
-https://cdn.jsdelivr.net/npm/zx-kit@0.38.0/dist/index.js
+https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js
 ```
 
 Update that version only after validating the player with the target release.
