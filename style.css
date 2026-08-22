@@ -132,6 +132,58 @@ body {
   cursor: not-allowed;
 }
 
+.stereo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.stereo-bar__label {
+  color: #00cdcd;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.stereo-bar__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.stereo-bar__btn {
+  padding: 6px 12px;
+  border: 2px solid #00cd00;
+  border-radius: 0;
+  background: #000000;
+  color: #00cd00;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.12s linear,
+    color 0.12s linear,
+    border-color 0.12s linear;
+}
+
+.stereo-bar__btn:hover:not(.is-active),
+.stereo-bar__btn:focus-visible {
+  outline: none;
+  background: #00cd00;
+  color: #000000;
+}
+
+.stereo-bar__btn.is-active {
+  border-color: #ffff00;
+  background: #ffff00;
+  color: #000000;
+}
+
 .app__status {
   min-height: 2.8em;
   margin: 0 0 22px;
@@ -183,7 +235,8 @@ body {
   transition:
     background-color 70ms linear,
     color 70ms linear,
-    box-shadow 70ms linear;
+    box-shadow 70ms linear,
+    opacity 120ms linear;
 }
 
 .monitor__channel--a {
@@ -202,6 +255,20 @@ body {
   --channel-color: #cd0000;
 }
 
+.monitor__channel.is-muted {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.monitor__channel.is-suppressed {
+  opacity: 0.35;
+}
+
+.monitor__channel.is-unavailable {
+  opacity: 0.28;
+  border-style: dotted;
+}
+
 .monitor__channel.is-playing {
   background: var(--channel-color);
   color: #000000;
@@ -209,6 +276,14 @@ body {
     0 0 0 3px #000000,
     0 0 0 6px var(--channel-color);
   animation: channel-flash 110ms steps(2, end) infinite;
+}
+
+.channel__head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .channel__head,
@@ -219,9 +294,51 @@ body {
 }
 
 .channel__head {
-  margin-bottom: 16px;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: bold;
+}
+
+.channel__toggles {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.channel__btn {
+  padding: 3px 7px;
+  border: 2px solid currentColor;
+  border-radius: 0;
+  background: #000000;
+  color: currentColor;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition:
+    background-color 0.1s linear,
+    color 0.1s linear,
+    border-color 0.1s linear;
+}
+
+.channel__btn:hover:not(:disabled) {
+  background: currentColor;
+  color: #000000;
+}
+
+.channel__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.channel__btn--mute.is-active {
+  border-color: #eb0000;
+  background: #eb0000;
+  color: #000000;
+}
+
+.channel__btn--solo.is-active {
+  border-color: #ffff00;
+  background: #ffff00;
+  color: #000000;
 }
 
 .channel__label {

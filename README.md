@@ -2,18 +2,20 @@
 
 A lightweight, data-driven browser player for three-channel AY music with an optional, independent ZX beeper track, written with [`zx-kit`](https://www.npmjs.com/package/zx-kit).
 
-Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs build three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, and may declare a separate one-bit beeper track that plays in parallel as a "fake" fourth voice without changing the AY emulation. PSG songs use `zx-kit` `aydump` playback for raw AY chip register streams.
+Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs build three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, and may declare a separate one-bit beeper track that plays in parallel as a "fake" fourth voice without changing the AY emulation. PSG songs use a channelised AudioWorklet based on the `zx-kit` `aydump` core for raw AY chip register streams.
 
 ![ZX-KIT Player screenshot](assets/screenshot.png)
 
 ## Features
 
 - One JSON file per song in `songs/`.
-- PSG register-dump playback through `zx-kit` `loadPSG()` / `playAYDump()`.
+- PSG register-dump playback through `zx-kit` `loadPSG()` and a channelised `aydump` AudioWorklet.
 - PT3 files are listed as source material and must be converted offline to PSG before playback.
 - Automatically generated song catalogue for the dropdown menu.
 - Separate **Play** and **Stop** controls.
 - Live monitor for AY channels A/B/C and the optional beeper track.
+- Per-channel **MUTE** and exclusive **SOLO** controls for JSON, PSG, and ambulance playback.
+- Runtime MONO, ACB, and ABC stereo selection.
 - Full `zx-kit` AY notes: per-note duration, amplitude, noise period, hardware envelope shape, and envelope cycle.
 - Optional per-channel stereo pan.
 - Optional pattern/arrangement-driven beeper track using `zx-kit`'s independent `beep()` path.
@@ -61,6 +63,7 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 | ------------------------ | ------------------------------------------------------------------------------ |
 | `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                           |
 | `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.              |
+| `npm test`               | Runs the mixer, Beeper timeline, ambulance phase, and PSG isolation tests.     |
 | `npm run build`          | Regenerates the catalogue and validates every song.                            |
 | `npm run format`         | Formats the project with Prettier.                                             |
 | `npm run format:check`   | Checks whether the project already matches the configured Prettier style.      |
@@ -74,9 +77,14 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 │   └── screenshot.png
 ├── scripts/
 │   ├── archive-project.mjs
+│   ├── ambulance-phases.js
+│   ├── beeper-timeline.js
+│   ├── channel-mixer.js
 │   ├── generate-song-library.mjs
+│   ├── psg-channel-player.js
 │   ├── validate-songs.mjs
 │   └── player.js
+├── tests/
 ├── songs/
 │   ├── _new_song.json.example
 │   ├── chaosbunny_escape.json
@@ -242,7 +250,7 @@ Event values override pattern defaults. `note` and `freq` are mutually exclusive
 
 Short hits should be followed by an explicit rest so their duration and rhythmic spacing remain independent. AY-only fields such as `vol`, `noise`, and `envShape` are rejected in beeper options.
 
-The player schedules one upcoming beeper event at a time. Pressing **Stop** cancels all future beeper events; a short hit that is already sounding finishes naturally. AY playback is stopped independently through its `AYHandle`.
+The player schedules one upcoming beeper event at a time. Pressing **Stop** cancels future and currently sounding beeper events. AY playback is stopped independently through its playback handle.
 
 ## Live Audio Monitor
 
@@ -256,6 +264,10 @@ While a song is playing, each channel card shows:
 - a flashing active state when that channel is producing tone or noise.
 
 The monitor is derived from the same generated pattern timeline used for playback. It is not an audio analyser, so its labels stay deterministic and directly map back to the JSON arrangement. Songs without a `beeper` section show the fourth card as `UNUSED`.
+
+Each available card has **MUTE** and **SOLO** buttons. SOLO is exclusive: selecting one channel temporarily suppresses every other available channel, including the independent beeper. Selecting the same SOLO again restores the stored MUTE states. Pressing MUTE on the current solo channel exits SOLO and leaves that channel muted. Unavailable channels, such as Beeper in a three-channel song, have disabled controls.
+
+Keyboard shortcuts use `1`–`4` for MUTE and `Shift+1`–`Shift+4` for SOLO (A, B, C, Beeper). `S` cycles the stereo mode and `Space` starts or stops playback.
 
 ## Creating a Source Archive
 
@@ -313,6 +325,7 @@ Before a normal commit, use:
 
 ```bash
 npm run format:check
+npm test
 npm run build
 git status
 ```

@@ -6,6 +6,7 @@
     "songs:convert": "node scripts/PT3PSGConverter.mjs",
     "songs:generate": "node scripts/generate-song-library.mjs",
     "songs:validate": "node scripts/validate-songs.mjs",
+    "test": "node --test tests/*.test.mjs",
     "build": "npm run songs:convert && npm run songs:generate && npm run songs:validate",
     "archive": "npm run build && node scripts/archive-project.mjs",
     "format": "prettier --write .",

@@ -1,30 +1,36 @@
 import {
   AY_ENVELOPE_SHAPES,
   AY_MACHINE,
+  AY_VOL,
   beep,
   getAudioContext,
+  getMasterGain,
   initAudio,
   loadPSG,
   noteToFreq,
-  playAY,
-  playAYDump,
   seq,
+  stopBeep,
 } from 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
+
+import { CHANNELS as MONITOR_CHANNELS, createChannelMixer } from './channel-mixer.js';
+import { createAmbulancePhasePlan, scheduleAmbulancePhase } from './ambulance-phases.js';
+import { createBeeperTimeline, getActiveBeeperEvent } from './beeper-timeline.js';
+import { playChannelizedPSG } from './psg-channel-player.js';
 
 const AY_CHANNELS = ['A', 'B', 'C'];
 const BEEPER_CHANNEL = 'BEEPER';
-const MONITOR_CHANNELS = [...AY_CHANNELS, BEEPER_CHANNEL];
 const SUPPORTED_SCHEMA_VERSION = 1;
 const AY_NOTE_OPTION_KEYS = ['vol', 'noise', 'noisePeriod', 'envShape', 'envCycleDurMs'];
-const AMB_ZONE_LABEL = { A: 'ĽAVÉ', B: 'STRED (both)', C: 'PRAVÉ' };
+const AMB_PHASE_LABEL = { A: 'PRIBLIŽOVANIE', B: 'PRELET', C: 'VZĎAĽOVANIE' };
+const AUDIO_START_DELAY_MS = 60;
 const PSG_FORMAT = 'psg';
 const PT3_FORMAT = 'pt3';
 const JSON_FORMAT = 'json';
 const PSG_DEFAULT_MACHINE = 'melodik';
 const PSG_PAN_BY_STEREO = {
   mono: { A: 0, B: 0, C: 0 },
-  abc: { A: -1, B: 0, C: 1 },
-  acb: { A: -1, B: 1, C: 0 },
+  abc: { A: -0.75, B: 0, C: 0.75 },
+  acb: { A: -0.75, B: 0.75, C: 0 },
 };
 const CHANNEL_INDEX = { A: 0, B: 1, C: 2 };
 const songSelect = document.getElementById('songSelect');
@@ -35,11 +41,37 @@ const songTitle = document.getElementById('songTitle');
 const songMeta = document.getElementById('songMeta');
 const monitorTime = document.getElementById('monitorTime');
 const monitorProgress = document.getElementById('monitorProgress');
+const stereoMonoBtn = document.getElementById('stereoMonoBtn');
+const stereoAcbBtn = document.getElementById('stereoAcbBtn');
+const stereoAbcBtn = document.getElementById('stereoAbcBtn');
+
+const channelMixer = createChannelMixer({
+  availability: Object.fromEntries(MONITOR_CHANNELS.map((channel) => [channel, false])),
+});
+
+const activeChannelGains = {
+  A: null,
+  B: null,
+  C: null,
+  BEEPER: null,
+};
+
+const activeChannelPanners = {
+  A: null,
+  B: null,
+  C: null,
+  BEEPER: null,
+};
+
+let currentStereoMode = 'acb';
 
 const channelViews = Object.fromEntries(
   MONITOR_CHANNELS.map((channel) => [
     channel,
-    createChannelView(document.getElementById(channel === BEEPER_CHANNEL ? 'channelBeeper' : `channel${channel}`)),
+    createChannelView(
+      document.getElementById(channel === BEEPER_CHANNEL ? 'channelBeeper' : `channel${channel}`),
+      channel,
+    ),
   ]),
 );
 
@@ -50,8 +82,14 @@ let activeBeeperHandle = null;
 let animationFrameId = 0;
 let completionTimerId = 0;
 let playbackId = 0;
+let playbackPending = null;
+let pendingPSGSetup = null;
 let audioCtx = null;
 const psgCache = new Map();
+
+stereoMonoBtn?.addEventListener('click', () => setStereoMode('mono'));
+stereoAcbBtn?.addEventListener('click', () => setStereoMode('acb'));
+stereoAbcBtn?.addEventListener('click', () => setStereoMode('abc'));
 
 songSelect.addEventListener('change', async () => {
   stopCurrentPlayback({ resetMonitor: true });
@@ -64,7 +102,7 @@ playBtn.addEventListener('click', () => {
 });
 
 stopBtn.addEventListener('click', () => {
-  if (!activeHandle) return;
+  if (!activeHandle && !playbackPending) return;
   stopCurrentPlayback({ resetMonitor: true });
   status.textContent = 'Prehrávanie bolo zastavené.';
 });
@@ -126,6 +164,7 @@ async function selectSong(songId) {
   if (!descriptor) return;
 
   selectedSong = null;
+  setAvailableChannels([]);
   playBtn.disabled = true;
   status.textContent = `Načítavam: ${descriptor.title}…`;
   const format = getDescriptorFormat(descriptor);
@@ -133,6 +172,7 @@ async function selectSong(songId) {
   try {
     if (format === PSG_FORMAT) {
       selectedSong = normaliseBinarySong(descriptor, PSG_FORMAT);
+      setAvailableChannels(AY_CHANNELS);
       songTitle.textContent = selectedSong.title.toUpperCase();
       songMeta.textContent = describeSong(selectedSong);
       updateChannelLabels(selectedSong);
@@ -144,6 +184,7 @@ async function selectSong(songId) {
 
     if (format === PT3_FORMAT) {
       const pt3Song = normaliseBinarySong(descriptor, PT3_FORMAT);
+      setAvailableChannels([]);
       songTitle.textContent = pt3Song.title.toUpperCase();
       songMeta.textContent = describeSong(pt3Song);
       updateChannelLabels(pt3Song);
@@ -160,6 +201,7 @@ async function selectSong(songId) {
     validateSong(song);
     buildSong(song);
     selectedSong = song;
+    setAvailableChannels(song.beeper ? MONITOR_CHANNELS : AY_CHANNELS);
     songTitle.textContent = song.title.toUpperCase();
     songMeta.textContent = describeSong(song);
     updateChannelLabels(song);
@@ -169,6 +211,7 @@ async function selectSong(songId) {
       : 'Pripravené. PLAY odomkne AudioContext a spustí všetky tri AY kanály.';
     playBtn.disabled = false;
   } catch (error) {
+    setAvailableChannels([]);
     songTitle.textContent = 'CHYBNÝ SONG JSON';
     songMeta.textContent = descriptor.file;
     status.textContent = `Skladbu sa nepodarilo pripraviť: ${error.message}`;
@@ -176,95 +219,130 @@ async function selectSong(songId) {
 }
 
 async function startPlayback(song) {
+  if (playbackPending) return;
+  const pendingToken = Symbol('playback');
+  playbackPending = pendingToken;
+
   // Toto zostáva synchronné vo vnútri click handlera. Je to dôležité pre autoplay pravidlá prehliadača.
-  stopCurrentPlayback({ resetMonitor: false });
-
-  const currentPlaybackId = ++playbackId;
-  const startedAt = performance.now();
-
-  if (song.format === PSG_FORMAT) {
+  let currentPlaybackId = 0;
+  try {
     initAudio();
-    await startPSGPlayback(song, startedAt, currentPlaybackId);
-    return;
-  }
+    audioCtx = getAudioContext();
+    if (!audioCtx) throw new Error('AudioContext sa nepodarilo inicializovať.');
+    if (audioCtx.state === 'suspended') void audioCtx.resume();
 
-  if (song.effect === 'ambulance') {
-    const amb = normaliseAmbulance(song.ambulance);
-    const totalDurationMs = ambulanceTotalMs(amb);
-    activeHandle = playAmbulance(amb);
+    stopCurrentPlayback({ resetMonitor: false });
+    playbackPending = pendingToken;
+    currentPlaybackId = ++playbackId;
+    if (song.format === PSG_FORMAT) {
+      await startPSGPlayback(song, currentPlaybackId);
+      return;
+    }
+
+    if (song.effect === 'ambulance') {
+      const amb = normaliseAmbulance(song.ambulance);
+      const phasePlan = createAmbulancePhasePlan(amb);
+      const totalDurationMs = phasePlan.totalMs;
+      const startedAt = performance.now() + AUDIO_START_DELAY_MS;
+      activeHandle = playAmbulance(amb, phasePlan);
+      applyChannelStates();
+      playBtn.disabled = true;
+      stopBtn.disabled = false;
+      status.textContent = `Prehrávam „${song.title}" — ${formatTime(totalDurationMs)}.`;
+      renderAmbulanceMonitor(startedAt, amb, phasePlan, currentPlaybackId);
+      completionTimerId = globalThis.setTimeout(
+        () => {
+          if (currentPlaybackId !== playbackId) return;
+          finishPlayback(totalDurationMs);
+        },
+        AUDIO_START_DELAY_MS + totalDurationMs + 80,
+      );
+      return;
+    }
+
+    const { tracks, timelines, totalDurationMs } = buildSong(song);
+    const startedAt = performance.now() + AUDIO_START_DELAY_MS;
+    activeHandle = playAYStereo(timelines, song);
+    activeBeeperHandle = startBeeperTrack(tracks.BEEPER, song.beeper?.pan ?? 0, startedAt);
+    applyChannelStates();
+
     playBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = `Prehrávam „${song.title}" — ${formatTime(totalDurationMs)}.`;
-    renderAmbulanceMonitor(startedAt, amb, totalDurationMs, currentPlaybackId);
-    completionTimerId = globalThis.setTimeout(() => {
-      if (currentPlaybackId !== playbackId) return;
-      finishPlayback(totalDurationMs);
-    }, totalDurationMs + 80);
-    return;
+    status.textContent = `Prehrávam „${song.title}" [${currentStereoMode.toUpperCase()}] — ${formatTime(totalDurationMs)}.`;
+    renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId, song);
+
+    completionTimerId = globalThis.setTimeout(
+      () => {
+        if (currentPlaybackId !== playbackId) return;
+        finishPlayback(totalDurationMs);
+      },
+      AUDIO_START_DELAY_MS + totalDurationMs + 80,
+    );
+  } catch (error) {
+    if (currentPlaybackId === 0 || currentPlaybackId === playbackId) {
+      stopCurrentPlayback({ resetMonitor: false });
+      status.textContent = `Prehrávanie sa nepodarilo spustiť: ${error.message}`;
+    }
+  } finally {
+    if (playbackPending === pendingToken) playbackPending = null;
   }
-
-  const { tracks, timelines, totalDurationMs } = buildSong(song);
-  activeHandle = song.stereo
-    ? playAYStereo(timelines)
-    : playAY({ a: tracks.A, b: tracks.B, c: tracks.C, pan: getAYPan(song) });
-  activeBeeperHandle = startBeeperTrack(tracks.BEEPER, song.beeper?.pan ?? 0, startedAt);
-
-  playBtn.disabled = true;
-  stopBtn.disabled = false;
-  status.textContent = `Prehrávam „${song.title}" — ${formatTime(totalDurationMs)}.`;
-  renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId);
-
-  completionTimerId = globalThis.setTimeout(() => {
-    if (currentPlaybackId !== playbackId) return;
-    finishPlayback(totalDurationMs);
-  }, totalDurationMs + 80);
 }
 
-async function startPSGPlayback(song, startedAt, currentPlaybackId) {
+async function startPSGPlayback(song, currentPlaybackId) {
+  const setupController = new AbortController();
+  pendingPSGSetup = setupController;
   playBtn.disabled = true;
-  stopBtn.disabled = true;
+  stopBtn.disabled = false;
   status.textContent = `Načítavam PSG dump „${song.title}"…`;
 
   try {
     const dump = await getPSGDump(song);
-    if (currentPlaybackId !== playbackId) return;
+    if (setupController.signal.aborted || currentPlaybackId !== playbackId) return;
 
     const totalDurationMs = (dump.frameCount / dump.frameRateHz) * 1000;
     const machine = AY_MACHINE[song.machine] ?? AY_MACHINE[PSG_DEFAULT_MACHINE];
-    const handle = await playAYDump(dump, { loop: Boolean(song.loop), ...machine });
+    const handle = await playChannelizedPSG(dump, {
+      loop: Boolean(song.loop),
+      ...machine,
+      stereo: currentStereoMode,
+      channelVolumes: Object.fromEntries(AY_CHANNELS.map((channel) => [channel, isChannelAudible(channel) ? 1 : 0])),
+      signal: setupController.signal,
+    });
     if (currentPlaybackId !== playbackId) {
       handle.stop();
       return;
     }
 
     activeHandle = handle;
+    setActiveChannelGains(handle.channelGains);
+    applyChannelStates();
+    const startedAt = performance.now();
     playBtn.disabled = true;
     stopBtn.disabled = false;
-    status.textContent = `Prehrávam PSG „${song.title}" — ${formatTime(totalDurationMs)}.`;
+    status.textContent = `Prehrávam PSG „${song.title}" [${currentStereoMode.toUpperCase()}] — ${formatTime(totalDurationMs)}.`;
     renderPSGMonitor(
       startedAt,
       dump,
       totalDurationMs,
       currentPlaybackId,
       Boolean(song.loop),
-      getPSGPanMap(song.machine),
+      getPSGPanMap(currentStereoMode),
     );
 
     if (!song.loop) {
-      const complete = () => {
-        if (currentPlaybackId !== playbackId) return;
-        globalThis.clearTimeout(completionTimerId);
-        finishPlayback(totalDurationMs);
+      handle.onEnded = () => {
+        if (currentPlaybackId === playbackId) finishPlayback(totalDurationMs);
       };
-      completionTimerId = globalThis.setTimeout(complete, totalDurationMs + 120);
-      handle.onEnded = complete;
     }
   } catch (error) {
-    if (currentPlaybackId !== playbackId) return;
+    if (setupController.signal.aborted || currentPlaybackId !== playbackId) return;
     activeHandle = null;
+    clearActiveChannelNodes();
     playBtn.disabled = false;
     stopBtn.disabled = true;
     status.textContent = `PSG sa nepodarilo prehrať: ${error.message}`;
+  } finally {
+    if (pendingPSGSetup === setupController) pendingPSGSetup = null;
   }
 }
 
@@ -280,8 +358,11 @@ async function getPSGDump(song) {
   return psgCache.get(song.file);
 }
 
-function getPSGPanMap(machineName) {
-  const machine = AY_MACHINE[machineName] ?? AY_MACHINE[PSG_DEFAULT_MACHINE];
+function getPSGPanMap(modeOrMachine) {
+  if (['mono', 'abc', 'acb'].includes(modeOrMachine)) {
+    return PSG_PAN_BY_STEREO[modeOrMachine];
+  }
+  const machine = AY_MACHINE[modeOrMachine] ?? AY_MACHINE[PSG_DEFAULT_MACHINE];
   return PSG_PAN_BY_STEREO[machine.stereo] ?? PSG_PAN_BY_STEREO.acb;
 }
 
@@ -299,8 +380,9 @@ function renderPSGMonitor(startedAt, dump, totalDurationMs, currentPlaybackId, l
   applyPSGFrames(dump, monitorState.regs, monitorState.nextFrame, frame);
   monitorState.nextFrame = frame + 1;
 
+  const effectivePanMap = getPSGPanMap(currentStereoMode);
   for (const channel of AY_CHANNELS) {
-    updatePSGChannel(channel, getPSGChannelState(monitorState.regs, channel, panMap), frame, dump.frameCount);
+    updatePSGChannel(channel, getPSGChannelState(monitorState.regs, channel, effectivePanMap), frame, dump.frameCount);
   }
   markBeeperUnused();
 
@@ -346,7 +428,7 @@ function getPSGChannelState(regs, channel, panMap) {
     volume: envelope ? 'ENV' : String(volume),
     tonePeriod,
     noisePeriod: regs[6] & 0x1f,
-    pan: panMap[channel],
+    pan: panMap[channel] ?? 0,
   };
 }
 
@@ -371,38 +453,178 @@ function markBeeperUnused() {
 }
 
 function ensureAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (globalThis.AudioContext ?? globalThis.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  audioCtx = getAudioContext();
+  if (!audioCtx) throw new Error('AudioContext musí byť inicializovaný používateľským gestom.');
+  if (audioCtx.state === 'suspended') void audioCtx.resume();
   return audioCtx;
 }
 
-// Krátky biely šum na bicie/perkusie (kanály s "noise": true).
+function isChannelAudible(channel) {
+  return channelMixer.isAudible(channel);
+}
+
+function toggleMute(channel) {
+  channelMixer.toggleMute(channel);
+  applyChannelStates();
+}
+
+function toggleSolo(channel) {
+  channelMixer.toggleSolo(channel);
+  applyChannelStates();
+}
+
+function setAvailableChannels(channels) {
+  const available = new Set(channels);
+  channelMixer.setAvailability(
+    Object.fromEntries(MONITOR_CHANNELS.map((channel) => [channel, available.has(channel)])),
+  );
+  applyChannelStates();
+}
+
+function setActiveChannelGains(channelGains = {}) {
+  for (const channel of MONITOR_CHANNELS) {
+    activeChannelGains[channel] = channelGains[channel] ?? null;
+  }
+}
+
+function clearActiveChannelNodes() {
+  for (const channel of MONITOR_CHANNELS) {
+    activeChannelGains[channel] = null;
+    activeChannelPanners[channel] = null;
+  }
+}
+
+function setStereoMode(mode) {
+  if (!['mono', 'acb', 'abc'].includes(mode)) return;
+  currentStereoMode = mode;
+  updateStereoButtons();
+  applyStereoModeToAudio();
+}
+
+function updateStereoButtons() {
+  stereoMonoBtn?.classList.toggle('is-active', currentStereoMode === 'mono');
+  stereoAcbBtn?.classList.toggle('is-active', currentStereoMode === 'acb');
+  stereoAbcBtn?.classList.toggle('is-active', currentStereoMode === 'abc');
+}
+
+function applyChannelStates() {
+  const { soloChannel } = channelMixer.getState();
+
+  for (const ch of MONITOR_CHANNELS) {
+    const view = channelViews[ch];
+    const channelState = channelMixer.getChannelState(ch);
+    const { available, muted: isMuted, solo: isSolo, audible: isAudible } = channelState;
+
+    if (view?.muteBtn) {
+      view.muteBtn.classList.toggle('is-active', isMuted);
+      view.muteBtn.setAttribute('aria-pressed', String(isMuted));
+      view.muteBtn.disabled = !available;
+    }
+    if (view?.soloBtn) {
+      view.soloBtn.classList.toggle('is-active', isSolo);
+      view.soloBtn.setAttribute('aria-pressed', String(isSolo));
+      view.soloBtn.disabled = !available;
+    }
+    if (view?.element) {
+      view.element.classList.toggle('is-muted', available && isMuted && !isSolo);
+      view.element.classList.toggle('is-suppressed', available && soloChannel !== null && !isSolo);
+      view.element.classList.toggle('is-unavailable', !available);
+    }
+
+    if (activeChannelGains[ch] && audioCtx) {
+      const targetGain = isAudible ? 1.0 : 0.0;
+      activeChannelGains[ch].gain.cancelScheduledValues(audioCtx.currentTime);
+      activeChannelGains[ch].gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.012);
+    }
+  }
+
+  activeBeeperHandle?.setAudible(isChannelAudible(BEEPER_CHANNEL));
+}
+
+function applyStereoModeToAudio() {
+  if (selectedSong?.format === PSG_FORMAT && activeHandle?.setStereo) {
+    activeHandle.setStereo(currentStereoMode);
+    return;
+  }
+
+  const panPreset = PSG_PAN_BY_STEREO[currentStereoMode] ?? PSG_PAN_BY_STEREO.acb;
+  for (const ch of AY_CHANNELS) {
+    if (activeChannelPanners[ch] && audioCtx) {
+      const targetPan = panPreset[ch] ?? 0;
+      activeChannelPanners[ch].pan.setTargetAtTime(targetPan, audioCtx.currentTime, 0.02);
+    }
+  }
+}
+
+function noiseCutoffHz(period = 8) {
+  const p = Math.max(1, Math.min(31, period));
+  return Math.round(18000 * Math.pow(0.5, (p - 1) / 5));
+}
+
+function scheduleAYEnvelope(param, shape, cycleDur, startTime, numCycles) {
+  const desc = AY_ENVELOPE_SHAPES[shape];
+  if (!desc) return;
+  const { CONT, ATT, ALT, HOLD } = desc;
+  const lo = 0.0001;
+  const hi = (AY_VOL[15] ?? 1.0) * 0.28;
+
+  const ramp = (from, to, t) => {
+    param.setValueAtTime(from, t);
+    param.linearRampToValueAtTime(to, t + cycleDur);
+  };
+
+  if (!CONT || HOLD) {
+    ramp(ATT ? lo : hi, ATT ? hi : lo, startTime);
+    const holdVal = (ATT === 0 && HOLD && ALT) || (ATT === 1 && HOLD && !ALT) ? hi : lo;
+    param.setValueAtTime(holdVal, startTime + cycleDur);
+    return;
+  }
+
+  for (let i = 0; i < numCycles; i += 1) {
+    const t = startTime + i * cycleDur;
+    const goUp = ALT ? (ATT ? i % 2 === 0 : i % 2 === 1) : ATT === 1;
+    ramp(goUp ? lo : hi, goUp ? hi : lo, t);
+  }
+}
+
+// Generovanie bieleho šumu pre bicie a LFSR zvukové efekty
 function makeNoiseBuffer(ctx) {
-  const length = Math.floor(ctx.sampleRate * 0.4);
+  const length = Math.floor(ctx.sampleRate * 0.5);
   const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
   const data = buffer.getChannelData(0);
   for (let i = 0; i < length; i += 1) data[i] = Math.random() * 2 - 1;
   return buffer;
 }
 
-// Vlastný stereo render pre songy s "stereo": true. Každý kanál ide cez vlastný
-// StereoPannerNode, takže pan (statický) aj sweep (prelet) sú reálne počuteľné.
-// Mono songy naďalej hrajú cez zx-kit playAY a tejto cesty sa netýkajú.
-function playAYStereo(timelines) {
+// Plnohodnotný trojkanálový AY syntetizér s per-channel Mute/Solo a voliteľným Stereo módom
+function playAYStereo(timelines, song) {
   const ctx = ensureAudioContext();
-  const startTime = ctx.currentTime + 0.06;
+  const output = getMasterGain();
+  if (!output) throw new Error('Zdieľaný hlavný audio výstup nie je inicializovaný.');
+  const startTime = ctx.currentTime + AUDIO_START_DELAY_MS / 1000;
   const master = ctx.createGain();
   master.gain.value = 0.9;
-  master.connect(ctx.destination);
+  master.connect(output);
 
   const sources = [];
   const noiseBuffer = makeNoiseBuffer(ctx);
+  const panPreset = PSG_PAN_BY_STEREO[currentStereoMode] ?? PSG_PAN_BY_STEREO.acb;
+
   for (const channel of AY_CHANNELS) {
     const panner = ctx.createStereoPanner();
+    const defaultPan = song?.ay?.pan?.[channel] !== undefined ? song.ay.pan[channel] : (panPreset[channel] ?? 0);
+    panner.pan.value = defaultPan;
+    activeChannelPanners[channel] = panner;
+
+    const channelGain = ctx.createGain();
+    const isAudible = isChannelAudible(channel);
+    channelGain.gain.value = isAudible ? 1.0 : 0.0;
+    activeChannelGains[channel] = channelGain;
+
+    channelGain.connect(panner);
     panner.connect(master);
-    scheduleStereoChannel(ctx, startTime, timelines[channel], panner, sources, noiseBuffer);
+
+    scheduleStereoChannel(ctx, startTime, timelines[channel], channelGain, panner, sources, noiseBuffer);
   }
 
   return {
@@ -411,15 +633,21 @@ function playAYStereo(timelines) {
         try {
           node.stop();
         } catch {
-          // uzol ešte nezačal alebo už skončil — bezpečné ignorovať
+          // uzol už skončil
         }
+      }
+      for (const channel of AY_CHANNELS) {
+        activeChannelGains[channel] = null;
+        activeChannelPanners[channel] = null;
       }
       master.disconnect();
     },
   };
 }
 
-function scheduleStereoChannel(ctx, startTime, timeline, panner, sources, noiseBuffer) {
+function scheduleStereoChannel(ctx, startTime, timeline, channelGain, panner, sources, noiseBuffer) {
+  if (!timeline?.length) return;
+
   for (const segment of timeline) {
     const segStart = startTime + segment.start / 1000;
     const segEnd = startTime + segment.end / 1000;
@@ -427,8 +655,8 @@ function scheduleStereoChannel(ctx, startTime, timeline, panner, sources, noiseB
     if (segment.sweep) {
       panner.pan.setValueAtTime(segment.sweep.from, segStart);
       panner.pan.linearRampToValueAtTime(segment.sweep.to, segEnd);
-    } else {
-      panner.pan.setValueAtTime(segment.pan ?? 0, segStart);
+    } else if (segment.pan !== undefined) {
+      panner.pan.setValueAtTime(segment.pan, segStart);
     }
 
     let cursorMs = segment.start;
@@ -439,7 +667,7 @@ function scheduleStereoChannel(ctx, startTime, timeline, panner, sources, noiseB
 
       const hasTone = note.freq > 0;
       const hasNoise = note.noise === true;
-      if (!hasTone && !hasNoise) continue; // pomlčka (rest) — len posunieme kurzor
+      if (!hasTone && !hasNoise) continue;
 
       if (hasTone) {
         const osc = ctx.createOscillator();
@@ -447,30 +675,64 @@ function scheduleStereoChannel(ctx, startTime, timeline, panner, sources, noiseB
         osc.frequency.setValueAtTime(note.freq, noteStart);
 
         if (segment.sweep) {
-          // "nad hlavou": výška vystúpi do vrcholu v strede preletu a zase klesne
           osc.frequency.linearRampToValueAtTime(note.freq * 1.6, noteStart + durSec / 2);
           osc.frequency.linearRampToValueAtTime(note.freq, noteStart + durSec);
         }
 
-        const gain = ctx.createGain();
-        applyEnvelope(gain.gain, noteStart, durSec, Boolean(segment.sweep));
+        const noteGain = ctx.createGain();
+        if (note.envShape !== undefined) {
+          const cycleDur = (note.envCycleDurMs ?? note.dur) / 1000;
+          const numCycles = Math.ceil(durSec / cycleDur) + 4;
+          scheduleAYEnvelope(noteGain.gain, note.envShape, cycleDur, noteStart, numCycles);
+          noteGain.gain.setValueAtTime(0, noteStart + durSec);
+        } else {
+          const volLevel = note.vol !== undefined ? note.vol : 15;
+          const peakVol = (AY_VOL[volLevel] ?? 1.0) * 0.28;
+          const att = 0.005;
+          const rel = Math.min(0.015, durSec * 0.12);
+          noteGain.gain.setValueAtTime(0.0001, noteStart);
+          noteGain.gain.linearRampToValueAtTime(peakVol, noteStart + att);
+          noteGain.gain.setValueAtTime(peakVol, noteStart + durSec - rel);
+          noteGain.gain.linearRampToValueAtTime(0.0001, noteStart + durSec);
+        }
 
-        osc.connect(gain);
-        gain.connect(panner);
+        osc.connect(noteGain);
+        noteGain.connect(channelGain);
         osc.start(noteStart);
         osc.stop(noteStart + durSec + 0.03);
         sources.push(osc);
       }
 
       if (hasNoise) {
-        // bicie/perkusie — krátky úder bieleho šumu cez ten istý panner
         const src = ctx.createBufferSource();
         src.buffer = noiseBuffer;
         src.loop = true;
-        const gain = ctx.createGain();
-        applyEnvelope(gain.gain, noteStart, durSec, false);
-        src.connect(gain);
-        gain.connect(panner);
+
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        const noisePeriod = note.noisePeriod ?? 8;
+        noiseFilter.frequency.setValueAtTime(noiseCutoffHz(noisePeriod), noteStart);
+
+        const noteGain = ctx.createGain();
+        if (note.envShape !== undefined) {
+          const cycleDur = (note.envCycleDurMs ?? note.dur) / 1000;
+          const numCycles = Math.ceil(durSec / cycleDur) + 4;
+          scheduleAYEnvelope(noteGain.gain, note.envShape, cycleDur, noteStart, numCycles);
+          noteGain.gain.setValueAtTime(0, noteStart + durSec);
+        } else {
+          const volLevel = note.vol !== undefined ? note.vol : 15;
+          const peakVol = (AY_VOL[volLevel] ?? 1.0) * 0.18;
+          const att = 0.005;
+          const rel = Math.min(0.015, durSec * 0.12);
+          noteGain.gain.setValueAtTime(0.0001, noteStart);
+          noteGain.gain.linearRampToValueAtTime(peakVol, noteStart + att);
+          noteGain.gain.setValueAtTime(peakVol, noteStart + durSec - rel);
+          noteGain.gain.linearRampToValueAtTime(0.0001, noteStart + durSec);
+        }
+
+        src.connect(noiseFilter);
+        noiseFilter.connect(noteGain);
+        noteGain.connect(channelGain);
         src.start(noteStart);
         src.stop(noteStart + durSec + 0.03);
         sources.push(src);
@@ -579,32 +841,44 @@ function ambulanceDopplerAt(amb, ms) {
   return amb.dopplerApproach + (amb.dopplerRecede - amb.dopplerApproach) * t;
 }
 
-function playAmbulance(amb) {
+function playAmbulance(amb, phasePlan) {
   const ctx = ensureAudioContext();
-  const start = ctx.currentTime + 0.06;
-  const total = ambulanceTotalMs(amb);
+  const output = getMasterGain();
+  if (!output) throw new Error('Zdieľaný hlavný audio výstup nie je inicializovaný.');
+  const start = ctx.currentTime + AUDIO_START_DELAY_MS / 1000;
+  const total = phasePlan.totalMs;
   const { left, right } = ambulanceEnvelopes(amb);
 
   const master = ctx.createGain();
   master.gain.value = 0.85;
-  master.connect(ctx.destination);
-
-  // Nezávislé ucho: vlastný GainNode pre ľavé a pravé, zlúčené cez ChannelMerger.
-  const merger = ctx.createChannelMerger(2);
-  merger.connect(master);
-  const gainL = ctx.createGain();
-  const gainR = ctx.createGain();
-  gainL.connect(merger, 0, 0); // vstup 0 = ľavý kanál
-  gainR.connect(merger, 0, 1); // vstup 1 = pravý kanál
+  master.connect(output);
 
   const osc = ctx.createOscillator();
   osc.type = 'sawtooth';
-  osc.connect(gainL);
-  osc.connect(gainR);
 
-  // Každé ucho má vlastnú obálku → ľavé/pravé/both sa dajú miešať nezávisle.
-  scheduleEnvelope(gainL.gain, start, left);
-  scheduleEnvelope(gainR.gain, start, right);
+  // Všetky fázy nesú ten istý spojitý oscilátor. Komplementárne lineárne okná sa
+  // na hraniciach sčítajú na 1, takže plný mix zostáva rovnaký a bez kliknutia.
+  for (const phase of phasePlan.phases) {
+    const gainL = ctx.createGain();
+    const gainR = ctx.createGain();
+    const merger = ctx.createChannelMerger(2);
+    const phaseWindow = ctx.createGain();
+    const channelGain = ctx.createGain();
+
+    osc.connect(gainL);
+    osc.connect(gainR);
+    gainL.connect(merger, 0, 0);
+    gainR.connect(merger, 0, 1);
+    merger.connect(phaseWindow);
+    phaseWindow.connect(channelGain);
+    channelGain.connect(master);
+
+    scheduleEnvelope(gainL.gain, start, left);
+    scheduleEnvelope(gainR.gain, start, right);
+    scheduleAmbulancePhase(phaseWindow.gain, start, phase);
+    channelGain.gain.value = isChannelAudible(phase.channel) ? 1 : 0;
+    activeChannelGains[phase.channel] = channelGain;
+  }
 
   // DVOJTÓN SIRÉNY + DOPPLER: výška klesá pri prelete a vzďaľovaní
   const sirenSteps = Math.ceil(total / amb.sirenStepMs);
@@ -617,8 +891,11 @@ function playAmbulance(amb) {
   osc.start(start);
   osc.stop(start + total / 1000 + 0.1);
 
+  let stopped = false;
   return {
     stop() {
+      if (stopped) return;
+      stopped = true;
       try {
         osc.stop();
       } catch {
@@ -629,39 +906,29 @@ function playAmbulance(amb) {
   };
 }
 
-function renderAmbulanceMonitor(startedAt, amb, totalDurationMs, currentPlaybackId) {
+function renderAmbulanceMonitor(startedAt, amb, phasePlan, currentPlaybackId) {
   if (currentPlaybackId !== playbackId) return;
 
-  const elapsedMs = Math.min(performance.now() - startedAt, totalDurationMs);
+  const totalDurationMs = phasePlan.totalMs;
+  const elapsedMs = Math.max(0, Math.min(performance.now() - startedAt, totalDurationMs));
   const { left, right } = ambulanceEnvelopes(amb);
   const lv = evalEnvelope(left, elapsedMs);
   const rv = evalEnvelope(right, elapsedMs);
-  const bv = Math.min(lv, rv); // "both" = koľko ide do oboch uší naraz
-  const passEnd = amb.approachMs + amb.passMs;
-
-  let phase;
-  if (elapsedMs < amb.approachMs) phase = '🚑 PRIBLIŽUJE';
-  else if (elapsedMs < passEnd) phase = '🚑 PRELET';
-  else phase = '🚑 VZĎALUJE';
-
-  const TH = 0.04;
-  const norm = (v) => Math.max(0, Math.min(1, v / 0.5));
-  const cells = {
-    A: { level: lv, home: -1 },
-    B: { level: bv * 2, home: 0 },
-    C: { level: rv, home: 1 },
-  };
+  const phase =
+    phasePlan.phases.find(({ startMs, endMs }) => elapsedMs >= startMs && elapsedMs < endMs) ?? phasePlan.phases.at(-1);
+  const phaseDuration = phase.endMs - phase.startMs;
+  const phaseProgress = phaseDuration > 0 ? (elapsedMs - phase.startMs) / phaseDuration : 1;
+  const pan = lv + rv > 0 ? (rv - lv) / (lv + rv) : 0;
 
   for (const channel of AY_CHANNELS) {
     const view = channelViews[channel];
-    const { level, home } = cells[channel];
-    const active = level > TH;
+    const active = channel === phase.channel;
     view.element.classList.toggle('is-playing', active);
-    view.sequence.textContent = active ? phase : '—';
-    view.pass.textContent = active ? `${Math.round(norm(level) * 100)} %` : '—';
-    view.step.textContent = active ? AMB_ZONE_LABEL[channel] : '—';
-    view.state.textContent = active ? '● znie' : '○ ticho';
-    renderPan(view, home, active);
+    view.sequence.textContent = active ? `🚑 ${AMB_PHASE_LABEL[phase.channel]}` : '—';
+    view.pass.textContent = active ? `${Math.round(Math.max(0, Math.min(1, phaseProgress)) * 100)} %` : '—';
+    view.step.textContent = active ? `${formatTime(phase.startMs)}–${formatTime(phase.endMs)}` : '—';
+    view.state.textContent = active ? '● AKTÍVNA FÁZA' : '○ ČAKÁ';
+    renderPan(view, pan, active);
   }
   markBeeperUnused();
 
@@ -670,7 +937,7 @@ function renderAmbulanceMonitor(startedAt, amb, totalDurationMs, currentPlayback
 
   if (elapsedMs < totalDurationMs) {
     animationFrameId = requestAnimationFrame(() => {
-      renderAmbulanceMonitor(startedAt, amb, totalDurationMs, currentPlaybackId);
+      renderAmbulanceMonitor(startedAt, amb, phasePlan, currentPlaybackId);
     });
   }
 }
@@ -743,7 +1010,7 @@ function createAYPattern(name, definition) {
     notes,
     duration: notes.reduce((total, note) => total + note.dur, 0),
     steps: notes.map((note, index) => ({ note, token: tokens[index] })),
-    pan: typeof definition.pan === 'number' ? definition.pan : 0,
+    pan: typeof definition.pan === 'number' ? definition.pan : undefined,
     sweep: definition.sweep ?? null,
   };
 }
@@ -826,12 +1093,6 @@ function formatFrequencyToken(frequency) {
   return Number.isFinite(frequency) ? `${frequency}Hz` : '?';
 }
 
-function getAYPan(song) {
-  const pan = song.ay?.pan;
-  if (!pan) return undefined;
-  return { a: pan.A, b: pan.B, c: pan.C };
-}
-
 function appendPattern(track, timeline, pattern, repeat) {
   for (let pass = 1; pass <= repeat; pass += 1) {
     const start = getTimelineDuration(timeline);
@@ -853,17 +1114,23 @@ function startBeeperTrack(notes, pan, startedAt) {
   const audio = getAudioContext();
   if (!audio || notes.length === 0) return null;
 
-  const events = [];
-  let offsetMs = 0;
-  for (const note of notes) {
-    if (note.freq > 0) events.push({ ...note, startMs: offsetMs });
-    offsetMs += note.dur;
-  }
+  const events = createBeeperTimeline(notes);
   if (events.length === 0) return null;
 
   let nextEvent = 0;
   let timerId = 0;
   let stopped = false;
+  let audible = isChannelAudible(BEEPER_CHANNEL);
+  let soundingEventIndex = -1;
+
+  const playRemaining = (event, nowMs = performance.now()) => {
+    if (!audible || soundingEventIndex === event.index) return;
+    const active = getActiveBeeperEvent(events, nowMs - startedAt);
+    const currentAudio = getAudioContext();
+    if (!currentAudio || active?.event.index !== event.index) return;
+    soundingEventIndex = event.index;
+    beep(event.freq, active.remainingMs, currentAudio.currentTime, pan);
+  };
 
   const scheduleNext = () => {
     if (stopped || nextEvent >= events.length) return;
@@ -873,11 +1140,7 @@ function startBeeperTrack(notes, pan, startedAt) {
       () => {
         if (stopped) return;
         nextEvent += 1;
-
-        const latenessMs = Math.max(0, performance.now() - dueAt);
-        const remainingMs = event.dur - latenessMs;
-        const currentAudio = getAudioContext();
-        if (currentAudio && remainingMs > 0) beep(event.freq, remainingMs, currentAudio.currentTime, pan);
+        playRemaining(event, Math.max(performance.now(), dueAt));
         scheduleNext();
       },
       Math.max(0, dueAt - performance.now()),
@@ -886,20 +1149,39 @@ function startBeeperTrack(notes, pan, startedAt) {
 
   scheduleNext();
   return {
+    setAudible(nextAudible) {
+      if (stopped || audible === nextAudible) return;
+      audible = nextAudible;
+
+      if (!audible) {
+        soundingEventIndex = -1;
+        stopBeep();
+        return;
+      }
+
+      const elapsedMs = performance.now() - startedAt;
+      const active = getActiveBeeperEvent(events, elapsedMs);
+      if (active) playRemaining(active.event);
+    },
     stop() {
       if (stopped) return;
       stopped = true;
       globalThis.clearTimeout(timerId);
+      soundingEventIndex = -1;
+      stopBeep();
     },
   };
 }
 
-function renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId) {
+function renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId, song) {
   if (currentPlaybackId !== playbackId) return;
 
-  const elapsedMs = Math.min(performance.now() - startedAt, totalDurationMs);
+  const elapsedMs = Math.max(0, Math.min(performance.now() - startedAt, totalDurationMs));
+  const panPreset = PSG_PAN_BY_STEREO[currentStereoMode] ?? PSG_PAN_BY_STEREO.acb;
   for (const channel of MONITOR_CHANNELS) {
-    updateChannel(channel, getPlaybackState(timelines[channel], elapsedMs, channel === BEEPER_CHANNEL));
+    const defaultPan =
+      channel === BEEPER_CHANNEL ? (song.beeper?.pan ?? 0) : (song.ay?.pan?.[channel] ?? panPreset[channel] ?? 0);
+    updateChannel(channel, getPlaybackState(timelines[channel], elapsedMs, channel === BEEPER_CHANNEL, defaultPan));
   }
 
   monitorTime.textContent = `${formatTime(elapsedMs)} / ${formatTime(totalDurationMs)}`;
@@ -907,12 +1189,12 @@ function renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId)
 
   if (elapsedMs < totalDurationMs) {
     animationFrameId = requestAnimationFrame(() => {
-      renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId);
+      renderMonitor(startedAt, timelines, totalDurationMs, currentPlaybackId, song);
     });
   }
 }
 
-function getPlaybackState(timeline, elapsedMs, isBeeper = false) {
+function getPlaybackState(timeline, elapsedMs, isBeeper = false, defaultPan = 0) {
   if (timeline.length === 0) return { unused: true };
   const segment = timeline.find(({ start, end }) => elapsedMs >= start && elapsedMs < end);
   if (!segment) return { ended: true };
@@ -947,7 +1229,7 @@ function getPlaybackState(timeline, elapsedMs, isBeeper = false) {
   const span = segment.end - segment.start;
   const pan = segment.sweep
     ? segment.sweep.from + (segment.sweep.to - segment.sweep.from) * (span > 0 ? (elapsedMs - segment.start) / span : 0)
-    : (segment.pan ?? 0);
+    : (segment.pan ?? defaultPan);
 
   return {
     ended: false,
@@ -1011,7 +1293,7 @@ function renderPan(view, pan, active) {
 function updateChannelLabels(song) {
   for (const channel of AY_CHANNELS) {
     let fallback = 'CHANNEL';
-    if (song.effect === 'ambulance') fallback = AMB_ZONE_LABEL[channel];
+    if (song.effect === 'ambulance') fallback = AMB_PHASE_LABEL[channel];
     else if (song.format === PSG_FORMAT)
       fallback = `PSG ${channel === 'A' ? 'LEFT' : channel === 'B' ? 'RIGHT' : 'CENTRE'}`;
     else if (song.format === PT3_FORMAT) fallback = 'PT3 SOURCE';
@@ -1035,7 +1317,7 @@ function resetMonitor() {
   for (const channel of MONITOR_CHANNELS) {
     const view = channelViews[channel];
     view.element.classList.remove('is-playing');
-    const unused = channel === BEEPER_CHANNEL && !selectedSong?.beeper;
+    const unused = !channelMixer.getChannelState(channel).available;
     view.sequence.textContent = unused ? '— UNUSED —' : 'WAITING';
     view.pass.textContent = '—';
     view.step.textContent = '—';
@@ -1046,9 +1328,15 @@ function resetMonitor() {
 
 function finishPlayback(totalDurationMs) {
   cancelAnimationFrame(animationFrameId);
+  globalThis.clearTimeout(completionTimerId);
+  const handle = activeHandle;
   activeHandle = null;
+  handle?.stop();
   activeBeeperHandle?.stop();
   activeBeeperHandle = null;
+  stopBeep();
+  clearActiveChannelNodes();
+  playbackPending = null;
   playBtn.disabled = false;
   stopBtn.disabled = true;
   status.textContent = `Hotovo. Prehraté za ${formatTime(totalDurationMs)}.`;
@@ -1057,20 +1345,29 @@ function finishPlayback(totalDurationMs) {
 function stopCurrentPlayback({ resetMonitor: shouldResetMonitor }) {
   cancelAnimationFrame(animationFrameId);
   globalThis.clearTimeout(completionTimerId);
+  pendingPSGSetup?.abort();
+  pendingPSGSetup = null;
+  playbackPending = null;
   playbackId += 1;
-  activeHandle?.stop();
+  const handle = activeHandle;
   activeHandle = null;
+  handle?.stop();
   activeBeeperHandle?.stop();
   activeBeeperHandle = null;
+  stopBeep();
+  clearActiveChannelNodes();
   stopBtn.disabled = true;
   playBtn.disabled = selectedSong === null;
   if (shouldResetMonitor) resetMonitor();
 }
 
-function createChannelView(element) {
-  return {
+function createChannelView(element, channel) {
+  const view = {
+    channel,
     element,
     name: element.querySelector('[data-role="channel-name"]'),
+    muteBtn: element.querySelector('[data-role="mute-btn"]'),
+    soloBtn: element.querySelector('[data-role="solo-btn"]'),
     sequence: element.querySelector('[data-role="sequence"]'),
     pass: element.querySelector('[data-role="pass"]'),
     step: element.querySelector('[data-role="step"]'),
@@ -1078,6 +1375,18 @@ function createChannelView(element) {
     panDot: element.querySelector('[data-role="pan-dot"]'),
     panLabel: element.querySelector('[data-role="pan-label"]'),
   };
+
+  view.muteBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMute(channel);
+  });
+
+  view.soloBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSolo(channel);
+  });
+
+  return view;
 }
 
 function getTimelineDuration(timeline) {
@@ -1285,5 +1594,46 @@ function formatTime(milliseconds) {
   const cents = centiseconds % 100;
   return `${minutes}:${String(seconds).padStart(2, '0')}.${String(cents).padStart(2, '0')}`;
 }
+
+window.addEventListener('keydown', (e) => {
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+  if (e.repeat) return;
+
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (activeHandle || playbackPending) {
+      stopCurrentPlayback({ resetMonitor: true });
+      status.textContent = 'Prehrávanie bolo zastavené.';
+    } else if (selectedSong) {
+      void startPlayback(selectedSong);
+    }
+    return;
+  }
+
+  if (e.code === 'Digit1') {
+    e.preventDefault();
+    if (e.shiftKey) toggleSolo('A');
+    else toggleMute('A');
+  } else if (e.code === 'Digit2') {
+    e.preventDefault();
+    if (e.shiftKey) toggleSolo('B');
+    else toggleMute('B');
+  } else if (e.code === 'Digit3') {
+    e.preventDefault();
+    if (e.shiftKey) toggleSolo('C');
+    else toggleMute('C');
+  } else if (e.code === 'Digit4') {
+    e.preventDefault();
+    if (e.shiftKey) toggleSolo(BEEPER_CHANNEL);
+    else toggleMute(BEEPER_CHANNEL);
+  } else if ((e.key === 's' || e.key === 'S') && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    const modes = ['mono', 'acb', 'abc'];
+    const nextIndex = (modes.indexOf(currentStereoMode) + 1) % modes.length;
+    setStereoMode(modes[nextIndex]);
+  }
+});
+
+updateStereoButtons();
+applyChannelStates();
 
 await initialisePlayer();

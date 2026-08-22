@@ -25,6 +25,39 @@
           <button id="stopBtn" class="controls__button controls__button--stop" type="button" disabled>■ STOP</button>
         </div>
 
+        <section class="stereo-bar" aria-labelledby="stereoLabel">
+          <span id="stereoLabel" class="stereo-bar__label">STEREO:</span>
+          <div class="stereo-bar__group" role="group" aria-label="Voľba stereo módu">
+            <button
+              id="stereoMonoBtn"
+              class="stereo-bar__btn"
+              type="button"
+              data-stereo="mono"
+              title="Klasické mono (TV reproduktor)"
+            >
+              MONO
+            </button>
+            <button
+              id="stereoAcbBtn"
+              class="stereo-bar__btn is-active"
+              type="button"
+              data-stereo="acb"
+              title="ACB stereo (Didaktik Melodik štandard)"
+            >
+              ACB (MELODIK)
+            </button>
+            <button
+              id="stereoAbcBtn"
+              class="stereo-bar__btn"
+              type="button"
+              data-stereo="abc"
+              title="ABC stereo (Demoscéna štandard)"
+            >
+              ABC
+            </button>
+          </div>
+        </section>
+
         <p id="status" class="app__status" aria-live="polite">Načítavam register skladieb…</p>
 
         <section class="monitor" aria-labelledby="monitorTitle">
@@ -35,7 +68,29 @@
 
           <div class="monitor__channels">
             <div id="channelA" class="monitor__channel monitor__channel--a" aria-label="Kanál A">
-              <p class="channel__head" data-role="channel-name">A / CHANNEL</p>
+              <div class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">A / CHANNEL</p>
+                <div class="channel__toggles">
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--mute"
+                    data-role="mute-btn"
+                    data-channel="A"
+                    title="Stlmiť kanál A (Klávesa 1)"
+                  >
+                    MUTE
+                  </button>
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--solo"
+                    data-role="solo-btn"
+                    data-channel="A"
+                    title="Sólo kanál A (Shift+1)"
+                  >
+                    SOLO
+                  </button>
+                </div>
+              </div>
               <p class="channel__label">SEQUENCE</p>
               <p class="channel__value" data-role="sequence">WAITING</p>
               <p class="channel__label">PASS</p>
@@ -52,7 +107,29 @@
             </div>
 
             <div id="channelB" class="monitor__channel monitor__channel--b" aria-label="Kanál B">
-              <p class="channel__head" data-role="channel-name">B / CHANNEL</p>
+              <div class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">B / CHANNEL</p>
+                <div class="channel__toggles">
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--mute"
+                    data-role="mute-btn"
+                    data-channel="B"
+                    title="Stlmiť kanál B (Klávesa 2)"
+                  >
+                    MUTE
+                  </button>
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--solo"
+                    data-role="solo-btn"
+                    data-channel="B"
+                    title="Sólo kanál B (Shift+2)"
+                  >
+                    SOLO
+                  </button>
+                </div>
+              </div>
               <p class="channel__label">SEQUENCE</p>
               <p class="channel__value" data-role="sequence">WAITING</p>
               <p class="channel__label">PASS</p>
@@ -69,7 +146,29 @@
             </div>
 
             <div id="channelC" class="monitor__channel monitor__channel--c" aria-label="Kanál C">
-              <p class="channel__head" data-role="channel-name">C / CHANNEL</p>
+              <div class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">C / CHANNEL</p>
+                <div class="channel__toggles">
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--mute"
+                    data-role="mute-btn"
+                    data-channel="C"
+                    title="Stlmiť kanál C (Klávesa 3)"
+                  >
+                    MUTE
+                  </button>
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--solo"
+                    data-role="solo-btn"
+                    data-channel="C"
+                    title="Sólo kanál C (Shift+3)"
+                  >
+                    SOLO
+                  </button>
+                </div>
+              </div>
               <p class="channel__label">SEQUENCE</p>
               <p class="channel__value" data-role="sequence">WAITING</p>
               <p class="channel__label">PASS</p>
@@ -86,7 +185,29 @@
             </div>
 
             <div id="channelBeeper" class="monitor__channel monitor__channel--beeper" aria-label="Samostatný beeper">
-              <p class="channel__head" data-role="channel-name">BEEPER / UNUSED</p>
+              <div class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">BEEPER / UNUSED</p>
+                <div class="channel__toggles">
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--mute"
+                    data-role="mute-btn"
+                    data-channel="BEEPER"
+                    title="Stlmiť beeper (Klávesa 4)"
+                  >
+                    MUTE
+                  </button>
+                  <button
+                    type="button"
+                    class="channel__btn channel__btn--solo"
+                    data-role="solo-btn"
+                    data-channel="BEEPER"
+                    title="Sólo beeper (Shift+4)"
+                  >
+                    SOLO
+                  </button>
+                </div>
+              </div>
               <p class="channel__label">SEQUENCE</p>
               <p class="channel__value" data-role="sequence">— UNUSED —</p>
               <p class="channel__label">PASS</p>
