@@ -4,6 +4,39 @@
   "title": "Wilhelmus",
   "artist": "Traditional Dutch melody",
   "description": "A compact AY interpretation of the public-domain Dutch national anthem. The stately melody is supported by widely spaced bass and ceremonial chord replies, with no noise.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "c. 1570",
+    "cover": "/assets/covers/wilhelmus/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Historical anthem composition; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://www.koninklijkhuis.nl/onderwerpen/koninklijk-huis/volkslied",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "ay": {
     "pan": {
       "A": -0.45,

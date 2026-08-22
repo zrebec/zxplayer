@@ -1,6 +1,12 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  generatedMetadataSidecarName,
+  readPT3MetadataSidecar,
+  removeGeneratedMetadataSidecar,
+  writeGeneratedMetadataSidecar,
+} from './pt3-metadata-sidecar.js';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, '..');
@@ -133,9 +139,16 @@ async function main() {
   for (const { file, module } of modules) {
     const plannedName = outputNames.get(file);
     const output = path.join(generatedDirectory, plannedName);
+    const metadataSidecar = await readPT3MetadataSidecar(songsDirectory, file);
+    const metadataOutputName = generatedMetadataSidecarName(plannedName);
 
     if (dryRun) {
       console.log(`${file} -> songs/generated/${plannedName}`);
+      console.log(
+        metadataSidecar
+          ? `  sidecar: ${metadataSidecar.sourceFile} -> songs/generated/${metadataOutputName}`
+          : '  sidecar: nenájdený',
+      );
       continue;
     }
 
@@ -145,6 +158,17 @@ async function main() {
     }
     await writeFile(output, buildPSG(render.frames));
     console.log(`${file} -> songs/generated/${plannedName} (${render.frames.length} framov)`);
+    if (metadataSidecar) {
+      await writeGeneratedMetadataSidecar(generatedDirectory, plannedName, metadataSidecar.metadata);
+      console.log(`  sidecar: ${metadataSidecar.sourceFile} -> songs/generated/${metadataOutputName}`);
+    } else {
+      const removedStaleSidecar = await removeGeneratedMetadataSidecar(generatedDirectory, plannedName);
+      console.log(
+        removedStaleSidecar
+          ? `  sidecar: zdroj nenájdený, odstránený neaktuálny songs/generated/${metadataOutputName}`
+          : '  sidecar: nenájdený',
+      );
+    }
   }
 }
 

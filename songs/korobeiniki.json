@@ -4,6 +4,39 @@
   "title": "Korobeiniki (Tetris Theme A)",
   "artist": "Traditional Russian folk song",
   "description": "A three-channel, tone-only AY arrangement transcribed in A minor from the traditional Korobeiniki melody. Its articulated sixteenth-note grid preserves the original eighth, quarter, dotted-quarter, and half-note rhythms without letting repeated notes blur together.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1861",
+    "cover": "/assets/covers/korobeiniki/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Historical words and traditional melody; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://rvb.ru/19vek/nekrasov/ss15/vol04/notes/0386.html",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "channels": {
     "A": {
       "label": "BASS",

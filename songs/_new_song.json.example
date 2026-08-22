@@ -4,6 +4,38 @@
   "title": "My New Song",
   "artist": "Your name",
   "description": "Krátky opis skladby.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026",
+    "cover": "/assets/covers/my_new_song/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Arrangement © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON song source © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "Cover artwork © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      }
+    }
+  },
   "ay": {
     "pan": { "A": -0.4, "B": 0, "C": 0.4 }
   },

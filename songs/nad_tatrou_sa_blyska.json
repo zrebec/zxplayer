@@ -4,6 +4,39 @@
   "title": "Nad Tatrou sa blýska",
   "artist": "Traditional Slovak melody",
   "description": "A restrained two-stanza AY setting of the Slovak national anthem in G minor and 2/4. Four fully silent bars separate the stanzas, while the articulated melody, sparse bass, and chord tones use no noise.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1844",
+    "cover": "/assets/covers/nad_tatrou_sa_blyska/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Historical anthem composition; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://www.vlada.gov.sk/slovensko/statna-hymna/",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "channels": {
     "A": {
       "label": "CEREMONIAL BASS",

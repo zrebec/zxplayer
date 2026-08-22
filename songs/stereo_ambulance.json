@@ -6,6 +6,38 @@
   "title": "Sanitka (Doppler)",
   "artist": "Fox",
   "description": "Stojíš pri ceste. Sanitka sa blíži sprava (~4 s, len pravé ucho, tón silnie), preletí ponad hlavu s Dopplerom (pravé → stred/both → ľavé, výška klesá) a vzďaľuje sa doľava — tón slabne.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026",
+    "cover": "/assets/covers/stereo_ambulance/cover.png",
+    "audio": {
+      "sourceFormat": "json-effect",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original sound composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Effect arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON effect source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "ambulance": {
     "approachMs": 4000,
     "passMs": 2800,

@@ -4,6 +4,39 @@
   "title": "Ode to Joy",
   "artist": "Ludwig van Beethoven",
   "description": "A compact three-channel AY arrangement of the public-domain Ode to Joy melody from Symphony No. 9. Channel B carries the melody, A supplies a simple bass line, and C demonstrates a noisy pulse.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1824",
+    "cover": "/assets/covers/ode_to_joy/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Beethoven's historical composition; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://www.beethoven.de/en/work/view/5556714292117504/",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "channels": {
     "A": {
       "label": "BASS",

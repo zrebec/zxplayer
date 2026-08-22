@@ -2,19 +2,19 @@ import {
   AY_ENVELOPE_SHAPES,
   AY_MACHINE,
   AY_VOL,
-  beep,
   getAudioContext,
   getMasterGain,
   initAudio,
   loadPSG,
   noteToFreq,
   seq,
-  stopBeep,
 } from 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
 
 import { CHANNELS as MONITOR_CHANNELS, createChannelMixer } from './channel-mixer.js';
 import { createAmbulancePhasePlan, scheduleAmbulancePhase } from './ambulance-phases.js';
-import { createBeeperTimeline, getActiveBeeperEvent } from './beeper-timeline.js';
+import { scheduleAYEnvelope } from './ay-envelope.js';
+import { createBeeperTimeline } from './beeper-timeline.js';
+import { loadChannelVolumes, resetChannelVolumes, saveChannelVolumes } from './channel-volume-store.js';
 import { playChannelizedPSG } from './psg-channel-player.js';
 
 const AY_CHANNELS = ['A', 'B', 'C'];
@@ -27,6 +27,13 @@ const PSG_FORMAT = 'psg';
 const PT3_FORMAT = 'pt3';
 const JSON_FORMAT = 'json';
 const PSG_DEFAULT_MACHINE = 'melodik';
+const DEFAULT_COVER = '/assets/covers/fallback/cover.png';
+const RIGHTS_LABELS = {
+  arrangement: 'Arrangement / module',
+  composition: 'Composition',
+  cover: 'Cover artwork',
+  source: 'Song source',
+};
 const PSG_PAN_BY_STEREO = {
   mono: { A: 0, B: 0, C: 0 },
   abc: { A: -0.75, B: 0, C: 0.75 },
@@ -34,11 +41,22 @@ const PSG_PAN_BY_STEREO = {
 };
 const CHANNEL_INDEX = { A: 0, B: 1, C: 2 };
 const songSelect = document.getElementById('songSelect');
+const songLibrary = document.getElementById('songLibrary');
 const playBtn = document.getElementById('playBtn');
 const stopBtn = document.getElementById('stopBtn');
 const status = document.getElementById('status');
+const songCover = document.getElementById('songCover');
 const songTitle = document.getElementById('songTitle');
+const songArtist = document.getElementById('songArtist');
 const songMeta = document.getElementById('songMeta');
+const songReleaseYear = document.getElementById('songReleaseYear');
+const songOriginalDate = document.getElementById('songOriginalDate');
+const songChip = document.getElementById('songChip');
+const songFormat = document.getElementById('songFormat');
+const rightsBadge = document.getElementById('rightsBadge');
+const songRights = document.getElementById('songRights');
+const rightsDetails = document.getElementById('rightsDetails');
+const resetMixBtn = document.getElementById('resetMixBtn');
 const monitorTime = document.getElementById('monitorTime');
 const monitorProgress = document.getElementById('monitorProgress');
 const stereoMonoBtn = document.getElementById('stereoMonoBtn');
@@ -85,13 +103,14 @@ let playbackId = 0;
 let playbackPending = null;
 let pendingPSGSetup = null;
 let audioCtx = null;
+let selectionId = 0;
 const psgCache = new Map();
 
 stereoMonoBtn?.addEventListener('click', () => setStereoMode('mono'));
 stereoAcbBtn?.addEventListener('click', () => setStereoMode('acb'));
 stereoAbcBtn?.addEventListener('click', () => setStereoMode('abc'));
 
-songSelect.addEventListener('change', async () => {
+songSelect?.addEventListener('change', async () => {
   stopCurrentPlayback({ resetMonitor: true });
   await selectSong(songSelect.value);
 });
@@ -107,6 +126,14 @@ stopBtn.addEventListener('click', () => {
   status.textContent = 'Prehrávanie bolo zastavené.';
 });
 
+resetMixBtn?.addEventListener('click', () => {
+  if (!selectedSong) return;
+  channelMixer.resetVolumes();
+  resetChannelVolumes(getLocalStorage(), selectedSong.id);
+  applyChannelStates();
+  status.textContent = `Mixer pre „${selectedSong.title}" bol resetovaný na 100 %.`;
+});
+
 async function initialisePlayer() {
   try {
     const response = await fetch(new URL('../songs/index.json', import.meta.url), { cache: 'no-store' });
@@ -117,7 +144,8 @@ async function initialisePlayer() {
     if (library.length === 0) throw new Error('Register je prázdny.');
 
     populateSongSelect(library);
-    songSelect.disabled = false;
+    populateSongLibrary(library);
+    if (songSelect) songSelect.disabled = false;
     await selectSong(library[0].id);
   } catch (error) {
     songTitle.textContent = 'KNIŽNICA SA NENAČÍTALA';
@@ -127,6 +155,7 @@ async function initialisePlayer() {
 }
 
 function populateSongSelect(songs) {
+  if (!songSelect) return;
   songSelect.replaceChildren();
   for (const song of songs) {
     const option = document.createElement('option');
@@ -137,6 +166,187 @@ function populateSongSelect(songs) {
     songSelect.append(option);
   }
 }
+
+function populateSongLibrary(songs) {
+  if (!songLibrary) return;
+  songLibrary.replaceChildren();
+
+  for (const song of songs) {
+    const catalog = song.catalog ?? {};
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'song-card';
+    card.dataset.songId = song.id;
+    card.setAttribute('aria-pressed', 'false');
+    card.setAttribute('aria-label', `Select ${song.title} by ${song.artist ?? 'unknown artist'}`);
+
+    const cover = document.createElement('img');
+    cover.className = 'song-card__cover';
+    cover.src = catalog.cover ?? DEFAULT_COVER;
+    cover.alt = '';
+    cover.loading = 'lazy';
+    cover.addEventListener('error', useFallbackCover, { once: true });
+
+    const body = document.createElement('span');
+    body.className = 'song-card__body';
+
+    const title = document.createElement('span');
+    title.className = 'song-card__title';
+    title.textContent = song.title;
+
+    const artist = document.createElement('span');
+    artist.className = 'song-card__artist';
+    artist.textContent = song.artist ?? 'Unknown artist';
+
+    const meta = document.createElement('span');
+    meta.className = 'song-card__meta';
+    meta.textContent =
+      [catalog.releaseYear, catalog.audio?.chip].filter(Boolean).join(' · ') || 'Catalog metadata pending';
+
+    const badge = document.createElement('span');
+    badge.className = 'song-card__badge';
+    const documented = catalog.rightsStatus === 'documented';
+    badge.classList.toggle('is-unverified', !documented);
+    badge.textContent = documented ? 'RIGHTS DOCUMENTED' : 'RIGHTS UNVERIFIED';
+
+    body.append(title, artist, meta, badge);
+    card.append(cover, body);
+    card.addEventListener('click', async () => {
+      stopCurrentPlayback({ resetMonitor: true });
+      await selectSong(song.id);
+    });
+    songLibrary.append(card);
+  }
+  songLibrary.setAttribute('aria-busy', 'false');
+}
+
+function markSelectedSong(songId) {
+  if (songSelect) songSelect.value = songId;
+  for (const card of songLibrary?.querySelectorAll('.song-card') ?? []) {
+    const selected = card.dataset.songId === songId;
+    card.classList.toggle('is-selected', selected);
+    card.setAttribute('aria-pressed', String(selected));
+    if (selected) card.setAttribute('aria-current', 'true');
+    else card.removeAttribute('aria-current');
+  }
+}
+
+function renderSongDetails(song) {
+  const catalog = song.catalog ?? {};
+  const audio = catalog.audio ?? {};
+  const cover = catalog.cover ?? DEFAULT_COVER;
+
+  if (songCover) {
+    songCover.src = cover;
+    songCover.alt = `ZX Spectrum cover for ${song.title}`;
+  }
+  if (songTitle) songTitle.textContent = song.title;
+  if (songArtist) songArtist.textContent = song.artist ?? 'Unknown artist';
+  if (songMeta) songMeta.textContent = describeSong(song);
+  if (songReleaseYear) songReleaseYear.textContent = catalog.releaseYear ?? '—';
+  if (songOriginalDate) songOriginalDate.textContent = catalog.originalDate ?? '—';
+  if (songChip) songChip.textContent = audio.chip ?? 'AY / YM';
+  if (songFormat) {
+    const source = formatCatalogTerm(audio.sourceFormat ?? getDescriptorFormat(song));
+    const runtime = formatCatalogTerm(audio.runtimeFormat ?? 'pending');
+    songFormat.textContent = `${source} → ${runtime}`;
+  }
+
+  renderRights(catalog.rights, catalog.rightsStatus);
+}
+
+function renderRights(rights = {}, rightsStatus = 'unverified') {
+  const documented = rightsStatus === 'documented';
+  if (rightsBadge) {
+    rightsBadge.textContent = documented ? 'RIGHTS DOCUMENTED' : 'RIGHTS UNVERIFIED';
+    rightsBadge.classList.toggle('is-documented', documented);
+    rightsBadge.classList.toggle('is-unverified', !documented);
+  }
+  if (songRights) {
+    songRights.open = !documented;
+    songRights.dataset.status = documented ? 'documented' : 'unverified';
+  }
+  if (!rightsDetails) return;
+
+  rightsDetails.replaceChildren();
+  for (const key of ['composition', 'arrangement', 'source', 'cover']) {
+    const entry = rights[key] ?? {
+      status: 'unverified',
+      label: 'Rights information has not been verified.',
+    };
+    const row = document.createElement('div');
+    row.className = 'rights-row';
+
+    const heading = document.createElement('strong');
+    heading.textContent = RIGHTS_LABELS[key];
+
+    const copy = document.createElement('span');
+    copy.textContent = `${entry.label} (${formatRightsStatus(entry.status)})`;
+    row.append(heading, copy);
+
+    const links = [
+      ['View licence', entry.licenseUrl],
+      ['View evidence', entry.evidenceUrl],
+      ['Legal basis', entry.legalBasisUrl],
+    ];
+    const linkGroup = document.createElement('span');
+    linkGroup.className = 'rights-row__links';
+    for (const [label, url] of links) {
+      if (!url) continue;
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = label;
+      linkGroup.append(link);
+    }
+    if (linkGroup.childElementCount > 0) row.append(linkGroup);
+    rightsDetails.append(row);
+  }
+}
+
+function formatCatalogTerm(value) {
+  return String(value).replaceAll('-', ' ').replaceAll('_', ' ').toUpperCase();
+}
+
+function formatRightsStatus(value) {
+  const labels = {
+    'all-rights-reserved': 'all rights reserved',
+    licensed: 'licensed',
+    'public-domain-eu': 'public domain in the EU',
+    unverified: 'unverified',
+  };
+  return labels[value] ?? 'unverified';
+}
+
+function useFallbackCover(event) {
+  const image = event.currentTarget;
+  if (image?.getAttribute('src') !== DEFAULT_COVER) image.src = DEFAULT_COVER;
+}
+
+function getLocalStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function loadMixerForSong(songId) {
+  const volumes = loadChannelVolumes(getLocalStorage(), songId);
+  for (const channel of MONITOR_CHANNELS) channelMixer.setVolume(channel, volumes[channel]);
+  applyChannelStates();
+}
+
+function saveMixerForSong() {
+  if (!selectedSong) return;
+  const volumes = Object.fromEntries(
+    MONITOR_CHANNELS.map((channel) => [channel, channelMixer.getChannelState(channel).volume]),
+  );
+  saveChannelVolumes(getLocalStorage(), selectedSong.id, volumes);
+}
+
+songCover?.addEventListener('error', useFallbackCover);
 
 function getDescriptorFormat(descriptor) {
   if (descriptor.type) return descriptor.type;
@@ -152,6 +362,7 @@ function normaliseBinarySong(descriptor, format) {
     title: descriptor.title,
     artist: descriptor.artist,
     description: descriptor.description,
+    catalog: descriptor.catalog,
     file: descriptor.file,
     format,
     machine: descriptor.machine ?? PSG_DEFAULT_MACHINE,
@@ -162,9 +373,13 @@ function normaliseBinarySong(descriptor, format) {
 async function selectSong(songId) {
   const descriptor = library.find((song) => song.id === songId);
   if (!descriptor) return;
+  const currentSelectionId = ++selectionId;
 
   selectedSong = null;
+  loadMixerForSong(descriptor.id);
   setAvailableChannels([]);
+  markSelectedSong(descriptor.id);
+  renderSongDetails(descriptor);
   playBtn.disabled = true;
   status.textContent = `Načítavam: ${descriptor.title}…`;
   const format = getDescriptorFormat(descriptor);
@@ -173,8 +388,7 @@ async function selectSong(songId) {
     if (format === PSG_FORMAT) {
       selectedSong = normaliseBinarySong(descriptor, PSG_FORMAT);
       setAvailableChannels(AY_CHANNELS);
-      songTitle.textContent = selectedSong.title.toUpperCase();
-      songMeta.textContent = describeSong(selectedSong);
+      renderSongDetails(selectedSong);
       updateChannelLabels(selectedSong);
       resetMonitor();
       status.textContent = 'Pripravené. PLAY načíta PSG dump a spustí raw AY čip cez zx-kit aydump.';
@@ -185,8 +399,7 @@ async function selectSong(songId) {
     if (format === PT3_FORMAT) {
       const pt3Song = normaliseBinarySong(descriptor, PT3_FORMAT);
       setAvailableChannels([]);
-      songTitle.textContent = pt3Song.title.toUpperCase();
-      songMeta.textContent = describeSong(pt3Song);
+      renderSongDetails(pt3Song);
       updateChannelLabels(pt3Song);
       resetMonitor();
       status.textContent = 'PT3 zatiaľ nie je runtime formát. npm run build ho skonvertuje na PSG.';
@@ -197,13 +410,14 @@ async function selectSong(songId) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const song = await response.json();
+    if (currentSelectionId !== selectionId) return;
     song.format = JSON_FORMAT;
+    song.catalog = descriptor.catalog ?? song.catalog;
     validateSong(song);
     buildSong(song);
     selectedSong = song;
     setAvailableChannels(song.beeper ? MONITOR_CHANNELS : AY_CHANNELS);
-    songTitle.textContent = song.title.toUpperCase();
-    songMeta.textContent = describeSong(song);
+    renderSongDetails(song);
     updateChannelLabels(song);
     resetMonitor();
     status.textContent = song.beeper
@@ -211,6 +425,7 @@ async function selectSong(songId) {
       : 'Pripravené. PLAY odomkne AudioContext a spustí všetky tri AY kanály.';
     playBtn.disabled = false;
   } catch (error) {
+    if (currentSelectionId !== selectionId) return;
     setAvailableChannels([]);
     songTitle.textContent = 'CHYBNÝ SONG JSON';
     songMeta.textContent = descriptor.file;
@@ -305,7 +520,7 @@ async function startPSGPlayback(song, currentPlaybackId) {
       loop: Boolean(song.loop),
       ...machine,
       stereo: currentStereoMode,
-      channelVolumes: Object.fromEntries(AY_CHANNELS.map((channel) => [channel, isChannelAudible(channel) ? 1 : 0])),
+      channelVolumes: Object.fromEntries(AY_CHANNELS.map((channel) => [channel, getChannelOutputLevel(channel)])),
       signal: setupController.signal,
     });
     if (currentPlaybackId !== playbackId) {
@@ -314,6 +529,7 @@ async function startPSGPlayback(song, currentPlaybackId) {
     }
 
     activeHandle = handle;
+    handle.setStereo(currentStereoMode);
     setActiveChannelGains(handle.channelGains);
     applyChannelStates();
     const startedAt = performance.now();
@@ -463,6 +679,11 @@ function isChannelAudible(channel) {
   return channelMixer.isAudible(channel);
 }
 
+function getChannelOutputLevel(channel) {
+  const channelState = channelMixer.getChannelState(channel);
+  return channelState?.audible ? channelState.volume : 0;
+}
+
 function toggleMute(channel) {
   channelMixer.toggleMute(channel);
   applyChannelStates();
@@ -471,6 +692,12 @@ function toggleMute(channel) {
 function toggleSolo(channel) {
   channelMixer.toggleSolo(channel);
   applyChannelStates();
+}
+
+function setChannelVolume(channel, value) {
+  channelMixer.setVolume(channel, value);
+  applyChannelStates();
+  saveMixerForSong();
 }
 
 function setAvailableChannels(channels) {
@@ -502,9 +729,15 @@ function setStereoMode(mode) {
 }
 
 function updateStereoButtons() {
-  stereoMonoBtn?.classList.toggle('is-active', currentStereoMode === 'mono');
-  stereoAcbBtn?.classList.toggle('is-active', currentStereoMode === 'acb');
-  stereoAbcBtn?.classList.toggle('is-active', currentStereoMode === 'abc');
+  for (const [button, mode] of [
+    [stereoMonoBtn, 'mono'],
+    [stereoAcbBtn, 'acb'],
+    [stereoAbcBtn, 'abc'],
+  ]) {
+    const active = currentStereoMode === mode;
+    button?.classList.toggle('is-active', active);
+    button?.setAttribute('aria-pressed', String(active));
+  }
 }
 
 function applyChannelStates() {
@@ -513,7 +746,7 @@ function applyChannelStates() {
   for (const ch of MONITOR_CHANNELS) {
     const view = channelViews[ch];
     const channelState = channelMixer.getChannelState(ch);
-    const { available, muted: isMuted, solo: isSolo, audible: isAudible } = channelState;
+    const { available, muted: isMuted, solo: isSolo, audible: isAudible, volume } = channelState;
 
     if (view?.muteBtn) {
       view.muteBtn.classList.toggle('is-active', isMuted);
@@ -529,16 +762,23 @@ function applyChannelStates() {
       view.element.classList.toggle('is-muted', available && isMuted && !isSolo);
       view.element.classList.toggle('is-suppressed', available && soloChannel !== null && !isSolo);
       view.element.classList.toggle('is-unavailable', !available);
+      view.element.style.setProperty('--channel-level', String(volume));
+    }
+    if (view?.volumeRange) {
+      view.volumeRange.value = String(Math.round(volume * 100));
+      view.volumeRange.disabled = !available;
+      view.volumeRange.setAttribute('aria-valuetext', `${Math.round(volume * 100)} percent`);
+    }
+    if (view?.volumeValue) {
+      view.volumeValue.textContent = `${Math.round(volume * 100)}%`;
     }
 
     if (activeChannelGains[ch] && audioCtx) {
-      const targetGain = isAudible ? 1.0 : 0.0;
+      const targetGain = isAudible ? volume : 0.0;
       activeChannelGains[ch].gain.cancelScheduledValues(audioCtx.currentTime);
       activeChannelGains[ch].gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.012);
     }
   }
-
-  activeBeeperHandle?.setAudible(isChannelAudible(BEEPER_CHANNEL));
 }
 
 function applyStereoModeToAudio() {
@@ -559,32 +799,6 @@ function applyStereoModeToAudio() {
 function noiseCutoffHz(period = 8) {
   const p = Math.max(1, Math.min(31, period));
   return Math.round(18000 * Math.pow(0.5, (p - 1) / 5));
-}
-
-function scheduleAYEnvelope(param, shape, cycleDur, startTime, numCycles) {
-  const desc = AY_ENVELOPE_SHAPES[shape];
-  if (!desc) return;
-  const { CONT, ATT, ALT, HOLD } = desc;
-  const lo = 0.0001;
-  const hi = (AY_VOL[15] ?? 1.0) * 0.28;
-
-  const ramp = (from, to, t) => {
-    param.setValueAtTime(from, t);
-    param.linearRampToValueAtTime(to, t + cycleDur);
-  };
-
-  if (!CONT || HOLD) {
-    ramp(ATT ? lo : hi, ATT ? hi : lo, startTime);
-    const holdVal = (ATT === 0 && HOLD && ALT) || (ATT === 1 && HOLD && !ALT) ? hi : lo;
-    param.setValueAtTime(holdVal, startTime + cycleDur);
-    return;
-  }
-
-  for (let i = 0; i < numCycles; i += 1) {
-    const t = startTime + i * cycleDur;
-    const goUp = ALT ? (ATT ? i % 2 === 0 : i % 2 === 1) : ATT === 1;
-    ramp(goUp ? lo : hi, goUp ? hi : lo, t);
-  }
 }
 
 // Generovanie bieleho šumu pre bicie a LFSR zvukové efekty
@@ -617,8 +831,7 @@ function playAYStereo(timelines, song) {
     activeChannelPanners[channel] = panner;
 
     const channelGain = ctx.createGain();
-    const isAudible = isChannelAudible(channel);
-    channelGain.gain.value = isAudible ? 1.0 : 0.0;
+    channelGain.gain.value = getChannelOutputLevel(channel);
     activeChannelGains[channel] = channelGain;
 
     channelGain.connect(panner);
@@ -876,7 +1089,7 @@ function playAmbulance(amb, phasePlan) {
     scheduleEnvelope(gainL.gain, start, left);
     scheduleEnvelope(gainR.gain, start, right);
     scheduleAmbulancePhase(phaseWindow.gain, start, phase);
-    channelGain.gain.value = isChannelAudible(phase.channel) ? 1 : 0;
+    channelGain.gain.value = getChannelOutputLevel(phase.channel);
     activeChannelGains[phase.channel] = channelGain;
   }
 
@@ -1111,64 +1324,82 @@ function appendPattern(track, timeline, pattern, repeat) {
 }
 
 function startBeeperTrack(notes, pan, startedAt) {
-  const audio = getAudioContext();
-  if (!audio || notes.length === 0) return null;
+  const ctx = getAudioContext();
+  const output = getMasterGain();
+  if (!ctx || !output || notes.length === 0) return null;
 
   const events = createBeeperTimeline(notes);
   if (events.length === 0) return null;
 
-  let nextEvent = 0;
-  let timerId = 0;
+  const audioStart = ctx.currentTime + Math.max(0, startedAt - performance.now()) / 1000;
+  const channelGain = ctx.createGain();
+  const clampedPan = Math.max(-1, Math.min(1, pan));
+  const panner = clampedPan === 0 ? null : ctx.createStereoPanner();
+  const voices = new Set();
   let stopped = false;
-  let audible = isChannelAudible(BEEPER_CHANNEL);
-  let soundingEventIndex = -1;
 
-  const playRemaining = (event, nowMs = performance.now()) => {
-    if (!audible || soundingEventIndex === event.index) return;
-    const active = getActiveBeeperEvent(events, nowMs - startedAt);
-    const currentAudio = getAudioContext();
-    if (!currentAudio || active?.event.index !== event.index) return;
-    soundingEventIndex = event.index;
-    beep(event.freq, active.remainingMs, currentAudio.currentTime, pan);
-  };
+  channelGain.gain.value = getChannelOutputLevel(BEEPER_CHANNEL);
+  if (panner) {
+    panner.pan.value = clampedPan;
+    channelGain.connect(panner);
+    panner.connect(output);
+  } else {
+    channelGain.connect(output);
+  }
+  activeChannelGains[BEEPER_CHANNEL] = channelGain;
+  activeChannelPanners[BEEPER_CHANNEL] = panner;
 
-  const scheduleNext = () => {
-    if (stopped || nextEvent >= events.length) return;
-    const event = events[nextEvent];
-    const dueAt = startedAt + event.startMs;
-    timerId = globalThis.setTimeout(
-      () => {
-        if (stopped) return;
-        nextEvent += 1;
-        playRemaining(event, Math.max(performance.now(), dueAt));
-        scheduleNext();
-      },
-      Math.max(0, dueAt - performance.now()),
-    );
-  };
+  for (const event of events) {
+    const start = audioStart + event.startMs / 1000;
+    const end = audioStart + event.endMs / 1000;
+    const duration = Math.max(0, end - start);
+    const edge = Math.min(0.005, duration / 2);
+    const oscillator = ctx.createOscillator();
+    const noteGain = ctx.createGain();
+    const voice = { oscillator, noteGain, start };
 
-  scheduleNext();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(event.freq, start);
+    noteGain.gain.setValueAtTime(0, start);
+    noteGain.gain.linearRampToValueAtTime(0.8, start + edge);
+    noteGain.gain.setValueAtTime(0.8, Math.max(start + edge, end - edge));
+    noteGain.gain.linearRampToValueAtTime(0, end);
+    oscillator.connect(noteGain);
+    noteGain.connect(channelGain);
+    oscillator.onended = () => voices.delete(voice);
+    oscillator.start(start);
+    oscillator.stop(end + 0.01);
+    voices.add(voice);
+  }
+
   return {
-    setAudible(nextAudible) {
-      if (stopped || audible === nextAudible) return;
-      audible = nextAudible;
-
-      if (!audible) {
-        soundingEventIndex = -1;
-        stopBeep();
-        return;
-      }
-
-      const elapsedMs = performance.now() - startedAt;
-      const active = getActiveBeeperEvent(events, elapsedMs);
-      if (active) playRemaining(active.event);
-    },
     stop() {
       if (stopped) return;
       stopped = true;
-      globalThis.clearTimeout(timerId);
-      soundingEventIndex = -1;
-      stopBeep();
+      const now = ctx.currentTime;
+      for (const voice of voices) {
+        const { oscillator, noteGain, start } = voice;
+        noteGain.gain.cancelScheduledValues(now);
+        try {
+          if (start > now) {
+            noteGain.gain.setValueAtTime(0, now);
+            oscillator.stop(now);
+          } else {
+            noteGain.gain.setValueAtTime(noteGain.gain.value, now);
+            noteGain.gain.linearRampToValueAtTime(0, now + 0.005);
+            oscillator.stop(now + 0.005);
+          }
+        } catch {
+          // The oscillator may already have ended between the callback and this loop.
+        }
+      }
+      voices.clear();
+      globalThis.setTimeout(() => {
+        channelGain.disconnect();
+        panner?.disconnect();
+      }, 12);
+      activeChannelGains[BEEPER_CHANNEL] = null;
+      activeChannelPanners[BEEPER_CHANNEL] = null;
     },
   };
 }
@@ -1334,7 +1565,6 @@ function finishPlayback(totalDurationMs) {
   handle?.stop();
   activeBeeperHandle?.stop();
   activeBeeperHandle = null;
-  stopBeep();
   clearActiveChannelNodes();
   playbackPending = null;
   playBtn.disabled = false;
@@ -1354,7 +1584,6 @@ function stopCurrentPlayback({ resetMonitor: shouldResetMonitor }) {
   handle?.stop();
   activeBeeperHandle?.stop();
   activeBeeperHandle = null;
-  stopBeep();
   clearActiveChannelNodes();
   stopBtn.disabled = true;
   playBtn.disabled = selectedSong === null;
@@ -1374,6 +1603,8 @@ function createChannelView(element, channel) {
     state: element.querySelector('[data-role="state"]'),
     panDot: element.querySelector('[data-role="pan-dot"]'),
     panLabel: element.querySelector('[data-role="pan-label"]'),
+    volumeRange: element.querySelector('[data-role="volume-range"]'),
+    volumeValue: element.querySelector('[data-role="volume-value"]'),
   };
 
   view.muteBtn?.addEventListener('click', (e) => {
@@ -1384,6 +1615,10 @@ function createChannelView(element, channel) {
   view.soloBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleSolo(channel);
+  });
+
+  view.volumeRange?.addEventListener('input', (e) => {
+    setChannelVolume(channel, Number(e.currentTarget.value) / 100);
   });
 
   return view;
@@ -1595,9 +1830,15 @@ function formatTime(milliseconds) {
   return `${minutes}:${String(seconds).padStart(2, '0')}.${String(cents).padStart(2, '0')}`;
 }
 
+function isInteractiveShortcutTarget(target) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('a, button, input, select, summary, textarea, [contenteditable="true"], [role="button"]'))
+  );
+}
+
 window.addEventListener('keydown', (e) => {
-  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
-  if (e.repeat) return;
+  if (isInteractiveShortcutTarget(e.target) || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
 
   if (e.code === 'Space') {
     e.preventDefault();

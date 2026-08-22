@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isSupportedSongFile, metadataSidecarCandidates, normalizeCatalog } from './song-catalog-metadata.js';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, '..');
@@ -16,15 +17,18 @@ for (const file of songFiles) {
   const type = getSongType(file);
 
   if (type !== 'json') {
-    const meta = metadataFromPSGFilename(file);
+    const sidecar = await readMetadataSidecar(file);
+    const filenameMeta = metadataFromPSGFilename(file);
+    const machine = sidecar?.machine ?? 'melodik';
     songs.push({
-      id: slugFromFile(file),
-      title: meta.title,
-      ...(meta.artist ? { artist: meta.artist } : {}),
+      id: sidecar?.id ?? slugFromFile(file),
+      title: sidecar?.title ?? filenameMeta.title,
+      ...((sidecar?.artist ?? filenameMeta.artist) ? { artist: sidecar?.artist ?? filenameMeta.artist } : {}),
       file,
       type,
-      machine: 'melodik',
-      loop: true,
+      machine,
+      loop: sidecar?.loop ?? true,
+      catalog: normalizeCatalog(sidecar?.catalog, { type, machine }),
     });
     continue;
   }
@@ -47,6 +51,10 @@ for (const file of songFiles) {
     ...(parsed.artist ? { artist: parsed.artist } : {}),
     file,
     type,
+    catalog: normalizeCatalog(parsed.catalog, {
+      type,
+      effect: Boolean(parsed.effect),
+    }),
   });
 }
 
@@ -75,15 +83,26 @@ async function findSongFiles() {
   return [...rootFiles, ...generatedFiles].sort((left, right) => left.localeCompare(right));
 }
 
-function isSupportedSongFile(file) {
-  if (file === 'index.json') return false;
-  return ['.json', '.psg'].includes(path.extname(file).toLowerCase());
-}
-
 function getSongType(file) {
   const extension = path.extname(file).toLowerCase();
   if (extension === '.psg') return 'psg';
   return 'json';
+}
+
+async function readMetadataSidecar(file) {
+  for (const candidate of metadataSidecarCandidates(file)) {
+    try {
+      const metadata = JSON.parse(await readFile(path.join(songsDirectory, candidate), 'utf8'));
+      if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+        throw new TypeError('metadata sidecar musí obsahovať JSON objekt');
+      }
+      return metadata;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw new Error(`${candidate}: neplatný PSG metadata sidecar.`, { cause: error });
+    }
+  }
+
+  return undefined;
 }
 
 function slugFromFile(file) {

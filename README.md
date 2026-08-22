@@ -10,15 +10,17 @@ Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs b
 
 - One JSON file per song in `songs/`.
 - PSG register-dump playback through `zx-kit` `loadPSG()` and a channelised `aydump` AudioWorklet.
-- PT3 files are listed as source material and must be converted offline to PSG before playback.
-- Automatically generated song catalogue for the dropdown menu.
+- PT3 source modules are converted offline to PSG before playback.
+- Responsive cover-based song library with unique hardware-valid ZX Spectrum artwork.
+- Catalogue metadata for release/original dates, source and runtime formats, target chip, and structured rights.
 - Separate **Play** and **Stop** controls.
 - Live monitor for AY channels A/B/C and the optional beeper track.
 - Per-channel **MUTE** and exclusive **SOLO** controls for JSON, PSG, and ambulance playback.
+- Independent 0–100% channel faders, remembered per song in local storage.
 - Runtime MONO, ACB, and ABC stereo selection.
 - Full `zx-kit` AY notes: per-note duration, amplitude, noise period, hardware envelope shape, and envelope cycle.
 - Optional per-channel stereo pan.
-- Optional pattern/arrangement-driven beeper track using `zx-kit`'s independent `beep()` path.
+- Optional pattern/arrangement-driven beeper track with an independently mixable square-wave signal path.
 - Pattern-level timeline visualisation: active pattern, pass, step, token, tone/noise/rest, volume, and envelope.
 - No frontend build tool or framework required.
 - Formatting enforced with Prettier.
@@ -61,6 +63,7 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 
 | Command                  | Purpose                                                                        |
 | ------------------------ | ------------------------------------------------------------------------------ |
+| `npm run songs:convert`  | Converts PT3 source modules to generated PSG register dumps.                   |
 | `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                           |
 | `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.              |
 | `npm test`               | Runs the mixer, Beeper timeline, ambulance phase, and PSG isolation tests.     |
@@ -74,14 +77,19 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 ```text
 .
 ├── assets/
+│   ├── covers/<song-id>/{cover.png,cover.scr,cover-4x.png}
 │   └── screenshot.png
 ├── scripts/
 │   ├── archive-project.mjs
 │   ├── ambulance-phases.js
 │   ├── beeper-timeline.js
 │   ├── channel-mixer.js
+│   ├── channel-volume-store.js
 │   ├── generate-song-library.mjs
+│   ├── PT3PSGConverter.mjs
+│   ├── pt3-metadata-sidecar.js
 │   ├── psg-channel-player.js
+│   ├── song-catalog-metadata.js
 │   ├── validate-songs.mjs
 │   └── player.js
 ├── tests/
@@ -102,14 +110,14 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 ## Adding a JSON Song
 
 1. Copy `songs/_new_song.json.example` to a new filename, for example `songs/moon_run.json`.
-2. Set a unique `id`, title, artist, description, patterns, and arrangements.
+2. Set a unique `id`, title, artist, description, catalogue/rights metadata, patterns, and arrangements.
 3. Run:
 
    ```bash
    npm run build
    ```
 
-4. Reload the player. The new song appears in the dropdown automatically.
+4. Reload the player. The new song appears in the cover library automatically.
 
 The browser cannot enumerate files in `songs/` by itself. `scripts/generate-song-library.mjs` solves this by collecting every real `*.json` song file, excluding `songs/index.json`, and generating the catalogue consumed by the player.
 
@@ -117,9 +125,57 @@ The browser cannot enumerate files in `songs/` by itself. `scripts/generate-song
 
 ## Adding PSG / PT3 Music
 
-PSG is the runtime format for real AY scene music in this player. Put a `.psg` file into `songs/`, run `npm run build`, reload the page, and the file appears in the dropdown with a `[PSG]` suffix.
+PSG is the runtime format for real AY scene music in this player. Put a `.psg` file into `songs/`, run `npm run build`, reload the page, and the file appears in the cover library.
 
 PT3 is not directly playable at runtime. Keep `.pt3` files in `songs/` as source material — `npm run build` (via `npm run songs:convert`, `scripts/PT3PSGConverter.mjs`) renders them to `.psg` register dumps in `songs/generated/`, which the player then lists like any other PSG file. Native runtime PT3 playback still belongs in a future `zx-kit` `pt3.ts` module built on top of `AYChipCore`, not in `zxplayer`.
+
+Binary music metadata lives in an optional JSON sidecar. For `demo.psg`, the generator first looks for `demo.psg.meta.json` and then `demo.meta.json`. A PT3 source follows the same convention; its metadata is copied to the uniquely named generated output as `<output>.psg.meta.json` during conversion.
+
+## Catalogue Metadata and Rights
+
+Each song may include an additive `catalog` block. It informs the listener how the checked-in source reaches the browser runtime; it does not add a runtime format picker or converter.
+
+```json
+{
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1824",
+    "cover": "/assets/covers/my_new_song/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Historical composition; catalogued as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://example.com/authoritative-source",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY arrangement © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Song source © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "Cover artwork © 2026 Your name. All rights reserved.",
+        "holder": "Your name"
+      }
+    }
+  }
+}
+```
+
+Supported rights statuses are `public-domain-eu`, `all-rights-reserved`, `licensed`, and `unverified`. The catalogue generator derives `rightsStatus`; do not author it manually. A song remains playable when any category is unverified, but the player opens a prominent **RIGHTS UNVERIFIED** warning. Rights metadata documents the available evidence and is not a substitute for legal advice.
+
+Missing covers use `/assets/covers/fallback/cover.png`. Native web covers are 256×192 PNG files; the accompanying 6912-byte SCR file is the hardware-authentic ZX Spectrum source and `cover-4x.png` is a nearest-neighbour preview.
 
 ## Song Format
 
@@ -250,7 +306,7 @@ Event values override pattern defaults. `note` and `freq` are mutually exclusive
 
 Short hits should be followed by an explicit rest so their duration and rhythmic spacing remain independent. AY-only fields such as `vol`, `noise`, and `envShape` are rejected in beeper options.
 
-The player schedules one upcoming beeper event at a time. Pressing **Stop** cancels future and currently sounding beeper events. AY playback is stopped independently through its playback handle.
+The player schedules the beeper against the same `AudioContext` clock as AY playback. Its independent gain path makes MUTE, SOLO, and the Beeper volume fader effective without touching AY registers. Pressing **Stop** cancels queued tones and releases the currently sounding square wave over 5 ms to avoid clicks. AY playback is stopped independently through its playback handle.
 
 ## Live Audio Monitor
 
@@ -267,7 +323,9 @@ The monitor is derived from the same generated pattern timeline used for playbac
 
 Each available card has **MUTE** and **SOLO** buttons. SOLO is exclusive: selecting one channel temporarily suppresses every other available channel, including the independent beeper. Selecting the same SOLO again restores the stored MUTE states. Pressing MUTE on the current solo channel exits SOLO and leaves that channel muted. Unavailable channels, such as Beeper in a three-channel song, have disabled controls.
 
-Keyboard shortcuts use `1`–`4` for MUTE and `Shift+1`–`Shift+4` for SOLO (A, B, C, Beeper). `S` cycles the stereo mode and `Space` starts or stops playback.
+The volume fader on each card changes only that channel and does not toggle MUTE, including at 0%. The four values are stored per song under `zxplayer.channelVolumes.v1`; **RESET MIX** restores the selected song to 100% without changing MUTE or SOLO.
+
+Keyboard shortcuts use `1`–`4` for MUTE and `Shift+1`–`Shift+4` for SOLO (A, B, C, Beeper). `S` cycles the stereo mode and `Space` starts or stops playback. Shortcuts stay inactive while focus is on an interactive control and never consume Ctrl/Cmd/Alt-modified keystrokes.
 
 ## Creating a Source Archive
 

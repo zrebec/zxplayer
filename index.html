@@ -1,231 +1,415 @@
 <!doctype html>
-<html lang="sk">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080817" />
     <title>ZX-KIT PLAYER</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
+    <a class="skip-link" href="#playerMonitor">SKIP TO MIXER</a>
+
     <main class="app">
       <div class="app__content">
-        <h1 class="app__title">ZX-KIT PLAYER</h1>
-        <p id="songTitle" class="app__subtitle">NAČÍTAVAM HUDOBNÚ KNIŽNICU…</p>
+        <header class="app__masthead">
+          <div>
+            <p class="app__eyebrow">RETRO TRACKS · MODERN SIGNAL</p>
+            <h1 class="app__title">ZX-KIT <span>PLAYER</span></h1>
+          </div>
+          <p class="app__tagline">AY-3-8910 · YM2149 · 1-BIT BEEPER</p>
+        </header>
 
         <section class="library" aria-labelledby="libraryLabel">
-          <label id="libraryLabel" class="library__label" for="songSelect">SKLADBA</label>
-          <select id="songSelect" class="library__select" disabled>
-            <option>Načítavam…</option>
+          <div class="section-heading">
+            <div>
+              <p class="section-heading__kicker">CHOOSE A SIGNAL</p>
+              <h2 id="libraryLabel" class="section-heading__title">TRACK LIBRARY</h2>
+            </div>
+            <p class="section-heading__hint">SCROLL TO EXPLORE</p>
+          </div>
+
+          <label class="visually-hidden" for="songSelect">Select a track</label>
+          <select id="songSelect" hidden disabled>
+            <option>Loading…</option>
           </select>
-          <p id="songMeta" class="library__meta">Každý JSON v <code>songs/</code> reprezentuje jednu skladbu.</p>
-        </section>
 
-        <div class="controls" aria-label="Ovládanie prehrávača">
-          <button id="playBtn" class="controls__button" type="button" disabled>▶ PLAY</button>
-          <button id="stopBtn" class="controls__button controls__button--stop" type="button" disabled>■ STOP</button>
-        </div>
-
-        <section class="stereo-bar" aria-labelledby="stereoLabel">
-          <span id="stereoLabel" class="stereo-bar__label">STEREO:</span>
-          <div class="stereo-bar__group" role="group" aria-label="Voľba stereo módu">
-            <button
-              id="stereoMonoBtn"
-              class="stereo-bar__btn"
-              type="button"
-              data-stereo="mono"
-              title="Klasické mono (TV reproduktor)"
-            >
-              MONO
-            </button>
-            <button
-              id="stereoAcbBtn"
-              class="stereo-bar__btn is-active"
-              type="button"
-              data-stereo="acb"
-              title="ACB stereo (Didaktik Melodik štandard)"
-            >
-              ACB (MELODIK)
-            </button>
-            <button
-              id="stereoAbcBtn"
-              class="stereo-bar__btn"
-              type="button"
-              data-stereo="abc"
-              title="ABC stereo (Demoscéna štandard)"
-            >
-              ABC
-            </button>
+          <div id="songLibrary" class="library__rail" aria-live="polite" aria-busy="true">
+            <div class="library__loading" role="status">
+              <span class="library__loading-art" aria-hidden="true"></span>
+              <span>LOADING TRACKS…</span>
+            </div>
           </div>
         </section>
 
-        <p id="status" class="app__status" aria-live="polite">Načítavam register skladieb…</p>
+        <section class="player-hero" aria-labelledby="songTitle">
+          <figure class="player-hero__cover-wrap">
+            <img
+              id="songCover"
+              class="player-hero__cover"
+              src="assets/covers/fallback/cover.png"
+              alt=""
+              width="256"
+              height="192"
+              decoding="async"
+            />
+            <figcaption class="player-hero__cover-label">ZX ARTWORK · 256×192</figcaption>
+          </figure>
 
-        <section class="monitor" aria-labelledby="monitorTitle">
+          <div class="player-hero__content">
+            <p class="player-hero__eyebrow"><span aria-hidden="true"></span> NOW PLAYING</p>
+            <h2 id="songTitle" class="player-hero__title">LOADING MUSIC LIBRARY…</h2>
+            <p id="songArtist" class="player-hero__artist">—</p>
+
+            <dl class="track-facts" aria-label="Track information">
+              <div class="track-facts__item">
+                <dt>RELEASE</dt>
+                <dd id="songReleaseYear">—</dd>
+              </div>
+              <div class="track-facts__item">
+                <dt>ORIGINAL</dt>
+                <dd id="songOriginalDate">—</dd>
+              </div>
+              <div class="track-facts__item">
+                <dt>CHIP</dt>
+                <dd id="songChip">—</dd>
+              </div>
+              <div class="track-facts__item">
+                <dt>SIGNAL PATH</dt>
+                <dd id="songFormat">—</dd>
+              </div>
+            </dl>
+
+            <p id="songMeta" class="player-hero__description">
+              Track information will appear here when the library is ready.
+            </p>
+
+            <details id="songRights" class="rights-panel">
+              <summary>
+                <span id="rightsBadge" class="rights-panel__badge">RIGHTS UNVERIFIED</span>
+                <span class="rights-panel__action">VIEW DETAILS <span aria-hidden="true">＋</span></span>
+              </summary>
+              <div id="rightsDetails" class="rights-panel__details">Rights information has not been loaded yet.</div>
+            </details>
+
+            <section class="stereo-bar" aria-labelledby="stereoLabel">
+              <span id="stereoLabel" class="stereo-bar__label">STEREO MODE</span>
+              <div class="stereo-bar__group" role="group" aria-label="Stereo mode">
+                <button
+                  id="stereoMonoBtn"
+                  class="stereo-bar__btn"
+                  type="button"
+                  data-stereo="mono"
+                  title="Classic mono (TV speaker)"
+                >
+                  MONO
+                </button>
+                <button
+                  id="stereoAcbBtn"
+                  class="stereo-bar__btn is-active"
+                  type="button"
+                  data-stereo="acb"
+                  title="ACB stereo (Didaktik Melodik standard)"
+                >
+                  ACB (MELODIK)
+                </button>
+                <button
+                  id="stereoAbcBtn"
+                  class="stereo-bar__btn"
+                  type="button"
+                  data-stereo="abc"
+                  title="ABC stereo (demoscene standard)"
+                >
+                  ABC
+                </button>
+              </div>
+            </section>
+
+            <div class="controls" aria-label="Player controls">
+              <button id="playBtn" class="controls__button controls__button--play" type="button" disabled>
+                <span aria-hidden="true">▶</span> PLAY
+              </button>
+              <button id="stopBtn" class="controls__button controls__button--stop" type="button" disabled>
+                <span aria-hidden="true">■</span> STOP
+              </button>
+            </div>
+
+            <p id="status" class="app__status" aria-live="polite">Loading track registry…</p>
+          </div>
+        </section>
+
+        <section id="playerMonitor" class="monitor" aria-labelledby="monitorTitle">
           <header class="monitor__header">
-            <p id="monitorTitle" class="monitor__title">AY + BEEPER MONITOR</p>
-            <p id="monitorTime" class="monitor__time">0:00.00 / 0:00.00</p>
+            <div>
+              <p class="monitor__eyebrow">LIVE CHIP ACTIVITY</p>
+              <h2 id="monitorTitle" class="monitor__title">AY + BEEPER MIXER</h2>
+            </div>
+            <div class="monitor__toolbar">
+              <p id="monitorTime" class="monitor__time">0:00.00 / 0:00.00</p>
+              <button id="resetMixBtn" class="monitor__reset" type="button">RESET MIX</button>
+            </div>
           </header>
-
-          <div class="monitor__channels">
-            <div id="channelA" class="monitor__channel monitor__channel--a" aria-label="Kanál A">
-              <div class="channel__head-row">
-                <p class="channel__head" data-role="channel-name">A / CHANNEL</p>
-                <div class="channel__toggles">
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--mute"
-                    data-role="mute-btn"
-                    data-channel="A"
-                    title="Stlmiť kanál A (Klávesa 1)"
-                  >
-                    MUTE
-                  </button>
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--solo"
-                    data-role="solo-btn"
-                    data-channel="A"
-                    title="Sólo kanál A (Shift+1)"
-                  >
-                    SOLO
-                  </button>
-                </div>
-              </div>
-              <p class="channel__label">SEQUENCE</p>
-              <p class="channel__value" data-role="sequence">WAITING</p>
-              <p class="channel__label">PASS</p>
-              <p class="channel__value" data-role="pass">—</p>
-              <p class="channel__label">STEP</p>
-              <p class="channel__value" data-role="step">—</p>
-              <p class="channel__state" data-role="state">○ WAITING</p>
-              <div class="channel__pan" aria-hidden="true">
-                <span class="channel__pan-end">L</span>
-                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
-                <span class="channel__pan-end">R</span>
-              </div>
-              <p class="channel__pan-label" data-role="pan-label">—</p>
-            </div>
-
-            <div id="channelB" class="monitor__channel monitor__channel--b" aria-label="Kanál B">
-              <div class="channel__head-row">
-                <p class="channel__head" data-role="channel-name">B / CHANNEL</p>
-                <div class="channel__toggles">
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--mute"
-                    data-role="mute-btn"
-                    data-channel="B"
-                    title="Stlmiť kanál B (Klávesa 2)"
-                  >
-                    MUTE
-                  </button>
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--solo"
-                    data-role="solo-btn"
-                    data-channel="B"
-                    title="Sólo kanál B (Shift+2)"
-                  >
-                    SOLO
-                  </button>
-                </div>
-              </div>
-              <p class="channel__label">SEQUENCE</p>
-              <p class="channel__value" data-role="sequence">WAITING</p>
-              <p class="channel__label">PASS</p>
-              <p class="channel__value" data-role="pass">—</p>
-              <p class="channel__label">STEP</p>
-              <p class="channel__value" data-role="step">—</p>
-              <p class="channel__state" data-role="state">○ WAITING</p>
-              <div class="channel__pan" aria-hidden="true">
-                <span class="channel__pan-end">L</span>
-                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
-                <span class="channel__pan-end">R</span>
-              </div>
-              <p class="channel__pan-label" data-role="pan-label">—</p>
-            </div>
-
-            <div id="channelC" class="monitor__channel monitor__channel--c" aria-label="Kanál C">
-              <div class="channel__head-row">
-                <p class="channel__head" data-role="channel-name">C / CHANNEL</p>
-                <div class="channel__toggles">
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--mute"
-                    data-role="mute-btn"
-                    data-channel="C"
-                    title="Stlmiť kanál C (Klávesa 3)"
-                  >
-                    MUTE
-                  </button>
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--solo"
-                    data-role="solo-btn"
-                    data-channel="C"
-                    title="Sólo kanál C (Shift+3)"
-                  >
-                    SOLO
-                  </button>
-                </div>
-              </div>
-              <p class="channel__label">SEQUENCE</p>
-              <p class="channel__value" data-role="sequence">WAITING</p>
-              <p class="channel__label">PASS</p>
-              <p class="channel__value" data-role="pass">—</p>
-              <p class="channel__label">STEP</p>
-              <p class="channel__value" data-role="step">—</p>
-              <p class="channel__state" data-role="state">○ WAITING</p>
-              <div class="channel__pan" aria-hidden="true">
-                <span class="channel__pan-end">L</span>
-                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
-                <span class="channel__pan-end">R</span>
-              </div>
-              <p class="channel__pan-label" data-role="pan-label">—</p>
-            </div>
-
-            <div id="channelBeeper" class="monitor__channel monitor__channel--beeper" aria-label="Samostatný beeper">
-              <div class="channel__head-row">
-                <p class="channel__head" data-role="channel-name">BEEPER / UNUSED</p>
-                <div class="channel__toggles">
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--mute"
-                    data-role="mute-btn"
-                    data-channel="BEEPER"
-                    title="Stlmiť beeper (Klávesa 4)"
-                  >
-                    MUTE
-                  </button>
-                  <button
-                    type="button"
-                    class="channel__btn channel__btn--solo"
-                    data-role="solo-btn"
-                    data-channel="BEEPER"
-                    title="Sólo beeper (Shift+4)"
-                  >
-                    SOLO
-                  </button>
-                </div>
-              </div>
-              <p class="channel__label">SEQUENCE</p>
-              <p class="channel__value" data-role="sequence">— UNUSED —</p>
-              <p class="channel__label">PASS</p>
-              <p class="channel__value" data-role="pass">—</p>
-              <p class="channel__label">STEP</p>
-              <p class="channel__value" data-role="step">—</p>
-              <p class="channel__state" data-role="state">○ SILENT</p>
-              <div class="channel__pan" aria-hidden="true">
-                <span class="channel__pan-end">L</span>
-                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
-                <span class="channel__pan-end">R</span>
-              </div>
-              <p class="channel__pan-label" data-role="pan-label">—</p>
-            </div>
-          </div>
 
           <div class="monitor__progress" aria-hidden="true">
             <div id="monitorProgress" class="monitor__progress-fill"></div>
+          </div>
+
+          <div class="monitor__channels">
+            <article id="channelA" class="monitor__channel monitor__channel--a" aria-label="Channel A">
+              <header class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">A / CHANNEL</p>
+                <p class="channel__state" data-role="state">○ WAITING</p>
+              </header>
+              <div class="channel__toggles" role="group" aria-label="Channel A controls">
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--mute"
+                  data-role="mute-btn"
+                  data-channel="A"
+                  title="Mute channel A (Key 1)"
+                >
+                  MUTE
+                </button>
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--solo"
+                  data-role="solo-btn"
+                  data-channel="A"
+                  title="Solo channel A (Shift+1)"
+                >
+                  SOLO
+                </button>
+              </div>
+              <div class="channel__telemetry">
+                <div class="channel__metric channel__metric--sequence">
+                  <p class="channel__label">SEQUENCE</p>
+                  <p class="channel__value" data-role="sequence">WAITING</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">PASS</p>
+                  <p class="channel__value" data-role="pass">—</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">STEP</p>
+                  <p class="channel__value" data-role="step">—</p>
+                </div>
+              </div>
+              <div class="channel__volume">
+                <label for="channelAVolume">VOLUME</label>
+                <output for="channelAVolume" data-role="volume-value">100%</output>
+                <input
+                  id="channelAVolume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  data-role="volume-range"
+                  data-channel="A"
+                  aria-label="Channel A volume"
+                  disabled
+                />
+              </div>
+              <div class="channel__pan" aria-hidden="true">
+                <span class="channel__pan-end">L</span>
+                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
+                <span class="channel__pan-end">R</span>
+              </div>
+              <p class="channel__pan-label" data-role="pan-label">—</p>
+            </article>
+
+            <article id="channelB" class="monitor__channel monitor__channel--b" aria-label="Channel B">
+              <header class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">B / CHANNEL</p>
+                <p class="channel__state" data-role="state">○ WAITING</p>
+              </header>
+              <div class="channel__toggles" role="group" aria-label="Channel B controls">
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--mute"
+                  data-role="mute-btn"
+                  data-channel="B"
+                  title="Mute channel B (Key 2)"
+                >
+                  MUTE
+                </button>
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--solo"
+                  data-role="solo-btn"
+                  data-channel="B"
+                  title="Solo channel B (Shift+2)"
+                >
+                  SOLO
+                </button>
+              </div>
+              <div class="channel__telemetry">
+                <div class="channel__metric channel__metric--sequence">
+                  <p class="channel__label">SEQUENCE</p>
+                  <p class="channel__value" data-role="sequence">WAITING</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">PASS</p>
+                  <p class="channel__value" data-role="pass">—</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">STEP</p>
+                  <p class="channel__value" data-role="step">—</p>
+                </div>
+              </div>
+              <div class="channel__volume">
+                <label for="channelBVolume">VOLUME</label>
+                <output for="channelBVolume" data-role="volume-value">100%</output>
+                <input
+                  id="channelBVolume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  data-role="volume-range"
+                  data-channel="B"
+                  aria-label="Channel B volume"
+                  disabled
+                />
+              </div>
+              <div class="channel__pan" aria-hidden="true">
+                <span class="channel__pan-end">L</span>
+                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
+                <span class="channel__pan-end">R</span>
+              </div>
+              <p class="channel__pan-label" data-role="pan-label">—</p>
+            </article>
+
+            <article id="channelC" class="monitor__channel monitor__channel--c" aria-label="Channel C">
+              <header class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">C / CHANNEL</p>
+                <p class="channel__state" data-role="state">○ WAITING</p>
+              </header>
+              <div class="channel__toggles" role="group" aria-label="Channel C controls">
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--mute"
+                  data-role="mute-btn"
+                  data-channel="C"
+                  title="Mute channel C (Key 3)"
+                >
+                  MUTE
+                </button>
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--solo"
+                  data-role="solo-btn"
+                  data-channel="C"
+                  title="Solo channel C (Shift+3)"
+                >
+                  SOLO
+                </button>
+              </div>
+              <div class="channel__telemetry">
+                <div class="channel__metric channel__metric--sequence">
+                  <p class="channel__label">SEQUENCE</p>
+                  <p class="channel__value" data-role="sequence">WAITING</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">PASS</p>
+                  <p class="channel__value" data-role="pass">—</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">STEP</p>
+                  <p class="channel__value" data-role="step">—</p>
+                </div>
+              </div>
+              <div class="channel__volume">
+                <label for="channelCVolume">VOLUME</label>
+                <output for="channelCVolume" data-role="volume-value">100%</output>
+                <input
+                  id="channelCVolume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  data-role="volume-range"
+                  data-channel="C"
+                  aria-label="Channel C volume"
+                  disabled
+                />
+              </div>
+              <div class="channel__pan" aria-hidden="true">
+                <span class="channel__pan-end">L</span>
+                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
+                <span class="channel__pan-end">R</span>
+              </div>
+              <p class="channel__pan-label" data-role="pan-label">—</p>
+            </article>
+
+            <article
+              id="channelBeeper"
+              class="monitor__channel monitor__channel--beeper"
+              aria-label="Independent beeper"
+            >
+              <header class="channel__head-row">
+                <p class="channel__head" data-role="channel-name">BEEPER / UNUSED</p>
+                <p class="channel__state" data-role="state">○ SILENT</p>
+              </header>
+              <div class="channel__toggles" role="group" aria-label="Beeper controls">
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--mute"
+                  data-role="mute-btn"
+                  data-channel="BEEPER"
+                  title="Mute beeper (Key 4)"
+                >
+                  MUTE
+                </button>
+                <button
+                  type="button"
+                  class="channel__btn channel__btn--solo"
+                  data-role="solo-btn"
+                  data-channel="BEEPER"
+                  title="Solo beeper (Shift+4)"
+                >
+                  SOLO
+                </button>
+              </div>
+              <div class="channel__telemetry">
+                <div class="channel__metric channel__metric--sequence">
+                  <p class="channel__label">SEQUENCE</p>
+                  <p class="channel__value" data-role="sequence">— UNUSED —</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">PASS</p>
+                  <p class="channel__value" data-role="pass">—</p>
+                </div>
+                <div class="channel__metric">
+                  <p class="channel__label">STEP</p>
+                  <p class="channel__value" data-role="step">—</p>
+                </div>
+              </div>
+              <div class="channel__volume">
+                <label for="channelBeeperVolume">VOLUME</label>
+                <output for="channelBeeperVolume" data-role="volume-value">100%</output>
+                <input
+                  id="channelBeeperVolume"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="100"
+                  data-role="volume-range"
+                  data-channel="BEEPER"
+                  aria-label="Beeper volume"
+                  disabled
+                />
+              </div>
+              <div class="channel__pan" aria-hidden="true">
+                <span class="channel__pan-end">L</span>
+                <div class="channel__pan-track"><span class="channel__pan-dot" data-role="pan-dot"></span></div>
+                <span class="channel__pan-end">R</span>
+              </div>
+              <p class="channel__pan-label" data-role="pan-label">—</p>
+            </article>
           </div>
         </section>
       </div>

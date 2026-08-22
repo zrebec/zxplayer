@@ -4,6 +4,38 @@
   "title": "Chaosbunny Escape",
   "artist": "Fox",
   "description": "Štvorfázový AY trance: jaskyňa, hlboká basa, beh a absolútny chaos.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026",
+    "cover": "/assets/covers/chaosbunny_escape/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "web-audio",
+      "chip": "AY-3-8910"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
   "channels": {
     "A": {
       "label": "BASS",

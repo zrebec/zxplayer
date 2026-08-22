@@ -2,6 +2,7 @@ export const CHANNELS = Object.freeze(['A', 'B', 'C', 'BEEPER']);
 
 export function createChannelMixer({ availability = {} } = {}) {
   const muted = Object.fromEntries(CHANNELS.map((channel) => [channel, false]));
+  const volumes = Object.fromEntries(CHANNELS.map((channel) => [channel, 1]));
   const available = Object.fromEntries(
     CHANNELS.map((channel) => [channel, availability[channel] === undefined ? true : Boolean(availability[channel])]),
   );
@@ -25,6 +26,7 @@ export function createChannelMixer({ availability = {} } = {}) {
       muted: muted[channel],
       solo: soloChannel === channel,
       audible: isAudible(channel),
+      volume: volumes[channel],
     });
   }
 
@@ -70,11 +72,25 @@ export function createChannelMixer({ availability = {} } = {}) {
     return getState();
   }
 
+  function setVolume(channel, value) {
+    if (!isKnownChannel(channel) || typeof value !== 'number' || !Number.isFinite(value)) return getState();
+
+    volumes[channel] = Math.min(1, Math.max(0, value));
+    return getState();
+  }
+
+  function resetVolumes() {
+    for (const channel of CHANNELS) volumes[channel] = 1;
+    return getState();
+  }
+
   return Object.freeze({
     getChannelState,
     getState,
     isAudible,
+    resetVolumes,
     setAvailability,
+    setVolume,
     toggleMute,
     toggleSolo,
   });
