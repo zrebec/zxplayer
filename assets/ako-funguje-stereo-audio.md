@@ -1,166 +1,396 @@
 # Ako funguje stereo zvuk v ZX-KIT Player
 
 > Polopatický sprievodca od úplného začiatočníka po stredne pokročilého.
-> Pre niekoho, kto **nemá hudobný sluch** a **nikdy nerobil zvuk v kóde**.
-> Čítaj pokojne po častiach. Každý pojem najprv vysvetlím cez prirovnanie.
+> Je určený aj človeku, ktorý nemá hudobný sluch a nikdy nerobil zvuk v kóde.
+> Čítaj pokojne po častiach: každý dôležitý pojem najprv vysvetlíme cez prirovnanie.
 
 ## Obsah
 
 1. [Ako vôbec počítač vyrobí zvuk](#1-ako-vôbec-počítač-vyrobí-zvuk)
-2. [Štyri „krabičky", z ktorých skladáme zvuk](#2-štyri-krabičky-z-ktorých-skladáme-zvuk)
-3. [Obálka — ako sa hlasitosť mení v čase](#3-obálka--ako-sa-hlasitosť-mení-v-čase)
-4. [Z čoho sa skladá náš prehrávač](#4-z-čoho-sa-skladá-náš-prehrávač)
-5. [Dva spôsoby, akými robíme zvuk](#5-dva-spôsoby-akými-robíme-zvuk)
-6. [Rozbor JSON: sanitka (efekt)](#6-rozbor-json-sanitka-efekt)
-7. [KDE SÚ HLASITOSTI](#7-kde-sú-hlasitosti)
-8. [Rozbor JSON: bežná skladba (noty + pan)](#8-rozbor-json-bežná-skladba-noty--pan)
-9. [Kde sa s tým môžem hrať (ťahák)](#9-kde-sa-s-tým-môžem-hrať-ťahák)
-10. [Sprav si Drum & Bass so striedaním na uši](#10-sprav-si-drum--bass-so-striedaním-na-uši)
-11. [Čo z toho prejde do zx-kit a čo nie](#11-čo-z-toho-prejde-do-zx-kit-a-čo-nie)
-12. [Ľahšie: natvrdo noty, alebo naučiť zx-kit čítať JSON?](#12-ľahšie-natvrdo-noty-alebo-naučiť-zx-kit-čítať-json)
-13. [Ako to po presune otestovať](#13-ako-to-po-presune-otestovať)
-14. [Slovníček](#14-slovníček)
+2. [Štyri „krabičky“, z ktorých skladáme zvuk](#2-štyri-krabičky-z-ktorých-skladáme-zvuk)
+3. [Štyri zvukové cesty prehrávača](#3-štyri-zvukové-cesty-prehrávača)
+4. [Kto číta JSON a kto vyrába zvuk](#4-kto-číta-json-a-kto-vyrába-zvuk)
+5. [Rozbor bežnej JSON skladby](#5-rozbor-bežnej-json-skladby)
+6. [Pan, stereo režim a sweep](#6-pan-stereo-režim-a-sweep)
+7. [Handles, mixer, MUTE a SOLO](#7-handles-mixer-mute-a-solo)
+8. [Hlasitosť AY, obálka a šum](#8-hlasitosť-ay-obálka-a-šum)
+9. [Sanitka: jediný lokálny procedurálny efekt](#9-sanitka-jediný-lokálny-procedurálny-efekt)
+10. [AY Soundcheck: 31-sekundová manuálna diagnostika](#10-ay-soundcheck-31-sekundová-manuálna-diagnostika)
+11. [Monitor, časovanie a autoplay](#11-monitor-časovanie-a-autoplay)
+12. [Kde sa s tým hrať a ako zmenu overiť](#12-kde-sa-s-tým-hrať-a-ako-zmenu-overiť)
+13. [Slovníček](#13-slovníček)
 
 ---
 
 ## 1. Ako vôbec počítač vyrobí zvuk
 
-Zvuk je **chvenie vzduchu**. Reproduktor (alebo membránka v AirpodE) sa hýbe tam a späť
-a tlačí vzduch — to chvenie ti dorazí do ucha. Vyššie/rýchlejšie chvenie = **vyšší tón**,
-pomalšie = **hlbší tón**.
+Zvuk je **chvenie vzduchu**. Membrána reproduktora sa hýbe tam a späť a tlačí vzduch. Toto chvenie dorazí do
+ucha. Rýchlejšie chvenie počujeme ako vyšší tón, pomalšie ako hlbší tón.
 
-Počítač zvuk „vyrobí" tak, že **mnohotisíckrát za sekundu** povie membráne, kam sa má posunúť.
-My to našťastie nemusíme riešiť po jednom čísle. V prehliadači je na to nástroj **Web Audio API**.
+Počítač zvuk vyrobí tak, že mnohotisíckrát za sekundu určuje okamžitú polohu membrány. V prehliadači sa o to stará
+**Web Audio API**. My nemusíme ručne vyrábať každú vzorku; skladáme zvukovú cestu z hotových uzlov:
 
-**Predstav si to ako potrubie / linku v továrni na zvuk:**
-
-```
-[ZDROJ tónu] → [úprava hlasitosti] → [kam to znie: ľavé/pravé] → [REPRODUKTOR]
+```text
+[ZDROJ TÓNU] → [HLASITOSŤ] → [ĽAVO / PRAVO] → [HLAVNÝ MIX] → [REPRODUKTOR]
 ```
 
-Web Audio = z takýchto „krabičiek" (volajú sa **uzly**, anglicky _nodes_) si poskladáš linku
-a pospájaš ich „káblami" (v kóde príkaz `.connect(...)`). Úplne ako moduly na syntetizátore.
+Predstav si to ako potrubie. Každý uzol je jedna krabička a `.connect(...)` je kábel medzi krabičkami.
 
----
+Pár frekvencií pre predstavu:
 
-## 2. Štyri „krabičky", z ktorých skladáme zvuk
+- `440 Hz` je komorné A;
+- oktáva vyššie má dvojnásobnú frekvenciu, teda `880 Hz`;
+- oktáva nižšie má polovičnú frekvenciu, teda `220 Hz`;
+- pomlčka má frekvenciu `0` a znamená ticho.
 
-| Krabička (uzol)            | Čo robí                                                              | Prirovnanie                                               |
-| -------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Oscillator** (oscilátor) | Vyrába samotný tón. Má **frekvenciu** v Hz (Hertz) = výška tónu.     | Struna / píšťala. Vyššie číslo Hz = vyšší tón.            |
-| **GainNode**               | Riadi **hlasitosť**. `gain = 0` ticho, `gain = 1` plno.              | Kohútik / koliesko hlasitosti.                            |
-| **StereoPannerNode**       | Riadi, **do ktorého ucha** to ide. `-1` ľavé, `0` stred, `+1` pravé. | Jedno koliesko vľavo–vpravo.                              |
-| **ChannelMerger**          | Zlúči **dva samostatné signály** do ľavého a pravého kanála.         | Mixpult s dvoma vstupmi: jeden ide doľava, druhý doprava. |
+## 2. Štyri „krabičky“, z ktorých skladáme zvuk
 
-A na konci je **destination** = tvoje slúchadlá/reproduktor (koniec potrubia).
+| Krabička            | Čo robí                                                       | Prirovnanie                                 |
+| ------------------- | ------------------------------------------------------------- | ------------------------------------------- |
+| `OscillatorNode`    | Vyrába periodický tón s určenou frekvenciou a tvarom vlny.    | Struna alebo píšťala.                       |
+| `GainNode`          | Mení hlasitosť; `0` je ticho, `1` plná úroveň.                | Kohútik alebo fader na mixpulte.            |
+| `StereoPannerNode`  | Posúva signál od `-1` vľavo cez `0` v strede po `+1` vpravo.  | Ovládač BALANCE.                            |
+| `ChannelMergerNode` | Spojí osobitný ľavý a pravý signál do jedného stereo výstupu. | Dva samostatné káble, jeden pre každé ucho. |
 
-Pár čísel pre predstavu o frekvencii:
+Na konci je spoločný hlavný gain knižnice zx-kit a potom `AudioContext.destination`, čiže reproduktory alebo
+slúchadlá.
 
-- `440 Hz` = komorné „A" (referenčný tón, podľa ktorého sa ladia nástroje),
-- o **oktávu vyššie** = **2×** toľko Hz (880 Hz), o oktávu nižšie = polovica (220 Hz),
-- siréna sanitky u nás strieda dva tóny: `760 Hz` a `580 Hz` — to „ný-ný-ný".
+### Pan nie je to isté ako dva nezávislé kanály
 
-### Rozdiel medzi PAN a MERGER (toto je dôležité!)
+`StereoPannerNode` presúva **jeden** signál medzi ľavým a pravým uchom. Pri `pan = 0` ho počujú obe uši. Nedáva však
+aplikácii dve úplne nezávislé obálky.
 
-- **StereoPanner** má **jeden** ovládač. Pri `0` ide zvuk **rovnako** do oboch uší a vieš
-  meniť len pomer L↔R. **Nevieš** povedať „ľavé daj nahlas a pravé potichu nezávisle".
-- **ChannelMerger + dva GainNody** (jeden pre ľavé, jeden pre pravé) ti dá **nezávislé**
-  hlasitosti pre každé ucho. **Toto presne robí naša sanitka.**
+Sanitka potrebuje niečo iné: osobitný `GainNode` pre ľavé ucho a osobitný `GainNode` pre pravé ucho, ktoré sa menia
+nezávisle. Preto používa `ChannelMergerNode`. Bežné AY skladby takúto špeciálnu cestu nepotrebujú.
 
----
+## 3. Štyri zvukové cesty prehrávača
 
-## 3. Obálka — ako sa hlasitosť mení v čase
+ZX-KIT Player pozná štyri runtime cesty. Prvé tri interpretuje **zx-kit**; štvrtá je zámerná lokálna výnimka.
 
-Tón nie je len „zapnutý / vypnutý". Keď stlačíš klávesu klavíra, zvuk **rýchlo nabehne**
-a potom **pomaly doznieva**. Tomuto priebehu hlasitosti v čase sa hovorí **obálka** (_envelope_).
+| Zdroj                       | Kto zvuk interpretuje | Volanie              | Čo dostaneme späť          |
+| --------------------------- | --------------------- | -------------------- | -------------------------- |
+| JSON kanály A/B/C           | zx-kit                | `playAY(...)`        | `AYHandle`                 |
+| Voliteľná JSON stopa BEEPER | zx-kit                | `playPattern(...)`   | `BeeperPatternHandle`      |
+| PSG registrový dump         | zx-kit                | `playAYDump(...)`    | `AYDumpHandle`             |
+| JSON efekt `ambulance`      | zxplayer              | `playAmbulance(...)` | malý lokálny handle efektu |
 
+### JSON AY
+
+Tri polia hotových nôt sa odovzdajú naraz:
+
+```js
+const ayHandle = playAY(
+  {
+    a: tracks.A,
+    b: tracks.B,
+    c: tracks.C,
+    gains: { A: 1, B: 1, C: 1 },
+    stereo: 'acb',
+  },
+  playbackClock.getStartDelayMs(),
+);
 ```
-hlasitosť
-  ^
-  |      /\
-  |     /  \____
-  |    /        \____
-  |   /              \_____
-  +--/--------------------------> čas
-   nábeh   držanie     dozvuk
-  (attack)            (release)
+
+zx-kit vytvorí tóny, AY hlasitosti, LFSR šum, hardvérové obálky aj authored pan. zxplayer už nemá vlastný AY,
+noise ani envelope renderer.
+
+### Beeper
+
+Beeper je samostatný jednobitový hlas, nie štvrtý register AY čipu:
+
+```js
+const beeperHandle = playPattern(beeperNotes, playbackClock.getStartDelayMs());
+beeperHandle.setGain(1, 0);
 ```
 
-V kóde obálku „nakreslíme" príkazmi na koliesku hlasitosti:
+`playPattern()` rešpektuje pomlčky, naplánuje celý monofónny rad a vráti izolovaný handle. Zastavenie tejto stopy
+nezastaví cudzie beeper efekty v inej časti aplikácie.
 
-- `setValueAtTime(hodnota, čas)` = „v tomto čase nastav presne túto hlasitosť",
-- `linearRampToValueAtTime(hodnota, čas)` = „**plynule** do tohto času dôjdi na túto hlasitosť".
+### PSG
 
-Príklad (rýchly „ping"): nahlas hneď, potom rýchlo stíchni.
-Príklad (siréna): nahlas a **drž**, kým neprejde.
+PSG súbor už obsahuje zápisy registrov R0–R13 po snímkach. Prehráva ho jedno upstream AudioWorklet jadro:
 
----
+```js
+const psgHandle = await playAYDump(dump, {
+  ...AY_MACHINE.melodik,
+  stereo: 'acb',
+  channelGains: { A: 1, B: 1, C: 1 },
+});
+```
 
-## 4. Z čoho sa skladá náš prehrávač
+Gain A/B/C sa aplikuje až na príspevok kanála po emulácii registrov. zxplayer nemaskuje R8–R10 a nespúšťa tri
+paralelné čipy.
 
-Projekt `zxplayer` má tieto časti:
+## 4. Kto číta JSON a kto vyrába zvuk
 
-| Súbor                               | Úloha                                                 | Prirovnanie      |
-| ----------------------------------- | ----------------------------------------------------- | ---------------- |
-| `index.html`                        | stránka: tlačidlá PLAY/STOP, monitor kanálov          | kostra/displej   |
-| `style.css`                         | ako to vyzerá (farby, rozloženie)                     | maľovka          |
-| `scripts/player.js`                 | **mozog** — číta skladbu, vyrába zvuk, kreslí monitor | dirigent         |
-| `songs/*.json`                      | jednotlivé **skladby** (dáta)                         | noty na stojane  |
-| `scripts/generate-song-library.mjs` | spraví zoznam skladieb do menu (`index.json`)         | obsah / register |
-| **zx-kit** (z internetu)            | knižnica, čo vie z **textu nôt** spraviť AY zvuk      | zvukový engine   |
+Najdôležitejšie rozdelenie zodpovednosti vyzerá takto:
 
-`player.js` si „požičiava" z knižnice **zx-kit** dva nástroje:
+```text
+┌────────────────────────────────────────────────────────────┐
+│ zxplayer                                                   │
+│                                                            │
+│  načíta a overí JSON                                       │
+│  rozbalí patterns + arrangement                            │
+│  premení názvy nôt cez seq() / noteToFreq()                │
+│  vytvorí tracks pre audio a timelines pre monitor          │
+│  rozhoduje o MUTE, SOLO, hlasitosti a dostupnosti kanálov  │
+└───────────────────────────┬────────────────────────────────┘
+                            │ hotové noty alebo AYDump
+                            ▼
+┌────────────────────────────────────────────────────────────┐
+│ zx-kit                                                     │
+│                                                            │
+│  playAY()       → AY tóny, noise, envelope, pan            │
+│  playPattern()  → samostatná Beeper stopa                  │
+│  playAYDump()   → sample-accurate PSG AudioWorklet         │
+└───────────────────────────┬────────────────────────────────┘
+                            │ controllable handles
+                            ▼
+┌────────────────────────────────────────────────────────────┐
+│ zxplayer playback adapter                                  │
+│                                                            │
+│  smeruje A/B/C/BEEPER gain a stereo na správny handle      │
+└────────────────────────────────────────────────────────────┘
+```
 
-- `seq("C4 D4 E4 r", { dur: 300 })` → premení **text nôt** na zoznam tónov (frekvencia + dĺžka),
-- `playAY({ a, b, c })` → tie tóny **zahrá** na troch kanáloch AY čipu (ako ZX Spectrum 128).
+> zx-kit nečíta formát súborov zxplayera. Knižnica dostane až hotové notové polia alebo parsovaný AYDump.
 
-> **Dôležité:** zx-kit rozumie **notám**, ale **NErozumie nášmu JSON**. JSON si rozbaľuje
-> náš `player.js` sám a do zx-kitu posiela až hotové noty. (K tomu sa vrátime v časti 11 a 12.)
+Toto rozdelenie je užitočné aj v inej hre. Krátky zvuk môže byť natvrdo v kóde, väčšia hudobná knižnica môže mať
+vlastný JSON, ale obe aplikácie môžu použiť rovnaké primitíva zx-kit.
 
----
+## 5. Rozbor bežnej JSON skladby
 
-## 5. Dva spôsoby, akými robíme zvuk
-
-V prehrávači sú **dva celkom odlišné svety**:
-
-### A) Bežná skladba (chaosbunny, ode_to_joy, four_tucs, ping-pong)
-
-- Ide cez **zx-kit** (AY čip zvuk).
-- Skladba je v JSON ako **noty** v troch kanáloch.
-- **Pan** (do ktorého ucha) sme dorobili my v `player.js` (funkcia `playAYStereo`) tak, že
-  každý kanál pošleme cez vlastný StereoPanner.
-
-### B) Efekt „ambulance" (naša sanitka)
-
-- **NEPOUŽÍVA zx-kit.** Je to **náš vlastný malý syntetizátor** vo `player.js`
-  (funkcia `playAmbulance`).
-- Prečo zvlášť? Lebo Doppler (klesajúca výška) + **nezávislé ľavé/pravé ucho** potrebujú
-  uzly a plynulé „kreslenie" hlasitosti, ktoré AY čip takto nevie.
-- Je to **zvukový efekt**, nie „pesnička" pre AY.
-
-Toto rozlíšenie je kľúčové pre časť 11 (čo prejde do zx-kit): **pan áno, sanitka nie.**
-
----
-
-## 6. Rozbor JSON: sanitka (efekt)
-
-Toto je súbor `songs/stereo_ambulance.json`:
+Bežná skladba má tri AY kanály a môže mať samostatný Beeper. Zjednodušený príklad:
 
 ```json
 {
   "schemaVersion": 1,
-  "stereo": true,
+  "id": "my_song",
+  "title": "My Song",
+  "ay": {
+    "pan": { "A": -0.4, "B": 0, "C": 0.4 }
+  },
+  "channels": {
+    "A": {
+      "label": "BASS",
+      "patterns": {
+        "bass": {
+          "notes": "C2 r C2 r",
+          "options": { "dur": 180, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "bass", "repeat": 4 }]
+    },
+    "B": {
+      "label": "LEAD",
+      "patterns": {
+        "lead": {
+          "events": [
+            { "note": "E4", "dur": 180, "vol": 12 },
+            { "note": "G4", "dur": 180, "envShape": 13, "envCycleDurMs": 25 }
+          ]
+        }
+      },
+      "arrangement": [{ "pattern": "lead", "repeat": 4 }]
+    },
+    "C": {
+      "label": "TEXTURE",
+      "patterns": {
+        "noise": {
+          "notes": "r r r r",
+          "options": { "dur": 180, "noise": true, "noisePeriod": 12, "vol": 8 }
+        }
+      },
+      "arrangement": [{ "pattern": "noise", "repeat": 4 }]
+    }
+  },
+  "beeper": {
+    "label": "ACCENTS",
+    "pan": 0,
+    "patterns": {
+      "hit": {
+        "events": [
+          { "freq": 1200, "dur": 30 },
+          { "note": "r", "dur": 690 }
+        ]
+      }
+    },
+    "arrangement": [{ "pattern": "hit", "repeat": 4 }]
+  }
+}
+```
+
+### Slovník JSON skladby
+
+- **kanál** je jeden z hlasov `A`, `B`, `C`;
+- **pattern** je pomenovaný krátky úsek;
+- **notes** je kompaktný text nôt, napríklad `C4 E4 G4 r`;
+- **events** je podrobnejší zápis, kde môže mať každý krok vlastné hodnoty;
+- **arrangement** určuje poradie patternov;
+- **repeat** zopakuje pattern bez kopírovania dát;
+- `r` je pomlčka a posúva čas rovnako ako nota;
+- `dur` je dĺžka v milisekundách.
+
+`seq()` prevedie názov ako `E4` na frekvenciu. `noteToFreq()` robí rovnaký prevod pre jednotlivý event. zxplayer
+potom patterny rozbalí do jedného súvislého poľa nôt pre každý kanál.
+
+## 6. Pan, stereo režim a sweep
+
+### Tri stereo presety
+
+Prehrávač ponúka:
+
+- `MONO`: A, B aj C sú v strede;
+- `ACB`: A vľavo, B vpravo, C v strede;
+- `ABC`: A vľavo, B v strede, C vpravo.
+
+Zvolený režim sa pri štarte pošle do `playAY()` alebo `playAYDump()`. Beeper má vlastné `beeper.pan` a nie je
+súčasťou AY presetu.
+
+### Authored pan
+
+Skladba môže určiť základné umiestnenie celého AY kanála:
+
+```json
+"ay": {
+  "pan": { "A": -0.45, "B": 0, "C": 0.45 }
+}
+```
+
+Pattern môže polohu dočasne určiť presnejšie:
+
+```json
+{
+  "notes": "C5 r C5 r",
+  "options": { "dur": 500 },
+  "pan": -1
+}
+```
+
+`pan = -1` znamená úplne vľavo, `0` stred a `1` úplne vpravo.
+
+### Sweep
+
+Plynulý prelet sa zapisuje na patterne:
+
+```json
+{
+  "events": [{ "note": "A4", "dur": 2000, "vol": 11 }],
+  "sweep": { "from": -1, "to": 1 }
+}
+```
+
+zxplayer preloží sweep do upstream `AYNote.pan` a `AYNote.panTo`. Ak má pattern viac nôt, rozdelí dráhu medzi
+všetky kroky tak, aby sa pan plynulo posúval cez celý pattern.
+
+### Čo spraví klik na stereo počas prehrávania
+
+Ak počas aktívnej JSON skladby klikneš na `MONO`, `ACB` alebo `ABC`, prehrávač zavolá
+`AYHandle.setStereoMode()`. Toto je **live override**:
+
+- nový preset okamžite prevezme A/B/C;
+- budúca authored pan automatizácia tejto rozohranej skladby sa zruší;
+- monitor od tej chvíle ignoruje pôvodné `pan` a `sweep` a ukazuje live preset;
+- Beeper si ponechá vlastný pan;
+- nový štart skladby znova načíta jej authored pan a sweep.
+
+Pri PSG volá adaptér `AYDumpHandle.setStereo()`. Sanitka má vlastnú L/R trajektóriu, takže AY stereo preset ju
+neprepisuje.
+
+## 7. Handles, mixer, MUTE a SOLO
+
+Handle si môžeš predstaviť ako diaľkový ovládač k práve spustenému zvuku. Neobsahuje noty; poskytuje bezpečné live
+ovládanie už vytvorenej audio cesty.
+
+```text
+AYHandle                 setChannelGain(A/B/C), setStereoMode(), stop()
+AYDumpHandle             setChannelGain(A/B/C), setStereo(), stop()
+BeeperPatternHandle      setGain(), stop()
+lokálny handle efektu    setChannelGain(A/B/C), stop()
+```
+
+Rozdielne názvy metód schováva `scripts/playback-adapter.js`. Zvyšok UI môže povedať iba:
+
+```js
+activeHandle.setChannelGain(channel, targetGain, 15);
+```
+
+Adaptér rozhodne, kam príkaz patrí:
+
+- A/B/C pošle do aktívneho AY, PSG alebo handle efektu;
+- BEEPER pošle do `BeeperPatternHandle.setGain()`;
+- stereo pošle ako `setStereoMode()` pre AY alebo `setStereo()` pre PSG;
+- `stop()` zastaví všetky handles, ktoré patria jednej skladbe.
+
+### Mixer je politika zxplayera
+
+zx-kit poskytuje ovládateľné gainy, ale nevie, čo má znamenať tlačidlo SOLO v tomto prehrávači. O tom rozhoduje
+`channel-mixer.js`:
+
+- **MUTE** nastaví výstup daného kanála na nulu;
+- **SOLO** nechá počuteľný iba vybraný dostupný kanál;
+- fader `0–100 %` násobí výslednú hlasitosť;
+- RESET MIX vráti uložené fadery vybranej skladby na `100 %`;
+- hlasitosti sa ukladajú po skladbách do localStorage.
+
+Mixer nemení authored `vol`, AY registre ani envelope shape. Je to samostatná výstupná vrstva za hudobnou
+interpretáciou.
+
+Počiatočné gainy A/B/C sa odovzdajú už v options `playAY()` alebo `playAYDump()`, aby mute neprepustil ani prvý
+audio frame. Beeper dostane po vytvorení handle okamžité `setGain(..., 0)` ešte pred 120 ms štartovacím oneskorením.
+
+## 8. Hlasitosť AY, obálka a šum
+
+AY nota môže mať tieto dôležité polia:
+
+| Pole            | Význam                                                 |
+| --------------- | ------------------------------------------------------ |
+| `freq`          | frekvencia v Hz; `0` je pomlčka                        |
+| `dur`           | dĺžka v milisekundách                                  |
+| `vol`           | AY hlasitosť `0–15` na hardvérovej logaritmickej škále |
+| `noise`         | primieša LFSR šum                                      |
+| `noisePeriod`   | farba šumu `1–31`; vyššia hodnota znie temnejšie       |
+| `envShape`      | tvar hardvérovej obálky R13, hodnota `0–15`            |
+| `envCycleDurMs` | čas jedného nábehu alebo poklesu obálky                |
+
+### Dve rôzne hlasitosti
+
+`vol: 12` je súčasť skladby a určuje charakter konkrétnej noty. Fader kanála je používateľský mix. Ak je authored
+nota polovične hlasná a fader na `50 %`, výsledok je ich kombinácia. Fader neprepisuje JSON.
+
+### Shape 13
+
+Shape 13 znamená krátky útok nahor a následné držanie vysokej úrovne. V AY Soundchecku používa kanál B:
+
+```json
+{ "note": "A4", "dur": 3000, "envShape": 13, "envCycleDurMs": 25 }
+```
+
+Úroveň narastie počas 25 ms a potom sa drží do konca trojsekundovej noty. Interpretáciu všetkých 16 obálok robí
+zx-kit. `AY_ENVELOPE_SHAPES` sú iba zobrazovacie značky pre monitor, nie návod na dekódovanie bitov.
+
+### Noise-only event
+
+Pomlčka môže niesť šum:
+
+```json
+{ "note": "r", "dur": 250, "vol": 10, "noise": true, "noisePeriod": 6 }
+```
+
+Frekvencia tónu je nulová, ale LFSR šum hrá. Takto sa robia krátke hi-haty alebo perkusné textúry na AY kanáli.
+
+## 9. Sanitka: jediný lokálny procedurálny efekt
+
+`songs/stereo_ambulance.json` nie je AY skladba. Metadata ju preto správne označujú ako
+`procedural Web Audio effect`.
+
+```json
+{
   "effect": "ambulance",
-  "id": "stereo_ambulance",
-  "title": "Sanitka (Doppler)",
-  "artist": "Fox",
-  "description": "Stojíš pri ceste. Sanitka sa blíži sprava ...",
   "ambulance": {
     "approachMs": 4000,
     "passMs": 2800,
     "recedeMs": 5200,
-    "panFrom": 1,
-    "panTo": -1,
     "sirenHi": 760,
     "sirenLo": 580,
     "sirenStepMs": 560,
@@ -170,300 +400,142 @@ Toto je súbor `songs/stereo_ambulance.json`:
 }
 ```
 
-Čo znamená každý riadok:
+`playAmbulance()` vytvorí jeden súvislý **sawtooth oscilátor**. Nie je to emulácia AY čipu. Frekvencia strieda dva
+tóny sirény a počas preletu klesá z približovacieho násobku na vzďaľovací násobok.
 
-| Pole                    | Význam                                                                                          |
-| ----------------------- | ----------------------------------------------------------------------------------------------- |
-| `schemaVersion`         | verzia formátu (vždy `1`) — poistka do budúcna                                                  |
-| `stereo`                | `true` = nepúšťať cez obyčajné mono, ide o stereo skladbu                                       |
-| `effect`                | `"ambulance"` = použi špeciálny efekt sanitky (nie noty)                                        |
-| `id`, `title`, `artist` | identifikátor, názov v menu, autor                                                              |
-| `description`           | text, čo sa ukáže pod názvom                                                                    |
-| `approachMs`            | ako dlho sa **blíži sprava** (4000 ms = 4 s)                                                    |
-| `passMs`                | ako dlho trvá **prelet** ponad hlavu (2800 ms)                                                  |
-| `recedeMs`              | ako dlho **odchádza doľava** a doznieva (5200 ms)                                               |
-| `sirenHi` / `sirenLo`   | dva tóny sirény v Hz (vysoký 760, nízky 580)                                                    |
-| `sirenStepMs`           | ako rýchlo strieda „ný-ný" (560 ms na jeden tón)                                                |
-| `dopplerApproach`       | násobič výšky pri **približovaní** (1.06 = o 6 % vyššie)                                        |
-| `dopplerRecede`         | násobič výšky pri **vzďaľovaní** (0.9 = o 10 % nižšie)                                          |
-| `panFrom` / `panTo`     | _(historický zvyšok — odkedy máme nezávislé uši, tieto sa už nepoužívajú; pokojne ich ignoruj)_ |
+Ľavé a pravé ucho majú samostatné obálky vo funkcii `ambulanceEnvelopes()`:
 
-**Doppler po našom:** keď sa zvuk **blíži**, vlny sa „stláčajú" → vnímaš ho **vyššie**.
-Keď sa **vzďaľuje**, vlny sa „naťahujú" → vnímaš ho **nižšie**. Preto sirénu vynásobíme
-číslom, ktoré počas preletu klesá z `1.06` na `0.9` — tón sa prepadne, presne ako v realite.
-
-> **Pozor:** v tomto JSON **nie sú hlasitosti**. Sú v kóde — viď ďalšia časť.
-
----
-
-## 7. KDE SÚ HLASITOSTI
-
-Pre **sanitku** sú hlasitosti v `scripts/player.js` vo funkcii **`ambulanceEnvelopes(amb)`**.
-Sú to dve „čiary v čase" — jedna pre **ľavé** ucho, jedna pre **pravé**:
-
-```js
-right: [           // PRAVÉ ucho: [časMs, hlasitosť]
-  [0,     0.02],   // začiatok: skoro ticho
-  [2400,  0.18],   // silnie (blíži sa)
-  [4000,  0.40],   // koniec príchodu
-  [5400,  0.46],   // stred preletu = najhlasnejšie vpravo
-  [6800,  0.10],   // po prelete rýchlo padá
-  [7840,  0.0001], // pravé úplne stíchne
-  ...
-],
-left: [            // ĽAVÉ ucho
-  [0,     0.0001], // počas príchodu ticho
-  [4000,  0.0001],
-  [5400,  0.30],   // v strede začína nabiehať
-  [6800,  0.50],   // po prelete je vľavo najhlasnejšie
-  [9920,  0.32],   // DLHÝ dozvuk — ľavé hrá samo
-  [total, 0.0001], // úplný koniec
-],
+```text
+PRAVÉ: skoro ticho → silnie pri príchode → po prelete rýchlo zhasne
+ĽAVÉ:  ticho pri príchode → narastie počas preletu → dlho doznieva
 ```
 
-Čítaj to ako „v čase X má ucho hlasitosť Y, medzi bodmi plynule prejde".
+Tri UI kanály A/B/C pri Sanitke nepredstavujú tri AY oscilátory. Označujú fázy `PRIBLIŽOVANIE`, `PRELET` a
+`VZĎAĽOVANIE`. Lokálny handle efektu ich gainy stále pripája k rovnakému mixeru MUTE/SOLO/volume.
 
-- **Pravé** vyrastie, v strede je vrchol, a **rýchlo zhasne** (~7,8 s).
-- **Ľavé** nabehne v strede a **doznieva dlho** sám (~do 12. sekundy).
-- **„Both" (stred)** nie je tretia čiara — je to len **úsek, kde sú obe naraz hore**
-  (okolo stredu preletu). Tam to znie v oboch ušiach a najhlasnejšie.
+Sanitka zostala lokálna preto, že ide o špecifický plynulý Dopplerov efekt s nezávislými obálkami pre obe uši. Nie
+je to všeobecná interpretácia hudobných dát, ktorá by patrila do zx-kit.
 
-Pre **bežné skladby** (noty) je hlasitosť jedného tónu v `player.js` vo funkcii
-**`applyEnvelope(...)`** (krátky „ping" alebo súvislý „whoosh"). Pan (ucho) je v JSON pri
-patterne (`"pan": -1`). Viď ďalšia časť.
+## 10. AY Soundcheck: 31-sekundová manuálna diagnostika
 
----
+`songs/ay_soundcheck.json` je verejný signálový test celej aktuálnej cesty. Všetky štyri stopy majú presne
+`31 000 ms`, takže monitor aj audio zostanú zarovnané.
 
-## 8. Rozbor JSON: bežná skladba (noty + pan)
+| Čas     | Čo má hrať                                                               |
+| ------- | ------------------------------------------------------------------------ |
+| 0–2 s   | A: C3 úplne vľavo                                                        |
+| 2–4 s   | B: E4 v strede                                                           |
+| 4–6 s   | C: G5 úplne vpravo                                                       |
+| 6–8 s   | súvislý Beeper A5                                                        |
+| 8–11 s  | trojhlas C3 / E4 / G4                                                    |
+| 11–14 s | B: A4, shape 13, 25 ms attack a následné držanie                         |
+| 14–18 s | oddelené ľavé a pravé pulzy                                              |
+| 18–20 s | konštantné A4 so sweepom zľava doprava                                   |
+| 20–22 s | rovnaké A4 so sweepom sprava doľava                                      |
+| 22–30 s | DnB mini-mix: A basa, B tón/šum bicie, C striedavé stáby, Beeper hi-haty |
+| 30–31 s | kontrolné ticho na A, B, C aj BEEPER                                     |
 
-Príklad zo `songs/stereo_pingpong.json` (skrátene):
+### Odporúčaný manuálny postup
 
-```json
-{
-  "schemaVersion": 1,
-  "stereo": true,
-  "channels": {
-    "A": {
-      "label": "LEFT",
-      "patterns": {
-        "leftBips": {
-          "notes": "E5 r E5 r",
-          "options": { "dur": 500 },
-          "pan": -1
-        }
-      },
-      "arrangement": [{ "pattern": "leftBips" }]
-    },
-    "B": { "...": "..." },
-    "C": { "...": "..." }
-  }
-}
-```
+1. Použi slúchadlá a nastav rozumnú systémovú hlasitosť.
+2. Vyber AY Soundcheck a stlač RESET MIX.
+3. Spusť PLAY a sleduj čas aj štyri kanálové karty.
+4. Pri izolovaných úsekoch skús MUTE a SOLO príslušného kanála.
+5. Pri akorde skús samostatne A, B a C.
+6. Pri Beeper úseku over, že MUTE/SOLO/fader BEEPER neovplyvní AY.
+7. Sweep najprv vypočuj bez zásahu.
+8. Pri ďalšom prehratí klikni počas sweepu na MONO, ACB alebo ABC. Live override musí okamžite prevziať stereo a
+   monitor má ukazovať nový preset, nie pokračovanie authored sweepu.
+9. Po zastavení a novom PLAY sa authored pan automatizácia obnoví.
+10. Poslednú sekundu musí byť ticho.
 
-Slovník pojmov v skladbe:
+Automatické testy overujú dáta, presné okná a trvanie. Samotný výsledný zvuk musí potvrdiť človek posluchom;
+headless test zvuk nepočuje.
 
-- **channel (kanál)** — `A`, `B`, `C`. AY čip má tri hlasy, čiže naraz môžu hrať tri linky.
-- **pattern** — pomenovaný krátky úsek nôt. Napr. `leftBips`.
-- **notes** — text nôt oddelený medzerami. `E5` = nota E v 5. oktáve, `r` = **pomlčka (ticho)**.
-  Vyššie číslo oktávy = vyšší tón. Krížik píšeme `#` (napr. `D#2`).
-- **options.dur** — koľko ms trvá **jeden krok** (každá nota/pomlčka).
-- **pan** — do ktorého ucha tento pattern znie (`-1` ľavé, `0` stred, `+1` pravé).
-- **sweep** — (voliteľné) plynulé presúvanie z `from` do `to` počas patternu (náš starý „prelet").
-- **arrangement** — poradie, v akom sa patterny prehrajú; `"repeat": 8` = zopakuj 8×.
+## 11. Monitor, časovanie a autoplay
 
-**Pravidlo:** počet „slov" v `notes` musí sedieť. `"E5 r E5 r"` = 4 kroky. Pri `dur: 500`
-to trvá `4 × 500 = 2000 ms`.
+Monitor nie je mikrofón ani spektrálny analyzátor. Pre JSON skladbu číta rovnakú lokálnu timeline, z ktorej vznikli
+notové polia pre zx-kit. Preto vie deterministicky ukázať:
 
-**Ako z nôt vznikne výška?** O to sa stará zx-kit funkcia `seq(...)` — premení `"E5"` na
-frekvenciu (~659 Hz). Ty nemusíš počítať Hz, stačí písať názvy nôt.
+- názov patternu a číslo opakovania;
+- aktuálny krok a token;
+- TONE, NOISE, TONE + NOISE, BEEP alebo REST;
+- `VOL`, `ENV` a `NP`;
+- authored alebo live stereo polohu.
 
----
+PSG monitor namiesto timeline priebežne aplikuje registrové zápisy do vlastnej zobrazovacej kópie R0–R13. Táto
+kópia iba kreslí stav; audio stále vyrába jediné upstream `playAYDump()` jadro.
 
-## 9. Kde sa s tým môžem hrať (ťahák)
+### Spoločný štart
 
-| Chcem...                        | Kde to zmením                                                       |
-| ------------------------------- | ------------------------------------------------------------------- |
-| inú výšku sirény                | `sirenHi` / `sirenLo` v `stereo_ambulance.json`                     |
-| rýchlejšie „ný-ný" sirény       | menší `sirenStepMs`                                                 |
-| dlhšie doznievanie vľavo        | väčší `recedeMs` (JSON) alebo bod `leftTail` v `ambulanceEnvelopes` |
-| silnejší Doppler (väčší prepad) | vyšší `dopplerApproach`, nižší `dopplerRecede`                      |
-| presné hlasitosti uší sanitky   | čísla v `ambulanceEnvelopes(amb)` v `player.js`                     |
-| iné noty / rytmus skladby       | `notes` a `options.dur` v príslušnom songu                          |
-| do ktorého ucha pattern znie    | `"pan"` pri patterne (`-1`/`0`/`+1`)                                |
-| pridať novú skladbu             | nový `.json` do `songs/`, potom `npm run build`                     |
+Prehrávač najskôr určí jeden absolútny cieľ na audio hodinách, 120 ms v budúcnosti. AY aj Beeper dostanú tesne pred
+svojím upstream volaním zostávajúce oneskorenie k tomu istému cieľu; monitor a koncový timer sa odvodia z rovnakých
+hodín. Monitor aj kontrola konca potom priebežne čítajú `AudioContext.currentTime`: ak prehliadač audio pozastaví,
+neutečú pred zvuk. Krátky predstih dá prehliadaču priestor pripraviť naplánované uzly a obmedzuje drift medzi stopami.
 
-Po pridaní/zmene skladby spusti v priečinku `zxplayer`:
+### Autoplay pravidlo
+
+`AudioContext` sa nesmie vytvoriť pri importe ani pri načítaní stránky. `initAudio()` aj začiatok `resume()` sa
+volajú synchronne až v click handleri PLAY. Prehrávač potom dočká resume Promise a plánuje zvuk iba v stave
+`running`, takže prehliadač vidí skutočné používateľské gesto a monitor sa nerozbehne bez audia.
+
+PSG príprava AudioWorkletu je asynchrónna. Ak používateľ medzitým stlačí STOP alebo vyberie inú skladbu, zxplayer po
+`await` porovná `playbackId`; zrušený queued request sa vôbec nespustí. Už rozbehnutá príprava zostáva stlmená a
+neskorý handle sa zastaví bez pripojenia k UI. Prvé vytvorenie workletu je serializované, aby sa dve požiadavky
+nepokúsili zaregistrovať ten istý processor naraz.
+
+## 12. Kde sa s tým hrať a ako zmenu overiť
+
+| Chcem zmeniť…                 | Kde                                                  |
+| ----------------------------- | ---------------------------------------------------- |
+| noty alebo rytmus skladby     | `notes`, `events`, `dur` v príslušnom `songs/*.json` |
+| authored hlasitosť noty       | `vol`                                                |
+| šumovú textúru                | `noise` a `noisePeriod`                              |
+| AY obálku                     | `envShape` a `envCycleDurMs`                         |
+| základný pan kanálov          | `ay.pan`                                             |
+| polohu jedného patternu       | `pan` na patterne                                    |
+| plynulú stereo dráhu patternu | `sweep: { from, to }`                                |
+| pan celej Beeper stopy        | `beeper.pan`                                         |
+| výšku a rytmus sirény         | `sirenHi`, `sirenLo`, `sirenStepMs`                  |
+| dĺžku fáz Sanitky             | `approachMs`, `passMs`, `recedeMs`                   |
+| presné L/R obálky Sanitky     | `ambulanceEnvelopes()` v `scripts/player.js`         |
+| mixer politiku                | `scripts/channel-mixer.js`                           |
+| smerovanie upstream handles   | `scripts/playback-adapter.js`                        |
+
+Po zmene skladby alebo prehrávača spusti:
 
 ```bash
-npm run build        # prepíše zoznam skladieb (songs/index.json)
-python -m http.server 8080   # spustí lokálny server
+npm run format
+npm test
+npm run build
+npm run dev
 ```
 
-a otvor `http://localhost:8080`. (Tvrdý reload **Cmd+Shift+R**, ak meníš `player.js`.)
+Potom otvor lokálnu adresu z Vite, stlač PLAY a urob manuálny posluch. Pri audio zmene sa nespoliehaj iba na to, že
+build prešiel: build overí syntax a dáta, nie to, čo človek skutočne počuje.
 
----
+Pri novej JSON skladbe drž všetky kanály časovo zarovnané explicitnými pomlčkami. Prehrávač síce použije najdlhší
+kanál ako celkové trvanie, ale rovnaké dĺžky zjednodušia monitor, diagnostiku aj budúce úpravy.
 
-## 10. Sprav si Drum & Bass so striedaním na uši
+## 13. Slovníček
 
-Drum & Bass = rýchle tempo (~170 BPM), **basa** + **bicie** + krátke **stáby** (lead).
-Spravíme: basa a bicie v strede (do oboch uší), a **lead stáb skáče bar po bare ĽAVÉ↔PRAVÉ**.
-
-**Tempo na ms:** jeden „krok" (šestnástinka) = `60000 / BPM / 4`. Pri 170 BPM ≈ **88 ms**
-(zaokrúhlime na 90). Jeden takt = 16 krokov = `16 × 90 = 1440 ms`.
-
-Ulož toto ako `songs/dnb_ears.json`, spusti `npm run build`, reload, a vyber v menu:
-
-```json
-{
-  "schemaVersion": 1,
-  "stereo": true,
-  "id": "dnb_ears",
-  "title": "DnB Ears (L/R stab)",
-  "artist": "Fox",
-  "description": "Drum & Bass: basa a bicie v strede, lead stáb skáče po bare ľavé↔pravé.",
-  "channels": {
-    "A": {
-      "label": "SUB BASS",
-      "patterns": {
-        "bass": {
-          "notes": "C2 r C2 r C2 r C2 r D#2 r C2 r F2 r C2 r",
-          "options": { "dur": 90 },
-          "pan": 0
-        }
-      },
-      "arrangement": [{ "pattern": "bass", "repeat": 8 }]
-    },
-    "B": {
-      "label": "DRUMS",
-      "patterns": {
-        "break": {
-          "notes": "C5 r C5 C5 D5 r C5 r C5 r C5 C5 D5 r C5 r",
-          "options": { "dur": 90, "noise": true, "noisePeriod": 16 },
-          "pan": 0
-        }
-      },
-      "arrangement": [{ "pattern": "break", "repeat": 8 }]
-    },
-    "C": {
-      "label": "STAB L/R",
-      "patterns": {
-        "stabL": {
-          "notes": "G4 r r r A#4 r r r G4 r D5 r r r r r",
-          "options": { "dur": 90 },
-          "pan": -1
-        },
-        "stabR": {
-          "notes": "D5 r r r C5 r r r A#4 r G4 r r r r r",
-          "options": { "dur": 90 },
-          "pan": 1
-        }
-      },
-      "arrangement": [
-        { "pattern": "stabL" },
-        { "pattern": "stabR" },
-        { "pattern": "stabL" },
-        { "pattern": "stabR" },
-        { "pattern": "stabL" },
-        { "pattern": "stabR" },
-        { "pattern": "stabL" },
-        { "pattern": "stabR" }
-      ]
-    }
-  }
-}
-```
-
-Čo počuješ: stála basa + bicie v strede, a **stáb každý takt preskočí do druhého ucha**.
-Chceš rýchlejšie striedanie? Sprav `stabL`/`stabR` kratšie (napr. 8 krokov) a viac ich vystriedaj.
-Chceš plynulý prelet namiesto skoku? Daj patternu `"sweep": { "from": -1, "to": 1 }` namiesto `pan`.
-
----
-
-## 11. Čo z toho prejde do zx-kit a čo nie
-
-Najprv si ujasni **vrstvy** (toto je jadro celej tvojej otázky):
-
-```
-┌───────────────────────────────────────────────┐
-│  HRA / APLIKÁCIA  (zxplayer, neskôr Minefield) │
-│  - vie o svojich súboroch a JSON               │
-│  - rozhodne, čo a kedy hrá                      │
-│  - VOLÁ zx-kit                                  │
-└───────────────────────────────────────────────┘
-                     │ posiela NOTY
-                     ▼
-┌───────────────────────────────────────────────┐
-│  KNIŽNICA  zx-kit                               │
-│  - rozumie NOTÁM (seq → tóny) a hrá ich (playAY)│
-│  - NEvie nič o JSON, súboroch ani o hre         │
-└───────────────────────────────────────────────┘
-```
-
-- **Do zx-kit patrí len jedna nová schopnosť: PAN** (do ktorého ucha kanál znie). To je malá,
-  čistá, „natívna" vec — presne ako v štúdii: vložiť `StereoPannerNode` pred výstup a pridať
-  `pan` parameter / `setStereoMode('mono'|'abc'|'acb')`. Default `0` = ako doteraz (nič sa nerozbije).
-- **Do zx-kit NEPATRÍ:**
-  - **Sanitka / Doppler** — to je špeciálny efekt nášho prehrávača (vlastný syntetizátor),
-    nie „nota" pre AY. Zostáva v aplikácii.
-  - **Čítanie JSON** — to je práca hry, nie knižnice (viď ďalšia časť).
-
-Inak povedané: z toho, čo sme spravili, sa „presťahuje" do zx-kit **iba myšlienka panningu**
-(ľavé/stred/pravé na kanál). Striedanie na uši v Drum & Bass-e potom v hre spravíš tak,
-že kanálu nastavíš `pan`, alebo zavoláš `setStereoMode(...)`.
-
----
-
-## 12. Ľahšie: natvrdo noty, alebo naučiť zx-kit čítať JSON?
-
-Krátka odpoveď: **ani jedno presne tak, ako to znie — nepleť vrstvy.**
-
-- **zx-kit NEUČ čítať JSON.** Knižnica by nemala vedieť o formáte súborov konkrétnej hry.
-  Keby si to spravil, každá ďalšia hra by bola uväznená v tvojom formáte a knižnica by
-  zbytočne napuchla. To je „zlá vrstva".
-- **Noty do hry** sa dostanú jedným z dvoch spôsobov — a **rozhodne to hra, nie zx-kit:**
-  1. **Natvrdo v kóde hry:** `playAY({ a: seq("C4 D4 ..."), ... })`. Najjednoduchšie pre pár
-     krátkych zvukov (napr. Minefield: pár pípnutí a smerové cue).
-  2. **Hra si číta vlastný JSON** (ako to robí náš zxplayer) a volá `seq`. Lepšie, keď máš
-     veľa skladieb a chceš ich pridávať bez zásahu do kódu.
-- **Do zx-kit pridáš len `pan`.** To je tá najmenšia a najsprávnejšia zmena.
-
-**Odporúčanie pre Minefield:** smerové cue (smer míny v ľavom/pravom uchu) sú krátke zvuky —
-pokojne **natvrdo v kóde hry** (`seq` + nový `pan`). Žiadny JSON tam netreba. Náš JSON svet
-ostáva v prehrávači/D&B experimentoch.
-
----
-
-## 13. Ako to po presune otestovať
-
-Postupnosť (od najlacnejšieho po „uchom"):
-
-1. **Smoke-test v zx-kit (najprv):**
-   - pridáš `pan` do AY (a/alebo `setStereoMode`),
-   - spustíš **existujúce testy zx-kitu** — _musia ostať zelené_ (nič sa nerozbilo),
-   - pridáš malý test: pri `pan = 0` je výsledok ako predtým (mono),
-     pri `pan = -1` ide signál doľava, pri `+1` doprava. **Smerovanie sa dá overiť hodnotou**
-     (deterministicky), takže to vie skontrolovať aj stroj, nielen ucho.
-2. **Manuálny počuteľný test (ty):** krátka ukážka — zahraj tón s `pan -1`, `0`, `+1`
-   a uchom potvrď, že sedí ľavé/stred/pravé.
-3. **Implementácia do Minefield:** smer míny → `pan`. Ľavá mína = `-1`, pravá = `+1`,
-   priamo pred tebou = `0`. (Plus voliteľne hlasitosť podľa vzdialenosti.)
-4. **Tvoj počuteľný test v Minefielde:** zahraj „poslepiačky" a over, či ti uši správne
-   napovedia smer. Toto je ten finálny, kvôli ktorému to celé robíme.
-
----
-
-## 14. Slovníček
-
-- **Hz (Hertz)** — koľkokrát za sekundu sa niečo zachveje; vyššie = vyšší tón.
-- **oktáva** — interval, kde sa frekvencia zdvojnásobí (C4 → C5 = 2×).
-- **oscilátor** — generátor tónu (tvar vlny: square/sawtooth/sine/triangle).
-- **gain** — hlasitosť (0 = ticho, 1 = plno).
-- **pan** — poloha vľavo–vpravo (−1 / 0 / +1).
-- **envelope (obálka)** — ako sa hlasitosť mení v čase (nábeh, držanie, dozvuk).
-- **Doppler** — zmena vnímanej výšky, keď sa zdroj približuje (vyššie) / vzďaľuje (nižšie).
-- **AY** — zvukový čip ZX Spectrum 128 (tri kanály tónov + šum).
-- **beeper** — jednobitový pípák ZX Spectrum 48 (mono).
-- **BPM** — údery za minútu = tempo.
-- **uzol / node** — jedna „krabička" vo Web Audio linke.
-- **CDN** — server na internete, odkiaľ si prehrávač ťahá knižnicu zx-kit.
-- **smoke-test** — rýchle overenie „nehorí to, základ funguje" pred poriadnym testom.
+- **Hz (hertz)** — počet kmitov za sekundu; vyššie číslo znamená vyšší tón.
+- **oktáva** — interval, pri ktorom sa frekvencia zdvojnásobí.
+- **oscilátor** — generátor periodického tónu.
+- **sawtooth** — pílová vlna s výrazným ostrým spektrom; používa ju Sanitka.
+- **gain** — násobiteľ hlasitosti, typicky od `0` do `1`.
+- **pan** — poloha jedného signálu v stereo priestore od `-1` po `1`.
+- **sweep** — plynulá zmena panu z jednej polohy do druhej.
+- **envelope / obálka** — priebeh hlasitosti v čase.
+- **Dopplerov jav** — zmena vnímanej výšky pri približovaní a vzďaľovaní zdroja.
+- **AY-3-8910 / AY-3-8912** — trojkanálový zvukový čip so spoločným šumom a hardvérovou obálkou.
+- **Beeper** — nezávislý jednobitový hlas ZX Spectrum 48K.
+- **PSG dump** — časový prúd zápisov do registrov zvukového čipu.
+- **AudioWorklet** — audio kód bežiaci na osobitnom real-time vlákne prehliadača.
+- **handle** — ovládač jedného konkrétneho prehrávania: gain, stereo, stop.
+- **playback adapter** — tenká vrstva, ktorá prekladá spoločné UI príkazy na metódy rôznych handles.
+- **authored pan** — stereo poloha zapísaná autorom v dátach skladby.
+- **live override** — používateľský stereo príkaz, ktorý počas prehrávania prevezme riadenie od authored automatizácie.
+- **LFSR noise** — deterministický pseudošum typický pre AY bicie a textúry.
+- **CDN** — server, z ktorého browser wrapper načíta presnú verziu zx-kit.
+- **smoke test** — krátke overenie, že základná cesta funguje.

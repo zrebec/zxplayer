@@ -13,7 +13,7 @@
     "audio": {
       "sourceFormat": "json-effect",
       "runtimeFormat": "web-audio",
-      "chip": "AY-3-8910"
+      "chip": "procedural Web Audio effect"
     },
     "rights": {
       "composition": {

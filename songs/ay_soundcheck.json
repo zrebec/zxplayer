@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "stereo": true,
+  "id": "ay_soundcheck",
+  "title": "AY Soundcheck",
+  "artist": "ZX-KIT Player Diagnostics",
+  "description": "A 31-second public signal-path check for isolated AY channels, the independent Beeper, a three-voice chord, shape 13, stereo pulses, a bidirectional pan sweep, and a compact DnB mix.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026",
+    "cover": "/assets/covers/ay_soundcheck/cover.png",
+    "audio": {
+      "sourceFormat": "json-events",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Diagnostic signal composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Diagnostic arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON diagnostic source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "channels": {
+    "A": {
+      "label": "LOW / LEFT / BASS",
+      "patterns": {
+        "soloLeft": {
+          "events": [{ "note": "C3", "dur": 2000, "vol": 12 }],
+          "pan": -1
+        },
+        "rest2": {
+          "events": [{ "note": "r", "dur": 2000 }]
+        },
+        "rest3": {
+          "events": [{ "note": "r", "dur": 3000 }]
+        },
+        "rest4": {
+          "events": [{ "note": "r", "dur": 4000 }]
+        },
+        "chordRoot": {
+          "events": [{ "note": "C3", "dur": 3000, "vol": 12 }]
+        },
+        "leftPulses": {
+          "notes": "C5 r C5 r",
+          "options": { "dur": 500, "vol": 11 },
+          "pan": -1
+        },
+        "dnbBass": {
+          "notes": "C2 r C2 C2 D#2 r C2 r F2 r C2 C2 D#2 r G2 r",
+          "options": { "dur": 250, "vol": 12 }
+        },
+        "silence": {
+          "events": [{ "note": "r", "dur": 1000 }]
+        }
+      },
+      "arrangement": [
+        { "pattern": "soloLeft" },
+        { "pattern": "rest2" },
+        { "pattern": "rest4" },
+        { "pattern": "chordRoot" },
+        { "pattern": "rest3" },
+        { "pattern": "leftPulses", "repeat": 2 },
+        { "pattern": "rest4" },
+        { "pattern": "dnbBass", "repeat": 2 },
+        { "pattern": "silence" }
+      ]
+    },
+    "B": {
+      "label": "MID / ENVELOPE / NOISE",
+      "patterns": {
+        "rest2": {
+          "events": [{ "note": "r", "dur": 2000 }]
+        },
+        "rest4": {
+          "events": [{ "note": "r", "dur": 4000 }]
+        },
+        "soloCentre": {
+          "events": [{ "note": "E4", "dur": 2000, "vol": 12 }],
+          "pan": 0
+        },
+        "chordThird": {
+          "events": [{ "note": "E4", "dur": 3000, "vol": 12 }]
+        },
+        "envelopeHold": {
+          "events": [{ "note": "A4", "dur": 3000, "envShape": 13, "envCycleDurMs": 25 }]
+        },
+        "sweepLeftToRight": {
+          "events": [{ "note": "A4", "dur": 2000, "vol": 11 }],
+          "sweep": { "from": -1, "to": 1 }
+        },
+        "sweepRightToLeft": {
+          "events": [{ "note": "A4", "dur": 2000, "vol": 11 }],
+          "sweep": { "from": 1, "to": -1 }
+        },
+        "dnbDrums": {
+          "options": { "dur": 250 },
+          "events": [
+            { "note": "C3", "vol": 12, "noise": true, "noisePeriod": 24 },
+            { "note": "r" },
+            { "note": "r", "vol": 11, "noise": true, "noisePeriod": 6 },
+            { "note": "r" },
+            { "note": "C3", "vol": 12, "noise": true, "noisePeriod": 24 },
+            { "note": "r" },
+            { "note": "r", "vol": 10, "noise": true, "noisePeriod": 10 },
+            { "note": "r" },
+            { "note": "C3", "vol": 12, "noise": true, "noisePeriod": 24 },
+            { "note": "r" },
+            { "note": "r", "vol": 11, "noise": true, "noisePeriod": 6 },
+            { "note": "r" },
+            { "note": "C3", "vol": 12, "noise": true, "noisePeriod": 24 },
+            { "note": "r" },
+            { "note": "r", "vol": 10, "noise": true, "noisePeriod": 10 },
+            { "note": "r" }
+          ]
+        },
+        "silence": {
+          "events": [{ "note": "r", "dur": 1000 }]
+        }
+      },
+      "arrangement": [
+        { "pattern": "rest2" },
+        { "pattern": "soloCentre" },
+        { "pattern": "rest4" },
+        { "pattern": "chordThird" },
+        { "pattern": "envelopeHold" },
+        { "pattern": "rest4" },
+        { "pattern": "sweepLeftToRight" },
+        { "pattern": "sweepRightToLeft" },
+        { "pattern": "dnbDrums", "repeat": 2 },
+        { "pattern": "silence" }
+      ]
+    },
+    "C": {
+      "label": "HIGH / RIGHT / STABS",
+      "patterns": {
+        "rest2": {
+          "events": [{ "note": "r", "dur": 2000 }]
+        },
+        "rest3": {
+          "events": [{ "note": "r", "dur": 3000 }]
+        },
+        "rest4": {
+          "events": [{ "note": "r", "dur": 4000 }]
+        },
+        "soloRight": {
+          "events": [{ "note": "G5", "dur": 2000, "vol": 12 }],
+          "pan": 1
+        },
+        "chordFifth": {
+          "events": [{ "note": "G4", "dur": 3000, "vol": 12 }]
+        },
+        "rightPulses": {
+          "notes": "r G5 r G5",
+          "options": { "dur": 500, "vol": 11 },
+          "pan": 1
+        },
+        "stabLeft": {
+          "notes": "G4 r",
+          "options": { "dur": 500, "vol": 11 },
+          "pan": -1
+        },
+        "stabRight": {
+          "notes": "D5 r",
+          "options": { "dur": 500, "vol": 11 },
+          "pan": 1
+        },
+        "silence": {
+          "events": [{ "note": "r", "dur": 1000 }]
+        }
+      },
+      "arrangement": [
+        { "pattern": "rest4" },
+        { "pattern": "soloRight" },
+        { "pattern": "rest2" },
+        { "pattern": "chordFifth" },
+        { "pattern": "rest3" },
+        { "pattern": "rightPulses", "repeat": 2 },
+        { "pattern": "rest4" },
+        { "pattern": "stabLeft" },
+        { "pattern": "stabRight" },
+        { "pattern": "stabLeft" },
+        { "pattern": "stabRight" },
+        { "pattern": "stabLeft" },
+        { "pattern": "stabRight" },
+        { "pattern": "stabLeft" },
+        { "pattern": "stabRight" },
+        { "pattern": "silence" }
+      ]
+    }
+  },
+  "beeper": {
+    "label": "SUSTAIN / HI-HATS",
+    "pan": 0,
+    "patterns": {
+      "rest6": {
+        "events": [{ "note": "r", "dur": 6000 }]
+      },
+      "continuous": {
+        "events": [{ "note": "A5", "dur": 2000 }]
+      },
+      "rest14": {
+        "events": [{ "note": "r", "dur": 14000 }]
+      },
+      "hats": {
+        "notes": "F6:30 r:220 F6:30 r:220 F6:30 r:220 F6:30 r:220"
+      },
+      "silence": {
+        "events": [{ "note": "r", "dur": 1000 }]
+      }
+    },
+    "arrangement": [
+      { "pattern": "rest6" },
+      { "pattern": "continuous" },
+      { "pattern": "rest14" },
+      { "pattern": "hats", "repeat": 8 },
+      { "pattern": "silence" }
+    ]
+  }
+}

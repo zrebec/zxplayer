@@ -2,15 +2,16 @@
 
 A lightweight, data-driven browser player for three-channel AY music with an optional, independent ZX beeper track, written with [`zx-kit`](https://www.npmjs.com/package/zx-kit).
 
-Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs build three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, and may declare a separate one-bit beeper track that plays in parallel as a "fake" fourth voice without changing the AY emulation. PSG songs use a channelised AudioWorklet based on the `zx-kit` `aydump` core for raw AY chip register streams.
+Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs build three AY tracks—channels **A**, **B**, and **C**—from named patterns and arrangements, then pass them to upstream `zx-kit.playAY()`. They may also declare a separate one-bit beeper track played by `zx-kit.playPattern()` in parallel, without changing the AY emulation. PSG songs are loaded with `zx-kit.loadPSG()` and played by upstream `zx-kit.playAYDump()` through one sample-accurate chip core.
 
 ![ZX-KIT Player screenshot](assets/screenshot.png)
 
 ## Features
 
 - One JSON file per song in `songs/`.
-- PSG register-dump playback through `zx-kit` `loadPSG()` and a channelised `aydump` AudioWorklet.
+- PSG register-dump playback through upstream `zx-kit` `loadPSG()` and one `playAYDump()` AudioWorklet core.
 - PT3 source modules are converted offline to PSG before playback.
+- A seven-item built-in catalogue headed by the 31-second public **AY Soundcheck**.
 - Responsive cover-based song library with unique hardware-valid ZX Spectrum artwork.
 - Catalogue metadata for release/original dates, source and runtime formats, target chip, and structured rights.
 - Separate **Play** and **Stop** controls.
@@ -20,7 +21,8 @@ Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs b
 - Runtime MONO, ACB, and ABC stereo selection.
 - Full `zx-kit` AY notes: per-note duration, amplitude, noise period, hardware envelope shape, and envelope cycle.
 - Optional per-channel stereo pan.
-- Optional pattern/arrangement-driven beeper track with an independently mixable square-wave signal path.
+- Optional pattern/arrangement-driven beeper track through the isolated `playPattern()` gain/stop handle.
+- One local playback adapter routes mixer, stereo, and stop controls to the upstream AY, Beeper, and PSG handles.
 - Pattern-level timeline visualisation: active pattern, pass, step, token, tone/noise/rest, volume, and envelope.
 - No frontend build tool or framework required.
 - Formatting enforced with Prettier.
@@ -32,7 +34,7 @@ Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs b
 - A modern browser with ES modules, `fetch()`, Web Audio support, and JavaScript enabled.
 - An HTTP server for local development. Opening the page directly with `file://` will not work because browsers block JSON loading via `fetch()` in that context.
 
-The player imports the pinned `zx-kit` module from jsDelivr at runtime. The browser therefore needs internet access when the player is opened, unless you later replace that CDN import with a locally bundled copy.
+The exact `zx-kit` version is `0.45.0` in both npm and the sole browser wrapper, `scripts/zx-kit.js`. The wrapper imports that release from jsDelivr, so the browser needs internet access when the player is opened unless the CDN module is replaced with a local bundled copy.
 
 ## Quick Start
 
@@ -61,16 +63,18 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 
 ## NPM Commands
 
-| Command                  | Purpose                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------ |
-| `npm run songs:convert`  | Converts PT3 source modules to generated PSG register dumps.                   |
-| `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                           |
-| `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.              |
-| `npm test`               | Runs the mixer, Beeper timeline, ambulance phase, and PSG isolation tests.     |
-| `npm run build`          | Regenerates the catalogue and validates every song.                            |
-| `npm run format`         | Formats the project with Prettier.                                             |
-| `npm run format:check`   | Checks whether the project already matches the configured Prettier style.      |
-| `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`. |
+| Command                  | Purpose                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| `npm run songs:convert`  | Converts PT3 source modules to generated PSG register dumps.                                     |
+| `npm run songs:generate` | Scans song JSON files and writes `songs/index.json`.                                             |
+| `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.                                |
+| `npm test`               | Runs the Node tests for the mixer, playback adapter, Soundcheck, catalogue, and version pinning. |
+| `npm run build`          | Regenerates the catalogue and validates every song.                                              |
+| `npm run format`         | Formats the project with Prettier.                                                               |
+| `npm run format:check`   | Checks whether the project already matches the configured Prettier style.                        |
+| `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`.                   |
+
+The current `npm test` suite covers mixer and persisted-volume policy, the unified playback adapter, exact AY Soundcheck timing, Sanitka phase automation, PT3 sidecars, catalogue metadata, and agreement between the npm, lockfile, installed, and browser-wrapper `zx-kit` versions. Upstream audio interpretation remains covered by `zx-kit`; this repository does not duplicate its AY, Beeper, or PSG renderer tests.
 
 ## Project Structure
 
@@ -82,20 +86,29 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 ├── scripts/
 │   ├── archive-project.mjs
 │   ├── ambulance-phases.js
-│   ├── beeper-timeline.js
 │   ├── channel-mixer.js
 │   ├── channel-volume-store.js
 │   ├── generate-song-library.mjs
+│   ├── pattern-pan.js
+│   ├── playback-adapter.js
+│   ├── playback-clock.js
+│   ├── playback-queue.js
 │   ├── PT3PSGConverter.mjs
 │   ├── pt3-metadata-sidecar.js
-│   ├── psg-channel-player.js
 │   ├── song-catalog-metadata.js
 │   ├── validate-songs.mjs
-│   └── player.js
+│   ├── player.js
+│   └── zx-kit.js
 ├── tests/
 ├── songs/
 │   ├── _new_song.json.example
+│   ├── ay_soundcheck.json
 │   ├── chaosbunny_escape.json
+│   ├── korobeiniki.json
+│   ├── nad_tatrou_sa_blyska.json
+│   ├── ode_to_joy.json
+│   ├── stereo_ambulance.json
+│   ├── wilhelmus.json
 │   └── index.json
 ├── .gitattributes
 ├── .gitignore
@@ -106,6 +119,56 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 ├── README.md
 └── style.css
 ```
+
+## Playback Architecture
+
+All browser modules import `zx-kit` through `scripts/zx-kit.js`. That wrapper contains the project's only JavaScript CDN URL and re-exports the exact `0.45.0` release. The same exact version—without a semver range—is installed for Node-side validation, and `tests/zx-kit-version.test.mjs` prevents the npm, lockfile, installed package, and wrapper versions from drifting apart.
+
+| Source                 | Upstream playback path                   | Live control used by the player                              |
+| ---------------------- | ---------------------------------------- | ------------------------------------------------------------ |
+| JSON channels A/B/C    | One `playAY()` call                      | `AYHandle.setChannelGain()`, `setStereoMode()`, and `stop()` |
+| Optional Beeper track  | One `playPattern()` call                 | `BeeperPatternHandle.setGain()` and `stop()`                 |
+| PSG register dump      | `loadPSG()` then one `playAYDump()` call | `AYDumpHandle.setChannelGain()`, `setStereo()`, and `stop()` |
+| Sanitka procedural SFX | Local Web Audio sawtooth oscillator      | Local effect handle with per-phase gains and `stop()`        |
+
+`scripts/playback-adapter.js` does not synthesise or reinterpret audio. It gives the UI one small control surface and routes A/B/C/BEEPER gain, stereo, and stop operations to the active upstream handles. MUTE/SOLO policy, per-song volume storage, monitor state, and RESET MIX remain local application concerns.
+
+`scripts/playback-clock.js` aims AY and Beeper scheduling at one audio-clock start target, then keeps the monitor and completion polling on `AudioContext.currentTime` so a suspended context does not let the UI run ahead. Playback waits for the user-initiated `AudioContext.resume()` Promise before any source is scheduled.
+
+The first PSG AudioWorklet setup is serialized through `scripts/playback-queue.js`. A queued request that has already been cancelled is discarded before it can create a node; an in-flight setup starts muted and is unmuted only after its handle is adopted by the current playback.
+
+There is no local AY/noise/envelope renderer, Beeper scheduler, PSG channel isolator, or parallel PSG chip bank. Sanitka is the sole procedural audio exception: it is documented as a **procedural Web Audio effect** because its Doppler siren uses a local sawtooth oscillator rather than AY emulation.
+
+`AudioContext` is never created at module import or page load. `initAudio()` runs synchronously from the Play click handler, and every playback path starts only after that user gesture, preserving browser autoplay requirements.
+
+## Built-in Catalogue
+
+The generated catalogue contains exactly seven items:
+
+| ID                     | Display title                | Playback source             |
+| ---------------------- | ---------------------------- | --------------------------- |
+| `ay_soundcheck`        | AY Soundcheck                | JSON AY + 1-bit Beeper      |
+| `chaosbunny_escape`    | Chaosbunny Escape            | JSON AY arrangement         |
+| `korobeiniki`          | Korobeiniki (Tetris Theme A) | JSON AY arrangement         |
+| `nad_tatrou_sa_blyska` | Nad Tatrou sa blýska         | JSON AY arrangement         |
+| `ode_to_joy`           | Ode to Joy                   | JSON AY arrangement         |
+| `stereo_ambulance`     | Sanitka (Doppler)            | Procedural Web Audio effect |
+| `wilhelmus`            | Wilhelmus                    | JSON AY arrangement         |
+
+### AY Soundcheck
+
+AY Soundcheck is a deterministic 31-second public signal-path diagnostic. All four timelines are aligned to exactly 31,000 ms:
+
+- 0–2 s: channel A, C3, left;
+- 2–4 s: channel B, E4, centre;
+- 4–6 s: channel C, G5, right;
+- 6–8 s: continuous Beeper A5;
+- 8–11 s: C3/E4/G4 three-voice chord;
+- 11–14 s: channel B, A4, envelope shape 13 with a 25 ms attack cycle and sustained hold;
+- 14–18 s: separated left and right pulses;
+- 18–22 s: constant A4 swept left→right→left;
+- 22–30 s: DnB mini-mix with bass, AY noise, alternating stabs, and Beeper hi-hats;
+- 30–31 s: control silence.
 
 ## Adding a JSON Song
 
@@ -125,7 +188,7 @@ The browser cannot enumerate files in `songs/` by itself. `scripts/generate-song
 
 ## Adding PSG / PT3 Music
 
-PSG is the runtime format for real AY scene music in this player. Put a `.psg` file into `songs/`, run `npm run build`, reload the page, and the file appears in the cover library.
+PSG is the runtime format for real AY scene music in this player. Put a `.psg` file into `songs/`, run `npm run build`, reload the page, and the file appears in the cover library. At runtime the player calls upstream `loadPSG()` and passes the parsed dump to one upstream `playAYDump()` instance; its A/B/C gains are controlled through the returned handle.
 
 PT3 is not directly playable at runtime. Keep `.pt3` files in `songs/` as source material — `npm run build` (via `npm run songs:convert`, `scripts/PT3PSGConverter.mjs`) renders them to `.psg` register dumps in `songs/generated/`, which the player then lists like any other PSG file. Native runtime PT3 playback still belongs in a future `zx-kit` `pt3.ts` module built on top of `AYChipCore`, not in `zxplayer`.
 
@@ -255,6 +318,8 @@ A song with `schemaVersion: 1` contains three required AY channel definitions: `
 | `options.noisePeriod`   | AY noise period `1–31` (R6); higher values sound darker.                                 |
 | `options.envShape`      | AY hardware envelope shape `0–15` (R13).                                                 |
 | `options.envCycleDurMs` | Duration of one envelope ramp in milliseconds.                                           |
+| `pan`                   | Static pattern pan from `-1` (left) through `0` (centre) to `1` (right).                 |
+| `sweep.from/to`         | Continuous pattern pan sweep; both endpoints must be within `-1..1`.                     |
 | `arrangement[].pattern` | Name of a pattern declared in the same channel.                                          |
 | `arrangement[].repeat`  | Number of consecutive repetitions. Defaults to `1`.                                      |
 
@@ -273,6 +338,8 @@ A song with `schemaVersion: 1` contains three required AY channel definitions: `
 ```
 
 Event values override pattern defaults. `note` and `freq` are mutually exclusive. Noise-only events use a rest frequency together with noise, for example `{ "note": "r", "noise": true, "noisePeriod": 24 }`.
+
+The player compiles pattern `pan` and `sweep` data into upstream `AYNote.pan`/`panTo` automation. Changing MONO/ACB/ABC while a JSON song is playing deliberately takes manual control: `AYHandle.setStereoMode()` cancels future authored pan automation for that playback, and the monitor switches to the selected preset as well.
 
 ### Optional Beeper Track
 
@@ -306,7 +373,7 @@ Event values override pattern defaults. `note` and `freq` are mutually exclusive
 
 Short hits should be followed by an explicit rest so their duration and rhythmic spacing remain independent. AY-only fields such as `vol`, `noise`, and `envShape` are rejected in beeper options.
 
-The player schedules the beeper against the same `AudioContext` clock as AY playback. Its independent gain path makes MUTE, SOLO, and the Beeper volume fader effective without touching AY registers. Pressing **Stop** cancels queued tones and releases the currently sounding square wave over 5 ms to avoid clicks. AY playback is stopped independently through its playback handle.
+The player passes the complete beeper timeline to upstream `playPattern()` against the same `AudioContext` clock as `playAY()`. Its isolated pattern handle makes MUTE, SOLO, the Beeper volume fader, and Stop effective without touching AY registers or unrelated Beeper effects. AY playback is stopped independently through its own upstream handle.
 
 ## Live Audio Monitor
 
@@ -394,7 +461,7 @@ git status
 
 Serve the project through HTTP. Do not open `index.html` through `file://`.
 
-### A new song is missing from the dropdown
+### A new song is missing from the cover library
 
 Check that the file:
 
@@ -416,10 +483,10 @@ Every AY channel `A`, `B`, and `C` must contain a `patterns` object and an `arra
 
 The frontend is intentionally simple: static HTML, CSS, and ES modules. The player is kept data-driven so new music generally requires adding only a JSON file, not changing playback code.
 
-`zx-kit` is currently imported from:
+Browser code imports `zx-kit` only through `scripts/zx-kit.js`, whose complete contents pin the same exact version as `package.json`:
 
-```text
-https://cdn.jsdelivr.net/npm/zx-kit@0.45.0/dist/index.js
+```js
+export * from 'https://cdn.jsdelivr.net/npm/zx-kit@0.45.0/dist/index.js';
 ```
 
-Update that version only after validating the player with the target release.
+Update npm, the lockfile, and this wrapper together. `npm test` rejects version drift or any second JavaScript source containing a `zx-kit` CDN URL.

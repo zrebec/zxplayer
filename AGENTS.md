@@ -18,7 +18,7 @@ Prehrávač je postavený na knižnici [`zx-kit`](https://www.npmjs.com/package/
 | Engine             | Node.js `>=22`                                                                     |
 | Modulový formát    | ESM (`"type": "module"`)                                                           |
 | Runtime závislosti | Žiadne frameworky (čistý HTML5, Vanilla CSS, moderný ES JavaScript, Web Audio API) |
-| Dev závislosti     | `zx-kit` (^0.42.0), `vite`, `prettier`, `zip-lib`                                  |
+| Dev závislosti     | `zx-kit` (0.45.0), `vite`, `prettier`, `zip-lib`                                   |
 | Pridružený projekt | `~/Projects/retro/engine/zx-kit` — **STRIKTNE READ-ONLY!**                         |
 
 ---
@@ -53,14 +53,16 @@ Prehrávač je postavený na knižnici [`zx-kit`](https://www.npmjs.com/package/
   - `noisePeriod`: `1–31` (register R6, vyššia hodnota = temnejší šum)
   - `envShape`: tvar hardvérovej obálky `0–15` (register R13)
   - `envCycleDurMs`: perióda jedného cyklu obálky v ms (registre R11-R12)
+  - `pan` / `panTo`: statická stereo poloha alebo sweep konkrétnej noty
+- `playAY()` vracia ovládateľný handle s `setChannelGain()`, `setChannelPan()`, `setStereoMode()` a `stop()`.
 - Interaktívne ovládanie čipu v reálnom čase cez `createAY()` / `AYChip` (`tone`, `enableNoise`, `envelope`, `mute`, `pan`, `setStereoMode`, `volume`, `fade`, `stop`).
-- **Nezávislá 1-bit beeper stopa**: samostatný syntetizátor cez `beep(freq, durMs)` v `audio.ts` (hrá paralelne s AY bez ovplyvnenia AY registrov).
+- **Nezávislá 1-bit beeper stopa**: `playPattern()` vracia izolovaný handle s `setGain()` a `stop()`; krátke SFX môže vytvoriť `beep(freq, durMs)`. Beeper hrá paralelne s AY bez ovplyvnenia AY registrov.
 
 ### 3. Registrové dumpy PSG a AudioWorklet emulácia (`aydump.ts`)
 
 - Hardvérovo presná (sample-accurate) emulácia čipu cez `AYChipCore` bežiaci priamo v `AudioWorklet`.
 - Formát `.psg`: surový prúd hodnôt registrov R0–R13 zapisovaných na 50 Hz frekvencii.
-- Prehrávanie cez `loadPSG()` / `parsePSG()` / `playAYDump()`.
+- Prehrávanie cez `loadPSG()` / `parsePSG()` / jedno `playAYDump()` jadro s live gainom A/B/C a stereo ovládaním.
 - Hardvérové profily (`AY_MACHINE`):
   - `zx128` (1.7734 MHz, mono)
   - `melodik` (1.75 MHz, ACB stereo)

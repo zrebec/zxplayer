@@ -1,98 +1,18 @@
 {
   "songs": [
     {
-      "id": "four_tucs",
-      "title": "4 tucs",
-      "artist": "Fox",
-      "file": "four_tucs.json",
-      "type": "json",
-      "catalog": {
-        "releaseYear": 2026,
-        "originalDate": "2026",
-        "cover": "/assets/covers/four_tucs/cover.png",
-        "audio": {
-          "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
-          "chip": "AY-3-8910"
-        },
-        "rights": {
-          "composition": {
-            "status": "all-rights-reserved",
-            "label": "Original composition © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "arrangement": {
-            "status": "all-rights-reserved",
-            "label": "Arrangement © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "source": {
-            "status": "all-rights-reserved",
-            "label": "JSON song source © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "cover": {
-            "status": "all-rights-reserved",
-            "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          }
-        },
-        "rightsStatus": "documented"
-      }
-    },
-    {
-      "id": "dnb_ears",
-      "title": "DnB Ears (L/R stab)",
-      "artist": "Fox",
-      "file": "dnb_ears.json",
-      "type": "json",
-      "catalog": {
-        "releaseYear": 2026,
-        "originalDate": "2026",
-        "cover": "/assets/covers/dnb_ears/cover.png",
-        "audio": {
-          "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
-          "chip": "AY-3-8910"
-        },
-        "rights": {
-          "composition": {
-            "status": "all-rights-reserved",
-            "label": "Original composition © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "arrangement": {
-            "status": "all-rights-reserved",
-            "label": "Arrangement © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "source": {
-            "status": "all-rights-reserved",
-            "label": "JSON song source © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "cover": {
-            "status": "all-rights-reserved",
-            "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          }
-        },
-        "rightsStatus": "documented"
-      }
-    },
-    {
-      "id": "channel_duration_test",
-      "title": "Channel Duration Test",
+      "id": "ay_soundcheck",
+      "title": "AY Soundcheck",
       "artist": "ZX-KIT Player Diagnostics",
-      "file": "channel_duration_test.json",
+      "file": "ay_soundcheck.json",
       "type": "json",
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026",
-        "cover": "/assets/covers/fallback/cover.png",
+        "cover": "/assets/covers/ay_soundcheck/cover.png",
         "audio": {
           "sourceFormat": "json-events",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910 + 1-bit Beeper"
         },
         "rights": {
@@ -113,7 +33,7 @@
           },
           "cover": {
             "status": "all-rights-reserved",
-            "label": "Fallback ZX cover artwork © 2026 Fox. All rights reserved.",
+            "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
             "holder": "Fox"
           }
         },
@@ -296,7 +216,7 @@
         "audio": {
           "sourceFormat": "json-effect",
           "runtimeFormat": "web-audio",
-          "chip": "AY-3-8910"
+          "chip": "procedural Web Audio effect"
         },
         "rights": {
           "composition": {
@@ -312,46 +232,6 @@
           "source": {
             "status": "all-rights-reserved",
             "label": "JSON effect source © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "cover": {
-            "status": "all-rights-reserved",
-            "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          }
-        },
-        "rightsStatus": "documented"
-      }
-    },
-    {
-      "id": "stereo_pingpong",
-      "title": "Stereo Ping-Pong (L / R)",
-      "artist": "Fox",
-      "file": "stereo_pingpong.json",
-      "type": "json",
-      "catalog": {
-        "releaseYear": 2026,
-        "originalDate": "2026",
-        "cover": "/assets/covers/stereo_pingpong/cover.png",
-        "audio": {
-          "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
-          "chip": "AY-3-8910"
-        },
-        "rights": {
-          "composition": {
-            "status": "all-rights-reserved",
-            "label": "Original sound composition © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "arrangement": {
-            "status": "all-rights-reserved",
-            "label": "Arrangement © 2026 Fox. All rights reserved.",
-            "holder": "Fox"
-          },
-          "source": {
-            "status": "all-rights-reserved",
-            "label": "JSON song source © 2026 Fox. All rights reserved.",
             "holder": "Fox"
           },
           "cover": {
