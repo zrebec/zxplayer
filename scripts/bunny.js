@@ -3,7 +3,7 @@ import {
   createBitmapFromRows,
   drawBitmap,
   C,
-} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
+} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.45.0/dist/index.js';
 
 // 16×24 "Big Ears Bunny" — chaosBunny DNA: blue body, white belly, pink ears, black eyes.
 // '.' = transparent.  B = blue body  W = white belly  P = pink inner ear  K = black eye.

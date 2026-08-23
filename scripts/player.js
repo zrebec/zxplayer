@@ -8,7 +8,7 @@ import {
   loadPSG,
   noteToFreq,
   seq,
-} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
+} from 'https://cdn.jsdelivr.net/npm/zx-kit@0.45.0/dist/index.js';
 
 import { CHANNELS as MONITOR_CHANNELS, createChannelMixer } from './channel-mixer.js';
 import { createAmbulancePhasePlan, scheduleAmbulancePhase } from './ambulance-phases.js';

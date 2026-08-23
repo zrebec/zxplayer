@@ -1,4 +1,4 @@
-const ZX_KIT_CDN_URL = 'https://cdn.jsdelivr.net/npm/zx-kit@0.42.0/dist/index.js';
+const ZX_KIT_CDN_URL = 'https://cdn.jsdelivr.net/npm/zx-kit@0.45.0/dist/index.js';
 const CHANNELS = ['A', 'B', 'C'];
 const CHANNEL_VOLUME_REGISTERS = { A: 8, B: 9, C: 10 };
 const PROCESSOR_NAME = 'zxplayer-channelized-psg-v1';
