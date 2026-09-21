@@ -2,6 +2,9 @@
   "name": "zx-kit-player",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "songs:convert": "node scripts/PT3PSGConverter.mjs",
     "songs:generate": "node scripts/generate-song-library.mjs",

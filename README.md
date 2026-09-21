@@ -6,6 +6,15 @@ Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs b
 
 ![ZX-KIT Player screenshot](assets/screenshot.png)
 
+## Documentation
+
+| File                                           | What it holds                                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`AGENTS.md`](AGENTS.md)                       | The single source of truth: scope, AY architecture, song format, commands, CI, editing rules. |
+| [`CLAUDE.md`](CLAUDE.md)                       | Only what is specific to working with Claude here — no duplication of `AGENTS.md`.            |
+| [`docs/repertoire.md`](docs/repertoire.md)     | What the catalogue holds, and the open proposal for a seasonal repertoire.                    |
+| [`docs/known-issues.md`](docs/known-issues.md) | Open, reproducible gaps, each with the command that re-checks it.                             |
+
 ## Features
 
 - One JSON file per song in `songs/`.
@@ -118,6 +127,9 @@ Because `npm run site` is the same command the workflow runs, a deploy can be re
 │   ├── _new_song.json.example
 │   ├── *.json                    # 23 built-in song/effect sources
 │   └── index.json
+├── docs/
+│   ├── known-issues.md
+│   └── repertoire.md
 ├── .gitattributes
 ├── .gitignore
 ├── .prettierrc

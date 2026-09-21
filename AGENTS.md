@@ -4,6 +4,16 @@ Pokyny a pravidlá pre AI agentov pracujúcich v repozitári `zxplayer`.
 
 **Tento súbor je jediným zdrojom pravdy (single source of truth) pre zxplayer.**
 
+Vedľa neho stoja: [`CLAUDE.md`](./CLAUDE.md) (len špecifiká práce s Claudom, bez opakovania tohto
+súboru), [`docs/repertoire.md`](./docs/repertoire.md) (repertoár + sezónny návrh) a
+[`docs/known-issues.md`](./docs/known-issues.md) (otvorené nedostatky, overené voči kódu).
+Denník a slovenské úvahy k projektu sú v `~/Projects/retro/docs/sk/zxplayer.md` a
+`zxplayer-dennik.md`.
+
+> **Pravidlo pred každým zápisom do dokumentácie:** čísla a schopnosti čítaj z kódu, nie z iného
+> dokumentu. 2026-09-22 sa ukázalo, že tri tvrdenia v tomto repozitári boli mesiace nepravdivé
+> (`engines` chýbalo, PSG skladba v katalógu nie je žiadna, dva testy pinovali rozbitý tvar ciest).
+
 ---
 
 ## 1. Prehľad projektu a rozsah
@@ -15,10 +25,10 @@ Prehrávač je postavený na knižnici [`zx-kit`](https://www.npmjs.com/package/
 | Vlastnosť          | Hodnota                                                                            |
 | ------------------ | ---------------------------------------------------------------------------------- |
 | Balík              | `zx-kit-player` (súkromný projekt)                                                 |
-| Engine             | Node.js `>=22`                                                                     |
+| Engine             | Node.js `>=22` (deklarované v `package.json` od 2026-09-22; CI beží na Node 24)    |
 | Modulový formát    | ESM (`"type": "module"`)                                                           |
 | Runtime závislosti | Žiadne frameworky (čistý HTML5, Vanilla CSS, moderný ES JavaScript, Web Audio API) |
-| Dev závislosti     | `zx-kit` (0.45.0), `vite`, `prettier`, `zip-lib`                                   |
+| Dev závislosti     | `zx-kit` (0.45.0 — pin, sibling kit je na 0.46.1), `vite`, `prettier`, `zip-lib`   |
 | Pridružený projekt | `~/Projects/retro/engine/zx-kit` — **STRIKTNE READ-ONLY!**                         |
 
 ---
@@ -135,6 +145,26 @@ Každý push do `main` spúšťa `.github/workflows/ci-deploy.yml`; stránka na 
 3. Ak pridávaš nový súbor, ktorý stránka načítava za behu, dopíš ho do `CONTENT` alebo `REQUIRED` v `scripts/build-site.mjs`. Nasadzuje sa len to, čo je v tom zozname.
 4. **Cesty k assetom píš relatívne, nikdy nezačínaj `/`.** Stránka beží v podadresári (`/zxplayer/`), takže `/assets/...` pýta koreň domény a vráti 404 — lokálne pritom funguje. Obaly rieši `scripts/cover-url.js`; test v `tests/cover-url.test.mjs` odmietne každú skladbu s `/` na začiatku.
 5. `_site/` je vygenerovaný adresár — je v `.gitignore` a nikdy sa necommituje.
+
+---
+
+## 5b. Repertoár a sezónnosť
+
+Katalóg má dnes **23 skladieb**, všetky `type: "json"`, všetky `rightsStatus: "documented"`
+(overené 2026-09-22 z `songs/index.json`). Osem je pôvodných z 2026, dvanásť sú public-domain
+aranžmány, dve herné/domáce, jedna je procedurálny efekt. Pätnásť z nich má beeper stopu.
+
+**PSG cesta je v kóde, ale žiadna skladba ju nepoužíva** — `loadPSG()`/`playAYDump()` sú pokryté
+unit testami, no v katalógu nie je ani jeden register dump. Dvaja reálni kandidáti ležia od
+2026-07-12 v `git stash@{0}` a čakajú na súhlas autora.
+
+**Sezónny repertoár je NÁVRH, nie pravidlo** — celý je v [`docs/repertoire.md`](./docs/repertoire.md) §2:
+vianočné koledy, školské pesničky v septembri a halloweenský zámok. Nič z toho nie je
+implementované. Agent sa podľa toho **nesmie** začať správať, kým sa owner nerozhodne.
+
+**Autorské práva sú brána, nie formalita.** Nová skladba musí prejsť tým istým `rightsStatus`
+overením ako všetko ostatné. Pri koledách to bolí najviac: _Tichá noc_ (1818) je public domain,
+_Rudolph_ (1949) alebo _Last Christmas_ (1984) rozhodne nie — a chiptune aranžmán na tom nemení nič.
 
 ---
 
