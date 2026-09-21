@@ -113,7 +113,27 @@ Prehrávač je postavený na knižnici [`zx-kit`](https://www.npmjs.com/package/
 | `npm run dev`            | Spustí lokálny vývojový server cez Vite.                                    |
 | `npm run format`         | Naformátuje kód cez Prettier.                                               |
 | `npm run format:check`   | Skontroluje formátovanie kódu.                                              |
+| `npm run site`           | Spustí build a poskladá nasadzovateľnú stránku do `_site/`.                 |
 | `npm run archive`        | Vytvorí datovaný ZIP archív projektu v `archive/`.                          |
+
+---
+
+## 5a. CI a nasadenie
+
+Každý push do `main` spúšťa `.github/workflows/ci-deploy.yml`; stránka na GitHub Pages sa publikuje z toho, čo ten beh vyrobí. Pull request prejde rovnakými kontrolami, ale nenasadzuje nič.
+
+| Krok   | Čo beží                                                                     | Kedy zlyhá                                                                                     |
+| ------ | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Verify | `format:check` → `test` → `build` → `git diff --exit-code songs/index.json` | Neformátovaný kód, padnutý test, neplatná skladba, alebo **necommitnutý vygenerovaný katalóg** |
+| Build  | `npm run site`                                                              | Chýba súbor, bez ktorého sa stránka nenačíta                                                   |
+| Deploy | `_site/` → GitHub Pages                                                     | Len na `main`                                                                                  |
+
+**Pravidlá pre agenta:**
+
+1. Po každej zmene v `songs/` spusti `npm run build` a **commitni aj `songs/index.json`** — inak CI padne na kroku `git diff`.
+2. Pred commitom spusti `npm run format` (nie iba `format:check`) — CI formátovanie neopravuje, iba ho kontroluje.
+3. Ak pridávaš nový súbor, ktorý stránka načítava za behu, dopíš ho do `CONTENT` alebo `REQUIRED` v `scripts/build-site.mjs`. Nasadzuje sa len to, čo je v tom zozname.
+4. `_site/` je vygenerovaný adresár — je v `.gitignore` a nikdy sa necommituje.
 
 ---
 

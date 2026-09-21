@@ -1,0 +1,101 @@
+name: CI & Deploy
+
+on:
+  # Pull requests are verified but never deployed — `build` and `deploy` below are
+  # gated on `push`, so a PR shows its checks without touching the live page.
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege by default; the jobs that publish elevate what they actually need.
+permissions:
+  contents: read
+
+concurrency:
+  # Scoped per ref so a pull request cannot queue behind (or ahead of) a main deploy.
+  # Two pushes to main still share a group and stay serialised.
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    # The gate. Runs for pull requests AND for main, so a squash-merged PR is re-checked
+    # against the real merge result before anything reaches the page. Order is cheapest
+    # first: formatting fails in seconds, the song validator has to boot zx-kit.
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Test
+        run: npm test
+
+      - name: Build catalogue (convert, generate, validate)
+        run: npm run build
+
+      - name: Catalogue is committed in its generated state
+        # `songs:generate` writes songs/index.json. If the build above changed it, the
+        # commit carries a stale catalogue — the page would serve songs that do not
+        # match their sources. Fix by running `npm run build` and committing the result.
+        run: git diff --exit-code songs/index.json
+
+  build:
+    # Assembles what Pages will serve. Never runs for a pull request.
+    needs: verify
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies (fetches zx-kit from npm)
+        run: npm ci
+
+      - name: Assemble the site
+        # `npm run site` = npm run build + scripts/build-site.mjs, which copies the two
+        # pages, the styles, every browser module and the song data into _site/ and
+        # fails if anything the page cannot load without is missing.
+        run: npm run site
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5 # v3 artifacts rejected by Pages backend since 2026-07-03
+        with:
+          path: ./_site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5 # Node 24 native, pairs with upload v5
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

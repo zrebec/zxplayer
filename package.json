@@ -11,7 +11,8 @@
     "archive": "npm run build && node scripts/archive-project.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "dev": "vite"
+    "dev": "vite",
+    "site": "npm run build && node scripts/build-site.mjs"
   },
   "devDependencies": {
     "zx-kit": "0.45.0",

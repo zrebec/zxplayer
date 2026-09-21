@@ -71,11 +71,22 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 | `npm run songs:validate` | Compiles and validates every song against the installed `zx-kit`.                                |
 | `npm test`               | Runs the Node tests for the mixer, playback adapter, Soundcheck, catalogue, and version pinning. |
 | `npm run build`          | Regenerates the catalogue and validates every song.                                              |
+| `npm run site`           | Runs the build, then assembles the deployable site into `_site/`.                                |
 | `npm run format`         | Formats the project with Prettier.                                                               |
 | `npm run format:check`   | Checks whether the project already matches the configured Prettier style.                        |
 | `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`.                   |
 
 The current `npm test` suite covers mixer and persisted-volume policy, song-library filtering, real song-channel availability, the unified playback adapter, exact AY Soundcheck timing, Sanitka phase automation, PT3 sidecars, catalogue metadata, and agreement between the npm, lockfile, installed, and browser-wrapper `zx-kit` versions. Upstream audio interpretation remains covered by `zx-kit`; this repository does not duplicate its AY, Beeper, or PSG renderer tests.
+
+## Continuous Integration and Deployment
+
+Every push to `main` runs [`.github/workflows/ci-deploy.yml`](.github/workflows/ci-deploy.yml), and the page is published from what that run produces. A pull request runs the same checks but deploys nothing.
+
+1. **Verify** — `npm run format:check`, `npm test`, `npm run build`, then `git diff --exit-code songs/index.json`. That last step fails when the committed catalogue does not match what the generator produces, so the page can never serve songs that disagree with their sources; the fix is to run `npm run build` and commit the result.
+2. **Build** — `npm run site` assembles `_site/` and fails if anything the page cannot load without is missing.
+3. **Deploy** — `_site/` is published to GitHub Pages.
+
+Because `npm run site` is the same command the workflow runs, a deploy can be reproduced locally: run it, serve `_site/` with any static server, and what you see is what Pages will serve. No bundler is involved — the modules are served exactly as written, and `zx-kit` still arrives from the CDN through `scripts/zx-kit.js`.
 
 ## Project Structure
 

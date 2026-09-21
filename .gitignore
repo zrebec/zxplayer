@@ -17,3 +17,6 @@ Thumbs.db
 
 # Cover concept sources (kept locally, not in the repository)
 assets/covers/*/concept.png
+
+# Assembled site (npm run site)
+_site/
