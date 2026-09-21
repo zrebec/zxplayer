@@ -44,8 +44,12 @@ function normalizeAudio(audio, context) {
   const source = isRecord(audio) ? audio : {};
   const type = context.type === 'psg' ? 'psg' : 'json';
   const defaultSourceFormat = type === 'psg' ? 'psg-register-dump' : context.effect ? 'json-effect' : 'json-notes';
-  const defaultRuntimeFormat = type === 'psg' ? 'audio-worklet' : 'web-audio';
-  const defaultChip = context.machine === 'atariST' ? 'YM2149' : 'AY-3-8910';
+  const defaultRuntimeFormat = type === 'psg' ? 'audio-worklet' : context.effect ? 'web-audio' : 'zx-kit-playback';
+  const defaultChip = context.effect
+    ? 'procedural Web Audio effect'
+    : context.machine === 'atariST'
+      ? 'YM2149'
+      : 'AY-3-8910';
 
   return {
     ...source,

@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "id": "midnight_power_play",
+  "title": "Midnight Power Play",
+  "artist": "Fox",
+  "description": "Nočný ACB zápas: tlaková basa vľavo, útočný motív vpravo, stredový ruch ľadu a samostatná beeper píšťalka.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-12",
+    "cover": "/assets/covers/midnight_power_play/cover.png",
+    "audio": {
+      "sourceFormat": "json-events",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON event source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": {
+    "pan": { "A": -0.75, "B": 0.75, "C": 0 }
+  },
+  "channels": {
+    "A": {
+      "label": "POWER BASS",
+      "patterns": {
+        "faceoff": {
+          "notes": "E2 E2 r E2 G2 E2 D2 E2 E2 B1 D2 E2 G2 F#2 D2 B1",
+          "options": { "dur": 150, "vol": 12 }
+        },
+        "overtime": {
+          "notes": "A2 A2 E2 A2 C3 A2 G2 E2 A2 E2 G2 A2 C3 B2 G2 E2",
+          "options": { "dur": 150, "vol": 13 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "faceoff", "repeat": 6 },
+        { "pattern": "overtime", "repeat": 6 }
+      ]
+    },
+    "B": {
+      "label": "BREAKAWAY",
+      "patterns": {
+        "rally": {
+          "notes": "B4 E5 G5 F#5 E5 B4 D5 E5 B4 E5 A5 G5 F#5 E5 D5 B4",
+          "options": { "dur": 150, "vol": 10 }
+        },
+        "winner": {
+          "notes": "E5 G5 B5 A5 G5 E5 D5 B4 E5 F#5 G5 B5 A5 G5 F#5 E5",
+          "options": { "dur": 150, "envShape": 13, "envCycleDurMs": 18 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "rally", "repeat": 6 },
+        { "pattern": "winner", "repeat": 6 }
+      ]
+    },
+    "C": {
+      "label": "ICE NOISE",
+      "patterns": {
+        "skates": {
+          "options": { "dur": 150, "vol": 7, "noise": true, "noisePeriod": 9 },
+          "events": [
+            { "note": "C2" },
+            { "note": "r", "noise": false },
+            { "note": "r" },
+            { "note": "r", "noise": false },
+            { "note": "C2", "noisePeriod": 5 },
+            { "note": "r", "noise": false },
+            { "note": "r" },
+            { "note": "r", "noise": false },
+            { "note": "C2" },
+            { "note": "r", "noise": false },
+            { "note": "r" },
+            { "note": "r", "noise": false },
+            { "note": "C2", "noisePeriod": 4 },
+            { "note": "r" },
+            { "note": "r", "noise": false },
+            { "note": "r" }
+          ]
+        },
+        "crowd": {
+          "options": { "dur": 150, "vol": 8, "noise": true, "noisePeriod": 18 },
+          "events": [
+            { "note": "C2" },
+            { "note": "r" },
+            { "note": "C2", "noisePeriod": 7 },
+            { "note": "r", "noise": false },
+            { "note": "C2" },
+            { "note": "r" },
+            { "note": "C2", "noisePeriod": 5 },
+            { "note": "r", "noise": false },
+            { "note": "C2" },
+            { "note": "r" },
+            { "note": "C2", "noisePeriod": 7 },
+            { "note": "r" },
+            { "note": "C2", "noisePeriod": 4 },
+            { "note": "r" },
+            { "note": "C2", "noisePeriod": 3 },
+            { "note": "r" }
+          ]
+        }
+      },
+      "arrangement": [
+        { "pattern": "skates", "repeat": 6 },
+        { "pattern": "crowd", "repeat": 6 }
+      ]
+    }
+  },
+  "beeper": {
+    "label": "REFEREE WHISTLE",
+    "pan": 0.2,
+    "patterns": {
+      "whistle": {
+        "events": [
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1320, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1320, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1320, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 2093, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 }
+        ]
+      },
+      "goal": {
+        "events": [
+          { "freq": 2093, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 2637, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 2093, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 1760, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 2637, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 2093, "dur": 45 },
+          { "note": "r", "dur": 255 },
+          { "freq": 3136, "dur": 45 },
+          { "note": "r", "dur": 255 }
+        ]
+      }
+    },
+    "arrangement": [
+      { "pattern": "whistle", "repeat": 6 },
+      { "pattern": "goal", "repeat": 6 }
+    ]
+  }
+}

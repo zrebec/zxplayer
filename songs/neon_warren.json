@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "neon_warren",
+  "title": "Neon Warren",
+  "artist": "Fox",
+  "description": "ABC synth-pop pre podzemné mesto: ľavá basa, stredový arpeggiátor, pravá signálna melódia a beeperové svetlá.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/neon_warren/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ABC and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0, "C": 0.75 } },
+  "channels": {
+    "A": {
+      "label": "TUNNEL BASS / LEFT",
+      "patterns": {
+        "tunnel": {
+          "notes": "E2 r E2 B2 D3 B2 E2 r G2 r G2 D3 F#3 D3 G2 r",
+          "options": { "dur": 135, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "tunnel", "repeat": 10 }]
+    },
+    "B": {
+      "label": "NEON ARP / CENTRE",
+      "patterns": {
+        "neon": {
+          "notes": "E4 G4 B4 G4 E4 G4 B4 D5 G4 B4 D5 B4 G4 B4 D5 F#5",
+          "options": { "dur": 135, "vol": 8, "envShape": 13, "envCycleDurMs": 18 }
+        }
+      },
+      "arrangement": [{ "pattern": "neon", "repeat": 10 }]
+    },
+    "C": {
+      "label": "WARREN SIGNAL / RIGHT",
+      "patterns": {
+        "signal": {
+          "notes": "B4 r D5 E5 G5 F#5 E5 D5 B4 r A4 B4 D5 B4 A4 F#4",
+          "options": { "dur": 135, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "signal", "repeat": 10 }]
+    }
+  },
+  "beeper": {
+    "label": "NEON TICKS",
+    "pan": 0.2,
+    "patterns": {
+      "ticks": {
+        "notes": "E6:25 r:245 E6:25 r:245 E6:25 r:245 G6:25 r:245 E6:25 r:245 E6:25 r:245 E6:25 r:245 B6:25 r:245"
+      }
+    },
+    "arrangement": [{ "pattern": "ticks", "repeat": 10 }]
+  }
+}

@@ -10,7 +10,7 @@
     "cover": "/assets/covers/chaosbunny_escape/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
-      "runtimeFormat": "web-audio",
+      "runtimeFormat": "zx-kit-playback",
       "chip": "AY-3-8910"
     },
     "rights": {
@@ -127,7 +127,7 @@
         },
         {
           "pattern": "leadMelody",
-          "repeat": 3
+          "repeat": 6
         }
       ]
     },

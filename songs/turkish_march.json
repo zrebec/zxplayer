@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "turkish_march",
+  "title": "Turkish March",
+  "artist": "Wolfgang Amadeus Mozart",
+  "description": "Svižné ACB spracovanie Rondo alla turca: pochodová basa vľavo, odpovede vpravo, stredový noise bubon a beeper činely.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1784",
+    "cover": "/assets/covers/turkish_march/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Mozart's Rondo alla turca from Piano Sonata K. 331, issued in 1784; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://kv.mozarteum.at/en/work/alla-turca-4103",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY and Beeper march arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "MARCH BASS / LEFT",
+      "patterns": {
+        "minor": {
+          "notes": "A2 r E3 r A2 E3 A3 E3 G#2 r E3 r G#2 E3 B3 E3 A2 r E3 r A2 E3 C4 E3",
+          "options": { "dur": 120, "vol": 10 }
+        },
+        "major": {
+          "notes": "A2 r E3 r A2 E3 C#4 E3 D3 r A3 r E3 B3 E4 B3 A2 r E3 r A2 E3 C#4 E3",
+          "options": { "dur": 120, "vol": 11 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "minor", "repeat": 4 },
+        { "pattern": "major", "repeat": 4 }
+      ]
+    },
+    "B": {
+      "label": "RONDO / RIGHT",
+      "patterns": {
+        "minor": {
+          "notes": "B4 A4 G#4 A4 C5 B4 A4 B4 E5 D5 C5 D5 F5 E5 D5 E5 B5 A5 G#5 A5 B5 A5 G#5 A5",
+          "options": { "dur": 120, "vol": 11 }
+        },
+        "major": {
+          "notes": "C#5 D5 E5 C#5 A4 C#5 E5 A5 G#5 F#5 E5 D5 C#5 B4 A4 B4 C#5 D5 E5 F#5 E5 D5 C#5 B4",
+          "options": { "dur": 120, "vol": 12 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "minor", "repeat": 4 },
+        { "pattern": "major", "repeat": 4 }
+      ]
+    },
+    "C": {
+      "label": "JANISSARY DRUM / CENTRE",
+      "patterns": {
+        "minor": {
+          "notes": "C2 r r C2 r C2 r r C2 r r C2 r C2 r r C2 r r C2 r C2 r r",
+          "options": { "dur": 120, "vol": 10, "noise": true, "noisePeriod": 21 }
+        },
+        "major": {
+          "notes": "C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r",
+          "options": { "dur": 120, "vol": 11, "noise": true, "noisePeriod": 18 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "minor", "repeat": 4 },
+        { "pattern": "major", "repeat": 4 }
+      ]
+    }
+  },
+  "beeper": {
+    "label": "CYMBALS",
+    "pan": 0,
+    "patterns": {
+      "minor": { "notes": "r r G6 r r G6 r r r r G6 r r G6 r r r r G6 r r G6 r G6", "options": { "dur": 120 } },
+      "major": { "notes": "r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6", "options": { "dur": 120 } }
+    },
+    "arrangement": [
+      { "pattern": "minor", "repeat": 4 },
+      { "pattern": "major", "repeat": 4 }
+    ]
+  }
+}

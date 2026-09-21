@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "one_bit_night_shift",
+  "title": "One-Bit Night Shift",
+  "artist": "Fox",
+  "description": "Samostatná 1-bitová beeper skladba. AY kanály zámerne mlčia, takže mixer ukáže jediný strohý signál nočnej zmeny.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/one_bit_night_shift/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "1-bit ZX Beeper (independent track)"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original one-bit composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": 0, "B": 0, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "AY OFF",
+      "patterns": { "silence": { "notes": "r:1600" } },
+      "arrangement": [{ "pattern": "silence", "repeat": 12 }]
+    },
+    "B": {
+      "label": "AY OFF",
+      "patterns": { "silence": { "notes": "r:1600" } },
+      "arrangement": [{ "pattern": "silence", "repeat": 12 }]
+    },
+    "C": {
+      "label": "AY OFF",
+      "patterns": { "silence": { "notes": "r:1600" } },
+      "arrangement": [{ "pattern": "silence", "repeat": 12 }]
+    }
+  },
+  "beeper": {
+    "label": "ONE-BIT LEAD",
+    "pan": 0,
+    "patterns": {
+      "nightShift": {
+        "notes": "C5:120 r:80 E5:120 r:80 G5:120 r:80 C6:120 r:80 G5:120 r:80 E5:120 r:80 D5:120 r:80 G4:120 r:80"
+      }
+    },
+    "arrangement": [{ "pattern": "nightShift", "repeat": 12 }]
+  }
+}

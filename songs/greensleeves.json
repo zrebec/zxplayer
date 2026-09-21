@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "id": "greensleeves",
+  "title": "Greensleeves",
+  "artist": "Traditional English melody",
+  "description": "Komorné ACB spracovanie starej anglickej melódie s lutnovou basou, pravým protihlasom a jemným beeperovým tikom.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1580",
+    "cover": "/assets/covers/greensleeves/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Traditional melody first recorded in the sixteenth century; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://www.gutenberg.org/ebooks/64536",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "LUTE BASS / LEFT",
+      "patterns": {
+        "lute": {
+          "notes": "E2 B2 E3 B2 D2 A2 D3 A2 C2 G2 C3 G2 B1 F#2 B2 F#2",
+          "options": { "dur": 250, "vol": 9 }
+        }
+      },
+      "arrangement": [{ "pattern": "lute", "repeat": 6 }]
+    },
+    "B": {
+      "label": "COUNTERVOICE / RIGHT",
+      "patterns": {
+        "counter": {
+          "notes": "B3 E4 G4 E4 A3 D4 F#4 D4 G3 C4 E4 C4 F#3 B3 D#4 B3",
+          "options": { "dur": 250, "vol": 7 }
+        }
+      },
+      "arrangement": [{ "pattern": "counter", "repeat": 6 }]
+    },
+    "C": {
+      "label": "MELODY / CENTRE",
+      "patterns": {
+        "verse": {
+          "notes": "E4 G4 A4 B4 C5 B4 A4 F#4 D4 E4 F#4 G4 E4 E4 D#4 E4 G4 A4 B4 C5 B4 A4 G#4 E4",
+          "options": { "dur": 250, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "verse", "repeat": 4 }]
+    }
+  },
+  "beeper": {
+    "label": "LUTE TICKS",
+    "pan": 0,
+    "patterns": {
+      "ticks": {
+        "notes": "E6:40 r:460 E6:40 r:460 G6:40 r:460 E6:40 r:460 E6:40 r:460 B5:40 r:460"
+      }
+    },
+    "arrangement": [{ "pattern": "ticks", "repeat": 8 }]
+  }
+}

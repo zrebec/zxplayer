@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "id": "tilebound_rabbit",
+  "title": "Tilebound Rabbit",
+  "artist": "Fox",
+  "description": "Čisté ABC dobrodružstvo pre zajaca v dlaždicovom bludisku: ľavé kroky, stredové steny a pravá úniková melódia.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-12",
+    "cover": "/assets/covers/tilebound_rabbit/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ABC arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": {
+    "pan": { "A": -0.75, "B": 0, "C": 0.75 }
+  },
+  "channels": {
+    "A": {
+      "label": "TILE STEPS",
+      "patterns": {
+        "grid": {
+          "notes": "C2 r C2 G2 C2 r D#2 G2 C2 r C2 A#2 G2 F2 D#2 G2",
+          "options": { "dur": 160, "vol": 12 }
+        }
+      },
+      "arrangement": [{ "pattern": "grid", "repeat": 10 }]
+    },
+    "B": {
+      "label": "MAZE WALLS",
+      "patterns": {
+        "corners": {
+          "notes": "G3 C4 D#4 G4 D#4 C4 G3 r A#3 D4 F4 A#4 F4 D4 A#3 r",
+          "options": { "dur": 160, "vol": 8 }
+        },
+        "switches": {
+          "notes": "C4 D#4 G4 C5 G4 D#4 C4 G3 D4 F4 A4 D5 A4 F4 D4 A3",
+          "options": { "dur": 160, "envShape": 13, "envCycleDurMs": 22 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "corners", "repeat": 5 },
+        { "pattern": "switches", "repeat": 5 }
+      ]
+    },
+    "C": {
+      "label": "RABBIT RUN",
+      "patterns": {
+        "hop": {
+          "notes": "G4 r C5 D#5 G5 F5 D#5 C5 A#4 C5 D5 D#5 G5 D#5 C5 G4",
+          "options": { "dur": 160, "vol": 11 }
+        },
+        "exit": {
+          "notes": "C5 D#5 G5 C6 A#5 G5 F5 D#5 G5 A#5 C6 D6 C6 A#5 G5 C6",
+          "options": { "dur": 160, "vol": 12 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "hop", "repeat": 5 },
+        { "pattern": "exit", "repeat": 5 }
+      ]
+    }
+  }
+}

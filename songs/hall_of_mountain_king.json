@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "hall_of_mountain_king",
+  "title": "In the Hall of the Mountain King",
+  "artist": "Edvard Grieg",
+  "description": "Stupňujúce sa ACB spracovanie Griegovho motívu: nízky pochod vľavo, odpoveď vpravo, stredové bicie a beeperové akcenty.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1875",
+    "cover": "/assets/covers/hall_of_mountain_king/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Edvard Grieg's Peer Gynt incidental music, composed in 1875; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://imslp.org/wiki/Peer_Gynt%2C_Op.23_(Grieg%2C_Edvard)",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "TROLL MARCH / LEFT",
+      "patterns": {
+        "slow": {
+          "notes": "B2 C#3 D3 E3 D3 C#3 B2 A#2 B2 C#3 D3 E3 C#3 E3 F#3 D3",
+          "options": { "dur": 180, "vol": 10 }
+        },
+        "fast": {
+          "notes": "B2 C#3 D3 E3 D3 C#3 B2 A#2 B2 C#3 D3 E3 C#3 E3 F#3 D3",
+          "options": { "dur": 120, "vol": 12 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "slow", "repeat": 4 },
+        { "pattern": "fast", "repeat": 6 }
+      ]
+    },
+    "B": {
+      "label": "ECHO / RIGHT",
+      "patterns": {
+        "slow": {
+          "notes": "r r B3 C#4 D4 E4 D4 C#4 B3 A#3 B3 C#4 D4 E4 C#4 F#4",
+          "options": { "dur": 180, "vol": 8 }
+        },
+        "fast": {
+          "notes": "B3 C#4 D4 E4 D4 C#4 B3 A#3 B3 C#4 D4 E4 C#4 E4 F#4 D4",
+          "options": { "dur": 120, "vol": 10 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "slow", "repeat": 4 },
+        { "pattern": "fast", "repeat": 6 }
+      ]
+    },
+    "C": {
+      "label": "FOOTSTEPS / CENTRE",
+      "patterns": {
+        "slow": {
+          "notes": "C2 r r r C2 r r r C2 r r r C2 r r r",
+          "options": { "dur": 180, "vol": 9, "noise": true, "noisePeriod": 24 }
+        },
+        "fast": {
+          "notes": "C2 r C2 r C2 r C2 r C2 r C2 r C2 r C2 r",
+          "options": { "dur": 120, "vol": 11, "noise": true, "noisePeriod": 20 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "slow", "repeat": 4 },
+        { "pattern": "fast", "repeat": 6 }
+      ]
+    }
+  },
+  "beeper": {
+    "label": "TROLL CLAPS",
+    "pan": 0,
+    "patterns": {
+      "slow": { "notes": "r G6 r r r G6 r r r G6 r r r G6 r r", "options": { "dur": 180 } },
+      "fast": { "notes": "r G6 r G6 r G6 r G6 r G6 r G6 r G6 r G6", "options": { "dur": 120 } }
+    },
+    "arrangement": [
+      { "pattern": "slow", "repeat": 4 },
+      { "pattern": "fast", "repeat": 6 }
+    ]
+  }
+}

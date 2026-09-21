@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "orbital_foundry",
+  "title": "Orbital Foundry",
+  "artist": "Fox",
+  "description": "Čisté ACB industriálne AY: ľavý lis, pravý kovový motív a stredový noise kanál s hardvérovými obálkami.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/orbital_foundry/cover.png",
+    "audio": {
+      "sourceFormat": "json-events",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ACB arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON event source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "PRESS / LEFT",
+      "patterns": {
+        "press": {
+          "notes": "F2 r F2 C3 D#3 C3 F2 r C#2 r C#2 G#2 B2 G#2 C#2 r",
+          "options": { "dur": 150, "vol": 12 }
+        }
+      },
+      "arrangement": [{ "pattern": "press", "repeat": 10 }]
+    },
+    "B": {
+      "label": "METAL / RIGHT",
+      "patterns": {
+        "metal": {
+          "events": [
+            { "note": "F4", "dur": 300, "envShape": 13, "envCycleDurMs": 18 },
+            { "note": "r", "dur": 300 },
+            { "note": "C5", "dur": 300, "envShape": 9, "envCycleDurMs": 40 },
+            { "note": "r", "dur": 300 },
+            { "note": "G#4", "dur": 300, "envShape": 13, "envCycleDurMs": 18 },
+            { "note": "r", "dur": 300 },
+            { "note": "C#5", "dur": 300, "envShape": 9, "envCycleDurMs": 40 },
+            { "note": "r", "dur": 300 }
+          ]
+        }
+      },
+      "arrangement": [{ "pattern": "metal", "repeat": 10 }]
+    },
+    "C": {
+      "label": "FOUNDRY NOISE / CENTRE",
+      "patterns": {
+        "foundry": {
+          "events": [
+            { "note": "C2", "dur": 150, "vol": 12, "noise": true, "noisePeriod": 30 },
+            { "note": "r", "dur": 150 },
+            { "note": "r", "dur": 150, "vol": 8, "noise": true, "noisePeriod": 4 },
+            { "note": "r", "dur": 150 },
+            { "note": "C2", "dur": 150, "vol": 11, "noise": true, "noisePeriod": 26 },
+            { "note": "r", "dur": 150 },
+            { "note": "r", "dur": 150, "vol": 9, "noise": true, "noisePeriod": 7 },
+            { "note": "r", "dur": 150 },
+            { "note": "C2", "dur": 150, "vol": 12, "noise": true, "noisePeriod": 30 },
+            { "note": "r", "dur": 150 },
+            { "note": "r", "dur": 150, "vol": 8, "noise": true, "noisePeriod": 4 },
+            { "note": "r", "dur": 150 },
+            { "note": "C2", "dur": 150, "vol": 11, "noise": true, "noisePeriod": 26 },
+            { "note": "r", "dur": 150 },
+            { "note": "r", "dur": 150, "vol": 10, "noise": true, "noisePeriod": 2 },
+            { "note": "r", "dur": 150 }
+          ]
+        }
+      },
+      "arrangement": [{ "pattern": "foundry", "repeat": 10 }]
+    }
+  }
+}

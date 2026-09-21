@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "blue_danube",
+  "title": "The Blue Danube",
+  "artist": "Johann Strauss II",
+  "description": "Vzdušný ABC valčík: ľavá oom-pah basa, stredové akordy a pravá dunajská melódia.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1867",
+    "cover": "/assets/covers/blue_danube/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Johann Strauss II's An der schönen blauen Donau, premiered in 1867; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://www.johann-strauss.at/en/forschung/forschungssplitter/an-der-schoenen-blauen-donau/",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY waltz arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0, "C": 0.75 } },
+  "channels": {
+    "A": {
+      "label": "WALTZ BASS / LEFT",
+      "patterns": {
+        "oomPah": {
+          "notes": "D3 A3 A3 A2 A3 A3 D3 A3 A3 A2 A3 A3 G2 D3 D3 A2 E3 E3",
+          "options": { "dur": 333.3333333333333, "vol": 9 }
+        }
+      },
+      "arrangement": [{ "pattern": "oomPah", "repeat": 4 }]
+    },
+    "B": {
+      "label": "WALTZ CHORDS / CENTRE",
+      "patterns": {
+        "chords": {
+          "notes": "r F#4 A4 r E4 A4 r F#4 A4 r E4 A4 r G4 B4 r E4 C#5",
+          "options": { "dur": 333.3333333333333, "vol": 7 }
+        }
+      },
+      "arrangement": [{ "pattern": "chords", "repeat": 4 }]
+    },
+    "C": {
+      "label": "DANUBE / RIGHT",
+      "patterns": {
+        "danube": {
+          "notes": "D4 F#4 A4 A4 r A4 C#5 C#5 r C#5 E5 E5 r E5 D5 D5 r D5 F#5 F#5 r F#5 E5 E5",
+          "options": { "dur": 250, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "danube", "repeat": 4 }]
+    }
+  }
+}

@@ -19,6 +19,13 @@ import { materializePatternPan, resolveChannelDefaultPan } from './pattern-pan.j
 import { createPlaybackAdapter } from './playback-adapter.js';
 import { createPlaybackClock } from './playback-clock.js';
 import { createPlaybackQueue } from './playback-queue.js';
+import {
+  describeReadyChannels,
+  getSongChannelAvailability,
+  songHasAudibleAY,
+  songUsesAYArrangement,
+} from './song-channel-availability.js';
+import { describeLibraryCount, filterSongLibrary } from './song-library-filter.js';
 
 const AY_CHANNELS = ['A', 'B', 'C'];
 const BEEPER_CHANNEL = 'BEEPER';
@@ -51,6 +58,8 @@ const PSG_PAN_BY_STEREO = {
 const CHANNEL_INDEX = { A: 0, B: 1, C: 2 };
 const songSelect = document.getElementById('songSelect');
 const songLibrary = document.getElementById('songLibrary');
+const songFilter = document.getElementById('songFilter');
+const libraryCount = document.getElementById('libraryCount');
 const playBtn = document.getElementById('playBtn');
 const stopBtn = document.getElementById('stopBtn');
 const status = document.getElementById('status');
@@ -105,6 +114,7 @@ let pendingPSGOptions = null;
 stereoMonoBtn?.addEventListener('click', () => setStereoMode('mono'));
 stereoAcbBtn?.addEventListener('click', () => setStereoMode('acb'));
 stereoAbcBtn?.addEventListener('click', () => setStereoMode('abc'));
+songFilter?.addEventListener('input', () => populateSongLibrary(library));
 
 songSelect?.addEventListener('change', async () => {
   stopCurrentPlayback({ resetMonitor: true });
@@ -142,6 +152,7 @@ async function initialisePlayer() {
     populateSongSelect(library);
     populateSongLibrary(library);
     if (songSelect) songSelect.disabled = false;
+    if (songFilter) songFilter.disabled = false;
     await selectSong(library[0].id);
   } catch (error) {
     songTitle.textContent = 'KNIŽNICA SA NENAČÍTALA';
@@ -166,8 +177,9 @@ function populateSongSelect(songs) {
 function populateSongLibrary(songs) {
   if (!songLibrary) return;
   songLibrary.replaceChildren();
+  const filteredSongs = filterSongLibrary(songs, songFilter?.value);
 
-  for (const song of songs) {
+  for (const song of filteredSongs) {
     const catalog = song.catalog ?? {};
     const card = document.createElement('button');
     card.type = 'button';
@@ -213,6 +225,15 @@ function populateSongLibrary(songs) {
     });
     songLibrary.append(card);
   }
+
+  if (filteredSongs.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'library__empty';
+    empty.textContent = 'NO SIGNAL MATCHES THIS FILTER.';
+    songLibrary.append(empty);
+  }
+  if (libraryCount) libraryCount.textContent = describeLibraryCount(filteredSongs.length, songs.length);
+  if (selectedSong) markSelectedSong(selectedSong.id);
   songLibrary.setAttribute('aria-busy', 'false');
 }
 
@@ -410,15 +431,14 @@ async function selectSong(songId) {
     song.format = JSON_FORMAT;
     song.catalog = descriptor.catalog ?? song.catalog;
     validateSong(song);
-    buildSong(song);
+    if (songUsesAYArrangement(song)) buildSong(song);
     selectedSong = song;
-    setAvailableChannels(song.beeper ? MONITOR_CHANNELS : AY_CHANNELS);
+    const availableChannels = getSongChannelAvailability(song);
+    setAvailableChannels(availableChannels);
     renderSongDetails(song);
     updateChannelLabels(song);
     resetMonitor();
-    status.textContent = song.beeper
-      ? 'Pripravené. PLAY spustí tri AY kanály a samostatnú beeper stopu.'
-      : 'Pripravené. PLAY odomkne AudioContext a spustí všetky tri AY kanály.';
+    status.textContent = describeReadyChannels(availableChannels);
     playBtn.disabled = false;
   } catch (error) {
     if (currentSelectionId !== selectionId) return;
@@ -479,24 +499,28 @@ async function startPlayback(song) {
     }
 
     const { tracks, timelines, totalDurationMs } = buildSong(song);
-    const initialAYGains = Object.fromEntries(AY_CHANNELS.map((channel) => [channel, getChannelOutputLevel(channel)]));
-    const authoredPan = Object.fromEntries(
-      AY_CHANNELS.filter((channel) => song.ay?.pan?.[channel] !== undefined).map((channel) => [
-        channel.toLowerCase(),
-        song.ay.pan[channel],
-      ]),
-    );
-    unownedAYHandle = playAY(
-      {
-        a: tracks.A,
-        b: tracks.B,
-        c: tracks.C,
-        gains: initialAYGains,
-        stereo: currentStereoMode,
-        ...(Object.keys(authoredPan).length > 0 ? { pan: authoredPan } : {}),
-      },
-      playbackClock.getStartDelayMs(),
-    );
+    if (songHasAudibleAY(song)) {
+      const initialAYGains = Object.fromEntries(
+        AY_CHANNELS.map((channel) => [channel, getChannelOutputLevel(channel)]),
+      );
+      const authoredPan = Object.fromEntries(
+        AY_CHANNELS.filter((channel) => song.ay?.pan?.[channel] !== undefined).map((channel) => [
+          channel.toLowerCase(),
+          song.ay.pan[channel],
+        ]),
+      );
+      unownedAYHandle = playAY(
+        {
+          a: tracks.A,
+          b: tracks.B,
+          c: tracks.C,
+          gains: initialAYGains,
+          stereo: currentStereoMode,
+          ...(Object.keys(authoredPan).length > 0 ? { pan: authoredPan } : {}),
+        },
+        playbackClock.getStartDelayMs(),
+      );
+    }
     unownedBeeperHandle = song.beeper
       ? playPattern(
           tracks.BEEPER.map((note) => ({ ...note, pan: song.beeper.pan ?? 0 })),

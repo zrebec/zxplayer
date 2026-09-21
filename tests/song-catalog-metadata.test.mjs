@@ -13,14 +13,56 @@ import {
 
 const projectDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const songsDirectory = path.join(projectDirectory, 'songs');
-const historicalSongIds = new Set(['korobeiniki', 'nad_tatrou_sa_blyska', 'ode_to_joy', 'wilhelmus']);
-const expectedSongIds = [
-  'ay_soundcheck',
-  'chaosbunny_escape',
+const newOriginalSongIds = new Set([
+  'arctic_circuit',
+  'bitshift_boulevard',
+  'neon_warren',
+  'one_bit_night_shift',
+  'orbital_foundry',
+  'signal_over_tatras',
+  'midnight_power_play',
+  'tilebound_rabbit',
+]);
+const newHistoricalSongIds = new Set([
+  'blue_danube',
+  'brahms_lullaby',
+  'frere_jacques',
+  'greensleeves',
+  'hall_of_mountain_king',
+  'infernal_galop',
+  'minuet_in_g',
+  'turkish_march',
+]);
+const historicalSongIds = new Set([
   'korobeiniki',
   'nad_tatrou_sa_blyska',
   'ode_to_joy',
+  'wilhelmus',
+  ...newHistoricalSongIds,
+]);
+const expectedSongIds = [
+  'arctic_circuit',
+  'ay_soundcheck',
+  'bitshift_boulevard',
+  'blue_danube',
+  'brahms_lullaby',
+  'chaosbunny_escape',
+  'frere_jacques',
+  'greensleeves',
+  'hall_of_mountain_king',
+  'infernal_galop',
+  'korobeiniki',
+  'midnight_power_play',
+  'minuet_in_g',
+  'nad_tatrou_sa_blyska',
+  'neon_warren',
+  'ode_to_joy',
+  'one_bit_night_shift',
+  'orbital_foundry',
+  'signal_over_tatras',
   'stereo_ambulance',
+  'tilebound_rabbit',
+  'turkish_march',
   'wilhelmus',
 ];
 
@@ -66,6 +108,7 @@ test('rights are documented only when every category contains appropriate eviden
 
 test('JSON effects receive a distinct source format without overriding authored values', () => {
   const effectCatalog = normalizeCatalog({}, { type: 'json', effect: true });
+  const songCatalog = normalizeCatalog({}, { type: 'json' });
   const authoredCatalog = normalizeCatalog(
     {
       audio: { sourceFormat: 'custom-json', runtimeFormat: 'custom-runtime', chip: 'Custom chip' },
@@ -74,6 +117,9 @@ test('JSON effects receive a distinct source format without overriding authored 
   );
 
   assert.equal(effectCatalog.audio.sourceFormat, 'json-effect');
+  assert.equal(effectCatalog.audio.runtimeFormat, 'web-audio');
+  assert.equal(effectCatalog.audio.chip, 'procedural Web Audio effect');
+  assert.equal(songCatalog.audio.runtimeFormat, 'zx-kit-playback');
   assert.deepEqual(authoredCatalog.audio, {
     sourceFormat: 'custom-json',
     runtimeFormat: 'custom-runtime',
@@ -93,13 +139,10 @@ test('PSG metadata sidecars are excluded from the playable song list', () => {
   ]);
 });
 
-test('generated catalog contains exactly the seven current source songs', async () => {
+test('generated catalog contains the complete twenty-three-song source library', async () => {
   const catalog = JSON.parse(await readFile(path.join(songsDirectory, 'index.json'), 'utf8'));
 
-  assert.deepEqual(
-    catalog.songs.map((song) => song.id),
-    expectedSongIds,
-  );
+  assert.deepEqual(catalog.songs.map((song) => song.id).sort(), expectedSongIds.toSorted());
   assert.ok(catalog.songs.every((song) => song.type === 'json' && song.file === `${song.id}.json`));
   assert.equal(
     catalog.songs.find((song) => song.id === 'stereo_ambulance').catalog.audio.chip,
@@ -111,12 +154,12 @@ test('generated catalog contains exactly the seven current source songs', async 
   );
 });
 
-test('every bundled JSON song contains a fully documented 2026 catalog record', async () => {
+test('every bundled JSON song contains release, source, rights, and cover metadata', async () => {
   const songFiles = (await readdir(songsDirectory)).filter(
     (file) => file.endsWith('.json') && file !== 'index.json' && !file.endsWith('.meta.json'),
   );
 
-  assert.equal(songFiles.length, 7);
+  assert.equal(songFiles.length, 23);
   const songIds = [];
   for (const file of songFiles) {
     const song = JSON.parse(await readFile(path.join(songsDirectory, file), 'utf8'));
@@ -128,8 +171,13 @@ test('every bundled JSON song contains a fully documented 2026 catalog record', 
     const expectedCover = `/assets/covers/${song.id}/cover.png`;
     assert.equal(catalog.cover, expectedCover, `${file}: cover`);
     assert.equal(catalog.rightsStatus, 'documented', `${file}: rightsStatus`);
+    assert.ok(catalog.rights.source.label, `${file}: source label`);
+    assert.notEqual(catalog.rights.source.status, 'unverified', `${file}: source status`);
     if (song.id === 'stereo_ambulance') {
       assert.equal(catalog.audio.chip, 'procedural Web Audio effect', `${file}: procedural effect metadata`);
+      assert.equal(catalog.audio.runtimeFormat, 'web-audio', `${file}: procedural runtime`);
+    } else {
+      assert.equal(catalog.audio.runtimeFormat, 'zx-kit-playback', `${file}: zx-kit runtime`);
     }
     if (historicalSongIds.has(song.id)) {
       assert.equal(catalog.rights.composition.status, 'public-domain-eu', `${file}: composition status`);
@@ -150,6 +198,83 @@ test('every bundled JSON song contains a fully documented 2026 catalog record', 
 
   assert.deepEqual(songIds.sort(), expectedSongIds);
 });
+
+test('new songs cover original and historical music across ABC, ACB, Beeper, and combined mixes', async () => {
+  const songs = new Map();
+  for (const id of [...newOriginalSongIds, ...newHistoricalSongIds]) {
+    songs.set(id, JSON.parse(await readFile(path.join(songsDirectory, `${id}.json`), 'utf8')));
+  }
+
+  assert.equal(songs.size, 16);
+  for (const id of newOriginalSongIds) {
+    assert.equal(songs.get(id).catalog.rights.composition.status, 'all-rights-reserved', `${id}: original`);
+  }
+  for (const id of newHistoricalSongIds) {
+    assert.equal(songs.get(id).catalog.rights.composition.status, 'public-domain-eu', `${id}: historical`);
+  }
+
+  const abc = { A: -0.75, B: 0, C: 0.75 };
+  const acb = { A: -0.75, B: 0.75, C: 0 };
+  for (const id of [
+    'bitshift_boulevard',
+    'blue_danube',
+    'brahms_lullaby',
+    'frere_jacques',
+    'infernal_galop',
+    'neon_warren',
+    'tilebound_rabbit',
+  ]) {
+    assert.deepEqual(songs.get(id).ay.pan, abc, `${id}: ABC layout`);
+  }
+  for (const id of [
+    'arctic_circuit',
+    'greensleeves',
+    'hall_of_mountain_king',
+    'midnight_power_play',
+    'minuet_in_g',
+    'orbital_foundry',
+    'signal_over_tatras',
+    'turkish_march',
+  ]) {
+    assert.deepEqual(songs.get(id).ay.pan, acb, `${id}: ACB layout`);
+  }
+
+  for (const id of [
+    'arctic_circuit',
+    'greensleeves',
+    'hall_of_mountain_king',
+    'infernal_galop',
+    'midnight_power_play',
+    'neon_warren',
+    'one_bit_night_shift',
+    'signal_over_tatras',
+    'turkish_march',
+  ]) {
+    assert.ok(songs.get(id).beeper, `${id}: independent Beeper track`);
+  }
+
+  const beeperOnly = songs.get('one_bit_night_shift');
+  assert.ok(Object.values(beeperOnly.channels).every(channelIsSilent), 'one_bit_night_shift: silent AY channels');
+  assert.ok(channelHasTone(beeperOnly.beeper), 'one_bit_night_shift: audible Beeper track');
+});
+
+function channelIsSilent(channel) {
+  return Object.values(channel.patterns).every((pattern) => {
+    if (typeof pattern.notes === 'string') {
+      return pattern.notes.split(/\s+/).every((token) => token === 'r' || token.startsWith('r:'));
+    }
+    return pattern.events.every((event) => event.note === 'r' || event.freq === 0);
+  });
+}
+
+function channelHasTone(channel) {
+  return Object.values(channel.patterns).some((pattern) => {
+    if (typeof pattern.notes === 'string') {
+      return pattern.notes.split(/\s+/).some((token) => token !== 'r' && !token.startsWith('r:'));
+    }
+    return pattern.events.some((event) => (typeof event.note === 'string' && event.note !== 'r') || event.freq > 0);
+  });
+}
 
 function readPngDimensions(bytes) {
   const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);

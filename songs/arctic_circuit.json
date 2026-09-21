@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "arctic_circuit",
+  "title": "Arctic Circuit",
+  "artist": "Fox",
+  "description": "Rýchly ACB elektro-pulz: motorická basa vľavo, odpovede vpravo, stredový šum a samostatný beeper ako ľadové hi-haty.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/arctic_circuit/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "ICE ENGINE / LEFT",
+      "patterns": {
+        "drive": {
+          "notes": "A2 r A2 A2 C3 r E3 r A2 r G2 E2 A2 C3 E3 G3",
+          "options": { "dur": 120, "vol": 12 }
+        }
+      },
+      "arrangement": [{ "pattern": "drive", "repeat": 12 }]
+    },
+    "B": {
+      "label": "BEACON / RIGHT",
+      "patterns": {
+        "beacon": {
+          "notes": "E4 r A4 r C5 B4 A4 r E5 r C5 r B4 A4 E4 r",
+          "options": { "dur": 120, "vol": 10, "envShape": 13, "envCycleDurMs": 22 }
+        }
+      },
+      "arrangement": [{ "pattern": "beacon", "repeat": 12 }]
+    },
+    "C": {
+      "label": "CHAIN NOISE / CENTRE",
+      "patterns": {
+        "chains": {
+          "events": [
+            { "note": "C2", "dur": 120, "vol": 12, "noise": true, "noisePeriod": 25 },
+            { "note": "r", "dur": 120 },
+            { "note": "r", "dur": 120, "vol": 8, "noise": true, "noisePeriod": 5 },
+            { "note": "r", "dur": 120 },
+            { "note": "C2", "dur": 120, "vol": 11, "noise": true, "noisePeriod": 25 },
+            { "note": "r", "dur": 120 },
+            { "note": "r", "dur": 120, "vol": 8, "noise": true, "noisePeriod": 8 },
+            { "note": "r", "dur": 120 },
+            { "note": "C2", "dur": 120, "vol": 12, "noise": true, "noisePeriod": 25 },
+            { "note": "r", "dur": 120 },
+            { "note": "r", "dur": 120, "vol": 8, "noise": true, "noisePeriod": 5 },
+            { "note": "r", "dur": 120 },
+            { "note": "C2", "dur": 120, "vol": 11, "noise": true, "noisePeriod": 25 },
+            { "note": "r", "dur": 120 },
+            { "note": "r", "dur": 120, "vol": 9, "noise": true, "noisePeriod": 3 },
+            { "note": "r", "dur": 120 }
+          ]
+        }
+      },
+      "arrangement": [{ "pattern": "chains", "repeat": 12 }]
+    }
+  },
+  "beeper": {
+    "label": "ICE HI-HATS",
+    "pan": 0,
+    "patterns": {
+      "hats": {
+        "notes": "F6:30 r:210 F6:30 r:210 F6:30 r:210 F6:30 r:210 F6:30 r:210 F6:30 r:210 F6:30 r:210 G6:30 r:210"
+      }
+    },
+    "arrangement": [{ "pattern": "hats", "repeat": 12 }]
+  }
+}

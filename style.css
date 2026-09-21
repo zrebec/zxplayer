@@ -183,6 +183,47 @@ button {
   color: var(--ink-muted);
 }
 
+.library__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.library__filter {
+  width: min(100%, 31rem);
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid rgba(89, 215, 255, 0.28);
+  border-radius: 12px;
+  background: rgba(23, 27, 54, 0.72);
+  color: var(--ink);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.library__filter::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.8;
+}
+
+.library__filter:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.library__count {
+  margin: 0;
+  color: var(--mint);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
 .library__rail {
   display: flex;
   gap: 16px;
@@ -225,6 +266,22 @@ button {
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.1em;
+}
+
+.library__empty {
+  display: grid;
+  flex: 0 0 100%;
+  min-height: 190px;
+  margin: 0;
+  place-items: center;
+  border: 1px dashed rgba(255, 227, 110, 0.34);
+  border-radius: 22px;
+  color: var(--lemon);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-align: center;
 }
 
 .library__loading-art {
@@ -1255,6 +1312,16 @@ button {
 
   .section-heading__hint {
     display: none;
+  }
+
+  .library__toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .library__filter {
+    width: 100%;
   }
 
   .library__rail {

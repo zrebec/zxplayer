@@ -1,6 +1,46 @@
 {
   "songs": [
     {
+      "id": "arctic_circuit",
+      "title": "Arctic Circuit",
+      "artist": "Fox",
+      "file": "arctic_circuit.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/arctic_circuit/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "ay_soundcheck",
       "title": "AY Soundcheck",
       "artist": "ZX-KIT Player Diagnostics",
@@ -41,6 +81,169 @@
       }
     },
     {
+      "id": "bitshift_boulevard",
+      "title": "Bitshift Boulevard",
+      "artist": "Fox",
+      "file": "bitshift_boulevard.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/bitshift_boulevard/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ABC arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "brahms_lullaby",
+      "title": "Brahms' Lullaby",
+      "artist": "Johannes Brahms",
+      "file": "brahms_lullaby.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1868",
+        "cover": "/assets/covers/brahms_lullaby/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Johannes Brahms's Wiegenlied, Op. 49 No. 4, first published in 1868; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://imslp.org/wiki/5_Lieder%2C_Op.49_(Brahms%2C_Johannes)",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY lullaby arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "frere_jacques",
+      "title": "Frère Jacques",
+      "artist": "Traditional French round",
+      "file": "frere_jacques.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "c. 1780",
+        "cover": "/assets/covers/frere_jacques/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Traditional French round documented in an eighteenth-century source; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://fr.wikisource.org/wiki/Fr%C3%A8re_Jacques",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY round arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "greensleeves",
+      "title": "Greensleeves",
+      "artist": "Traditional English melody",
+      "file": "greensleeves.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1580",
+        "cover": "/assets/covers/greensleeves/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Traditional melody first recorded in the sixteenth century; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://www.gutenberg.org/ebooks/64536",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "chaosbunny_escape",
       "title": "Chaosbunny Escape",
       "artist": "Fox",
@@ -52,7 +255,7 @@
         "cover": "/assets/covers/chaosbunny_escape/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910"
         },
         "rights": {
@@ -81,6 +284,88 @@
       }
     },
     {
+      "id": "hall_of_mountain_king",
+      "title": "In the Hall of the Mountain King",
+      "artist": "Edvard Grieg",
+      "file": "hall_of_mountain_king.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1875",
+        "cover": "/assets/covers/hall_of_mountain_king/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Edvard Grieg's Peer Gynt incidental music, composed in 1875; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://imslp.org/wiki/Peer_Gynt%2C_Op.23_(Grieg%2C_Edvard)",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "infernal_galop",
+      "title": "Infernal Galop (Can-Can)",
+      "artist": "Jacques Offenbach",
+      "file": "infernal_galop.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1858",
+        "cover": "/assets/covers/infernal_galop/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Offenbach's Galop infernal from Orphée aux enfers, composed in 1858; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://imslp.org/wiki/The_Can-Can_from_%27Orpheus_in_the_Underworld%27_%28Offenbach%2C_Jacques%29",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY and Beeper galop arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "korobeiniki",
       "title": "Korobeiniki (Tetris Theme A)",
       "artist": "Traditional Russian folk song",
@@ -92,7 +377,7 @@
         "cover": "/assets/covers/korobeiniki/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910"
         },
         "rights": {
@@ -122,6 +407,87 @@
       }
     },
     {
+      "id": "midnight_power_play",
+      "title": "Midnight Power Play",
+      "artist": "Fox",
+      "file": "midnight_power_play.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-12",
+        "cover": "/assets/covers/midnight_power_play/cover.png",
+        "audio": {
+          "sourceFormat": "json-events",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON event source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "minuet_in_g",
+      "title": "Minuet in G Major",
+      "artist": "Christian Petzold",
+      "file": "minuet_in_g.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "c. 1725",
+        "cover": "/assets/covers/minuet_in_g/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Christian Petzold's Minuet in G major, BWV Anh. 114, preserved in the 1725 Notebook for Anna Magdalena Bach; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://imslp.org/wiki/Minuet_in_G_major%2C_BWV_Anh.114_%28Pezold%2C_Christian%29",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY chamber arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "nad_tatrou_sa_blyska",
       "title": "Nad Tatrou sa blýska",
       "artist": "Traditional Slovak melody",
@@ -133,7 +499,7 @@
         "cover": "/assets/covers/nad_tatrou_sa_blyska/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910"
         },
         "rights": {
@@ -163,6 +529,46 @@
       }
     },
     {
+      "id": "neon_warren",
+      "title": "Neon Warren",
+      "artist": "Fox",
+      "file": "neon_warren.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/neon_warren/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ABC and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "ode_to_joy",
       "title": "Ode to Joy",
       "artist": "Ludwig van Beethoven",
@@ -174,7 +580,7 @@
         "cover": "/assets/covers/ode_to_joy/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910"
         },
         "rights": {
@@ -197,6 +603,86 @@
           "cover": {
             "status": "all-rights-reserved",
             "label": "ZX cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "one_bit_night_shift",
+      "title": "One-Bit Night Shift",
+      "artist": "Fox",
+      "file": "one_bit_night_shift.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/one_bit_night_shift/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "1-bit ZX Beeper (independent track)"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original one-bit composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "orbital_foundry",
+      "title": "Orbital Foundry",
+      "artist": "Fox",
+      "file": "orbital_foundry.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/orbital_foundry/cover.png",
+        "audio": {
+          "sourceFormat": "json-events",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ACB arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON event source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
             "holder": "Fox"
           }
         },
@@ -244,6 +730,168 @@
       }
     },
     {
+      "id": "signal_over_tatras",
+      "title": "Signal over Tatras",
+      "artist": "Fox",
+      "file": "signal_over_tatras.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-11",
+        "cover": "/assets/covers/signal_over_tatras/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "blue_danube",
+      "title": "The Blue Danube",
+      "artist": "Johann Strauss II",
+      "file": "blue_danube.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1867",
+        "cover": "/assets/covers/blue_danube/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Johann Strauss II's An der schönen blauen Donau, premiered in 1867; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://www.johann-strauss.at/en/forschung/forschungssplitter/an-der-schoenen-blauen-donau/",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY waltz arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "tilebound_rabbit",
+      "title": "Tilebound Rabbit",
+      "artist": "Fox",
+      "file": "tilebound_rabbit.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "2026-09-12",
+        "cover": "/assets/covers/tilebound_rabbit/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ABC stereo)"
+        },
+        "rights": {
+          "composition": {
+            "status": "all-rights-reserved",
+            "label": "Original composition © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "Original ABC arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
+      "id": "turkish_march",
+      "title": "Turkish March",
+      "artist": "Wolfgang Amadeus Mozart",
+      "file": "turkish_march.json",
+      "type": "json",
+      "catalog": {
+        "releaseYear": 2026,
+        "originalDate": "1784",
+        "cover": "/assets/covers/turkish_march/cover.png",
+        "audio": {
+          "sourceFormat": "json-notes",
+          "runtimeFormat": "zx-kit-playback",
+          "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+        },
+        "rights": {
+          "composition": {
+            "status": "public-domain-eu",
+            "label": "Mozart's Rondo alla turca from Piano Sonata K. 331, issued in 1784; cataloged as public domain in the EU. This is not legal advice.",
+            "evidenceUrl": "https://kv.mozarteum.at/en/work/alla-turca-4103",
+            "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+          },
+          "arrangement": {
+            "status": "all-rights-reserved",
+            "label": "AY and Beeper march arrangement © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "source": {
+            "status": "all-rights-reserved",
+            "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          },
+          "cover": {
+            "status": "all-rights-reserved",
+            "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+            "holder": "Fox"
+          }
+        },
+        "rightsStatus": "documented"
+      }
+    },
+    {
       "id": "wilhelmus",
       "title": "Wilhelmus",
       "artist": "Traditional Dutch melody",
@@ -255,7 +903,7 @@
         "cover": "/assets/covers/wilhelmus/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
-          "runtimeFormat": "web-audio",
+          "runtimeFormat": "zx-kit-playback",
           "chip": "AY-3-8910"
         },
         "rights": {

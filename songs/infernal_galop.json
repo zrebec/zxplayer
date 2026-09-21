@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "id": "infernal_galop",
+  "title": "Infernal Galop (Can-Can)",
+  "artist": "Jacques Offenbach",
+  "description": "Rozbehnutý ABC Can-Can: ľavý galop, stredové akordové odpovede, pravá melódia a samostatné beeperové činely.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "1858",
+    "cover": "/assets/covers/infernal_galop/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Offenbach's Galop infernal from Orphée aux enfers, composed in 1858; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://imslp.org/wiki/The_Can-Can_from_%27Orpheus_in_the_Underworld%27_%28Offenbach%2C_Jacques%29",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY and Beeper galop arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": {
+    "pan": { "A": -0.75, "B": 0, "C": 0.75 }
+  },
+  "channels": {
+    "A": {
+      "label": "GALOP BASS",
+      "patterns": {
+        "gallop": {
+          "notes": "A2 E3 A2 E3 A2 E3 A2 E3 D3 A3 D3 A3 E3 B3 E3 B3",
+          "options": { "dur": 150, "vol": 12 }
+        }
+      },
+      "arrangement": [{ "pattern": "gallop", "repeat": 10 }]
+    },
+    "B": {
+      "label": "BRASS CHORDS",
+      "patterns": {
+        "offbeats": {
+          "notes": "r A3 r C#4 r E4 r C#4 r D4 r F#4 r E4 r G#4",
+          "options": { "dur": 150, "vol": 9 }
+        }
+      },
+      "arrangement": [{ "pattern": "offbeats", "repeat": 10 }]
+    },
+    "C": {
+      "label": "CAN-CAN LEAD",
+      "patterns": {
+        "kickline": {
+          "notes": "A4 A4 A4 A4 C#5 E5 E5 E5 D5 C#5 B4 A4 G#4 A4 B4 C#5",
+          "options": { "dur": 150, "vol": 11 }
+        },
+        "finale": {
+          "notes": "D5 D5 D5 F#5 A5 A5 G#5 F#5 E5 D5 C#5 B4 E5 D5 C#5 A4",
+          "options": { "dur": 150, "envShape": 13, "envCycleDurMs": 16 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "kickline", "repeat": 5 },
+        { "pattern": "finale", "repeat": 5 }
+      ]
+    }
+  },
+  "beeper": {
+    "label": "CYMBAL LINE",
+    "pan": 0,
+    "patterns": {
+      "cymbals": {
+        "events": [
+          { "freq": 2300, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 1800, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 2300, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 1800, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 2300, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 1800, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 2700, "dur": 40 },
+          { "note": "r", "dur": 260 },
+          { "freq": 2300, "dur": 40 },
+          { "note": "r", "dur": 260 }
+        ]
+      }
+    },
+    "arrangement": [{ "pattern": "cymbals", "repeat": 10 }]
+  }
+}

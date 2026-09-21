@@ -11,8 +11,9 @@ Songs can be hand-authored JSON arrangements or PSG register dumps. JSON songs b
 - One JSON file per song in `songs/`.
 - PSG register-dump playback through upstream `zx-kit` `loadPSG()` and one `playAYDump()` AudioWorklet core.
 - PT3 source modules are converted offline to PSG before playback.
-- A seven-item built-in catalogue headed by the 31-second public **AY Soundcheck**.
-- Responsive cover-based song library with unique hardware-valid ZX Spectrum artwork.
+- A twenty-three-item built-in catalogue headed by the 31-second public **AY Soundcheck**.
+- Eight original 2026 tracks and eight new public-domain arrangements spanning ABC, ACB, Beeper-only, and AY + Beeper mixes.
+- Responsive cover-based song library with a diacritic-insensitive filter and unique hardware-valid ZX Spectrum artwork.
 - Catalogue metadata for release/original dates, source and runtime formats, target chip, and structured rights.
 - Separate **Play** and **Stop** controls.
 - Live monitor for AY channels A/B/C and the optional beeper track.
@@ -74,7 +75,7 @@ Press **Play** after the page loads. Browsers require an explicit user gesture b
 | `npm run format:check`   | Checks whether the project already matches the configured Prettier style.                        |
 | `npm run archive`        | Regenerates the song catalogue, then creates a dated source ZIP in `archive/`.                   |
 
-The current `npm test` suite covers mixer and persisted-volume policy, the unified playback adapter, exact AY Soundcheck timing, Sanitka phase automation, PT3 sidecars, catalogue metadata, and agreement between the npm, lockfile, installed, and browser-wrapper `zx-kit` versions. Upstream audio interpretation remains covered by `zx-kit`; this repository does not duplicate its AY, Beeper, or PSG renderer tests.
+The current `npm test` suite covers mixer and persisted-volume policy, song-library filtering, real song-channel availability, the unified playback adapter, exact AY Soundcheck timing, Sanitka phase automation, PT3 sidecars, catalogue metadata, and agreement between the npm, lockfile, installed, and browser-wrapper `zx-kit` versions. Upstream audio interpretation remains covered by `zx-kit`; this repository does not duplicate its AY, Beeper, or PSG renderer tests.
 
 ## Project Structure
 
@@ -96,19 +97,15 @@ The current `npm test` suite covers mixer and persisted-volume policy, the unifi
 │   ├── PT3PSGConverter.mjs
 │   ├── pt3-metadata-sidecar.js
 │   ├── song-catalog-metadata.js
+│   ├── song-channel-availability.js
+│   ├── song-library-filter.js
 │   ├── validate-songs.mjs
 │   ├── player.js
 │   └── zx-kit.js
 ├── tests/
 ├── songs/
 │   ├── _new_song.json.example
-│   ├── ay_soundcheck.json
-│   ├── chaosbunny_escape.json
-│   ├── korobeiniki.json
-│   ├── nad_tatrou_sa_blyska.json
-│   ├── ode_to_joy.json
-│   ├── stereo_ambulance.json
-│   ├── wilhelmus.json
+│   ├── *.json                    # 23 built-in song/effect sources
 │   └── index.json
 ├── .gitattributes
 ├── .gitignore
@@ -126,7 +123,7 @@ All browser modules import `zx-kit` through `scripts/zx-kit.js`. That wrapper co
 
 | Source                 | Upstream playback path                   | Live control used by the player                              |
 | ---------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| JSON channels A/B/C    | One `playAY()` call                      | `AYHandle.setChannelGain()`, `setStereoMode()`, and `stop()` |
+| JSON channels A/B/C    | One `playAY()` call when AY is audible   | `AYHandle.setChannelGain()`, `setStereoMode()`, and `stop()` |
 | Optional Beeper track  | One `playPattern()` call                 | `BeeperPatternHandle.setGain()` and `stop()`                 |
 | PSG register dump      | `loadPSG()` then one `playAYDump()` call | `AYDumpHandle.setChannelGain()`, `setStereo()`, and `stop()` |
 | Sanitka procedural SFX | Local Web Audio sawtooth oscillator      | Local effect handle with per-phase gains and `stop()`        |
@@ -143,17 +140,33 @@ There is no local AY/noise/envelope renderer, Beeper scheduler, PSG channel isol
 
 ## Built-in Catalogue
 
-The generated catalogue contains exactly seven items:
+The generated catalogue contains exactly twenty-three items. Every item carries its 2026 catalogue release, original date or creation date, source provenance, and complete rights record.
 
-| ID                     | Display title                | Playback source             |
-| ---------------------- | ---------------------------- | --------------------------- |
-| `ay_soundcheck`        | AY Soundcheck                | JSON AY + 1-bit Beeper      |
-| `chaosbunny_escape`    | Chaosbunny Escape            | JSON AY arrangement         |
-| `korobeiniki`          | Korobeiniki (Tetris Theme A) | JSON AY arrangement         |
-| `nad_tatrou_sa_blyska` | Nad Tatrou sa blýska         | JSON AY arrangement         |
-| `ode_to_joy`           | Ode to Joy                   | JSON AY arrangement         |
-| `stereo_ambulance`     | Sanitka (Doppler)            | Procedural Web Audio effect |
-| `wilhelmus`            | Wilhelmus                    | JSON AY arrangement         |
+| ID                      | Display title                    | Playback source / layout    |
+| ----------------------- | -------------------------------- | --------------------------- |
+| `arctic_circuit`        | Arctic Circuit                   | JSON AY, ACB + 1-bit Beeper |
+| `ay_soundcheck`         | AY Soundcheck                    | JSON AY + 1-bit Beeper      |
+| `bitshift_boulevard`    | Bitshift Boulevard               | JSON AY, ABC                |
+| `blue_danube`           | The Blue Danube                  | JSON AY, ABC                |
+| `brahms_lullaby`        | Brahms' Lullaby                  | JSON AY, ABC                |
+| `chaosbunny_escape`     | Chaosbunny Escape                | JSON AY arrangement         |
+| `frere_jacques`         | Frère Jacques                    | JSON AY, ABC                |
+| `greensleeves`          | Greensleeves                     | JSON AY, ACB + 1-bit Beeper |
+| `hall_of_mountain_king` | In the Hall of the Mountain King | JSON AY, ACB + 1-bit Beeper |
+| `infernal_galop`        | Infernal Galop (Can-Can)         | JSON AY, ABC + 1-bit Beeper |
+| `korobeiniki`           | Korobeiniki (Tetris Theme A)     | JSON AY arrangement         |
+| `midnight_power_play`   | Midnight Power Play              | JSON AY, ACB + 1-bit Beeper |
+| `minuet_in_g`           | Minuet in G Major                | JSON AY, ACB                |
+| `nad_tatrou_sa_blyska`  | Nad Tatrou sa blýska             | JSON AY arrangement         |
+| `neon_warren`           | Neon Warren                      | JSON AY, ABC + 1-bit Beeper |
+| `ode_to_joy`            | Ode to Joy                       | JSON AY arrangement         |
+| `one_bit_night_shift`   | One-Bit Night Shift              | JSON 1-bit Beeper only      |
+| `orbital_foundry`       | Orbital Foundry                  | JSON AY, ACB                |
+| `signal_over_tatras`    | Signal over Tatras               | JSON AY, ACB + 1-bit Beeper |
+| `stereo_ambulance`      | Sanitka (Doppler)                | Procedural Web Audio effect |
+| `tilebound_rabbit`      | Tilebound Rabbit                 | JSON AY, ABC                |
+| `turkish_march`         | Turkish March                    | JSON AY, ACB + 1-bit Beeper |
+| `wilhelmus`             | Wilhelmus                        | JSON AY arrangement         |
 
 ### AY Soundcheck
 
@@ -206,7 +219,7 @@ Each song may include an additive `catalog` block. It informs the listener how t
     "cover": "/assets/covers/my_new_song/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
-      "runtimeFormat": "web-audio",
+      "runtimeFormat": "zx-kit-playback",
       "chip": "AY-3-8910"
     },
     "rights": {
@@ -373,7 +386,7 @@ The player compiles pattern `pan` and `sweep` data into upstream `AYNote.pan`/`p
 
 Short hits should be followed by an explicit rest so their duration and rhythmic spacing remain independent. AY-only fields such as `vol`, `noise`, and `envShape` are rejected in beeper options.
 
-The player passes the complete beeper timeline to upstream `playPattern()` against the same `AudioContext` clock as `playAY()`. Its isolated pattern handle makes MUTE, SOLO, the Beeper volume fader, and Stop effective without touching AY registers or unrelated Beeper effects. AY playback is stopped independently through its own upstream handle.
+The player passes the complete beeper timeline to upstream `playPattern()` against the same `AudioContext` clock as `playAY()`. Its isolated pattern handle makes MUTE, SOLO, the Beeper volume fader, and Stop effective without touching AY registers or unrelated Beeper effects. AY playback is stopped independently through its own upstream handle; a Beeper-only song does not create an AY handle at all.
 
 ## Live Audio Monitor
 
@@ -411,7 +424,7 @@ archive/zxplayer-2026-06-25.zip
 If an archive already exists for that date, the script creates a numbered sibling instead of overwriting it:
 
 ```text
-archive/chaosbunny-2026-06-25-02.zip
+archive/zxplayer-2026-06-25-02.zip
 ```
 
 The archive deliberately excludes:

@@ -14,3 +14,6 @@ Thumbs.db
 .idea/
 .env
 .env.*
+
+# Cover concept sources (kept locally, not in the repository)
+assets/covers/*/concept.png

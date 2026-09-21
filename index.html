@@ -26,7 +26,7 @@
               <p class="section-heading__kicker">CHOOSE A SIGNAL</p>
               <h2 id="libraryLabel" class="section-heading__title">TRACK LIBRARY</h2>
             </div>
-            <p class="section-heading__hint">SCROLL TO EXPLORE</p>
+            <p class="section-heading__hint">FILTER OR SCROLL</p>
           </div>
 
           <label class="visually-hidden" for="songSelect">Select a track</label>
@@ -34,7 +34,21 @@
             <option>Loading…</option>
           </select>
 
-          <div id="songLibrary" class="library__rail" aria-live="polite" aria-busy="true">
+          <div class="library__toolbar">
+            <label class="visually-hidden" for="songFilter">Filter tracks</label>
+            <input
+              id="songFilter"
+              class="library__filter"
+              type="search"
+              placeholder="FILTER TITLE, ARTIST OR SIGNAL…"
+              aria-controls="songLibrary"
+              autocomplete="off"
+              disabled
+            />
+            <p id="libraryCount" class="library__count" aria-live="polite">LOADING TRACKS…</p>
+          </div>
+
+          <div id="songLibrary" class="library__rail" aria-busy="true">
             <div class="library__loading" role="status">
               <span class="library__loading-art" aria-hidden="true"></span>
               <span>LOADING TRACKS…</span>

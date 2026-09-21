@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "id": "signal_over_tatras",
+  "title": "Signal over Tatras",
+  "artist": "Fox",
+  "description": "Pomalý ACB synthwave signál nad nočnými horami, s centrálnym šumom vetra a nezávislými beeperovými zábleskami.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/signal_over_tatras/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo) + 1-bit Beeper"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ACB and Beeper arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0.75, "C": 0 } },
+  "channels": {
+    "A": {
+      "label": "RIDGE BASS / LEFT",
+      "patterns": {
+        "ridge": {
+          "notes": "D2 A2 D3 A2 C2 G2 C3 G2",
+          "options": { "dur": 250, "vol": 10 }
+        }
+      },
+      "arrangement": [{ "pattern": "ridge", "repeat": 12 }]
+    },
+    "B": {
+      "label": "SKY SIGNAL / RIGHT",
+      "patterns": {
+        "sky": {
+          "notes": "F4 A4 D5 A4 E4 G4 C5 G4",
+          "options": { "dur": 250, "vol": 9, "envShape": 13, "envCycleDurMs": 42 }
+        }
+      },
+      "arrangement": [{ "pattern": "sky", "repeat": 12 }]
+    },
+    "C": {
+      "label": "WIND / CENTRE",
+      "patterns": {
+        "wind": {
+          "events": [
+            { "note": "r", "dur": 500, "vol": 5, "noise": true, "noisePeriod": 28 },
+            { "note": "r", "dur": 500 },
+            { "note": "r", "dur": 500, "vol": 6, "noise": true, "noisePeriod": 20 },
+            { "note": "r", "dur": 500 }
+          ]
+        }
+      },
+      "arrangement": [{ "pattern": "wind", "repeat": 12 }]
+    }
+  },
+  "beeper": {
+    "label": "MOUNTAIN BEACON",
+    "pan": 0.25,
+    "patterns": {
+      "beacon": {
+        "notes": "E6:80 r:170 E6:80 r:170 r:500 G6:80 r:420 E6:80 r:420"
+      }
+    },
+    "arrangement": [{ "pattern": "beacon", "repeat": 12 }]
+  }
+}

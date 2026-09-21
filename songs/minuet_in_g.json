@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "minuet_in_g",
+  "title": "Minuet in G Major",
+  "artist": "Christian Petzold",
+  "description": "Jemné ACB spracovanie BWV Anh. 114: ľavá tanečná basa, pravý komorný protihlas a stredová melódia.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "c. 1725",
+    "cover": "/assets/covers/minuet_in_g/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ACB stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Christian Petzold's Minuet in G major, BWV Anh. 114, preserved in the 1725 Notebook for Anna Magdalena Bach; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://imslp.org/wiki/Minuet_in_G_major%2C_BWV_Anh.114_%28Pezold%2C_Christian%29",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY chamber arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": {
+    "pan": { "A": -0.75, "B": 0.75, "C": 0 }
+  },
+  "channels": {
+    "A": {
+      "label": "DANCE BASS",
+      "patterns": {
+        "firstBass": {
+          "notes": "G2 D3 B2 D3 C3 G3 E3 G3 D3 A3 F#3 A3 G2 D3 B2 D3",
+          "options": { "dur": 250, "vol": 10 }
+        },
+        "secondBass": {
+          "notes": "C3 G3 E3 G3 B2 F#3 D3 F#3 A2 E3 C3 E3 D3 A3 F#3 D3",
+          "options": { "dur": 250, "vol": 10 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "firstBass", "repeat": 3 },
+        { "pattern": "secondBass", "repeat": 3 }
+      ]
+    },
+    "B": {
+      "label": "CHAMBER VOICE",
+      "patterns": {
+        "firstCounter": {
+          "notes": "B3 D4 G4 D4 E4 G4 C5 G4 F#4 A4 D5 A4 B3 D4 G4 D4",
+          "options": { "dur": 250, "vol": 7 }
+        },
+        "secondCounter": {
+          "notes": "E4 G4 C5 G4 D4 F#4 B4 F#4 C4 E4 A4 E4 A3 C4 F#4 A4",
+          "options": { "dur": 250, "vol": 7 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "firstCounter", "repeat": 3 },
+        { "pattern": "secondCounter", "repeat": 3 }
+      ]
+    },
+    "C": {
+      "label": "MINUET LEAD",
+      "patterns": {
+        "firstPhrase": {
+          "notes": "D5 G4 A4 B4 C5 D5 G5 G5 E5 C5 D5 E5 F#5 G5 G4 G4",
+          "options": { "dur": 250, "envShape": 13, "envCycleDurMs": 34 }
+        },
+        "secondPhrase": {
+          "notes": "C5 D5 C5 B4 A4 B4 C5 B4 A4 G4 F#4 G4 A4 B4 G4 B4",
+          "options": { "dur": 250, "envShape": 13, "envCycleDurMs": 34 }
+        }
+      },
+      "arrangement": [
+        { "pattern": "firstPhrase", "repeat": 3 },
+        { "pattern": "secondPhrase", "repeat": 3 }
+      ]
+    }
+  }
+}

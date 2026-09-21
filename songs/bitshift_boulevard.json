@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "bitshift_boulevard",
+  "title": "Bitshift Boulevard",
+  "artist": "Fox",
+  "description": "Čisté ABC stereo bez beepera: ľavý walking bass, stredový akordový pulz a pravá osembitová nočná melódia.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "2026-09-11",
+    "cover": "/assets/covers/bitshift_boulevard/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "all-rights-reserved",
+        "label": "Original composition © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "Original ABC arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "Original JSON song source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0, "C": 0.75 } },
+  "channels": {
+    "A": {
+      "label": "WALK / LEFT",
+      "patterns": {
+        "walk": {
+          "notes": "D2 r A2 C3 D3 C3 A2 r F2 r C3 E3 F3 E3 C3 A2",
+          "options": { "dur": 140, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "walk", "repeat": 10 }]
+    },
+    "B": {
+      "label": "LIGHTS / CENTRE",
+      "patterns": {
+        "lights": {
+          "notes": "D4 F4 A4 F4 C4 E4 A4 E4 D4 F4 A4 C5 F4 A4 C5 A4",
+          "options": { "dur": 140, "vol": 8, "envShape": 13, "envCycleDurMs": 28 }
+        }
+      },
+      "arrangement": [{ "pattern": "lights", "repeat": 10 }]
+    },
+    "C": {
+      "label": "NIGHT LEAD / RIGHT",
+      "patterns": {
+        "nightLead": {
+          "notes": "A4 r C5 D5 F5 E5 D5 C5 A4 r G4 A4 C5 A4 G4 E4",
+          "options": { "dur": 140, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "nightLead", "repeat": 10 }]
+    }
+  }
+}

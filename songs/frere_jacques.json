@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "frere_jacques",
+  "title": "Frère Jacques",
+  "artist": "Traditional French round",
+  "description": "Jasný trojhlasý ABC kánon: melódia putuje sprava, cez stred, nad ľavou basovou kostrou.",
+  "catalog": {
+    "releaseYear": 2026,
+    "originalDate": "c. 1780",
+    "cover": "/assets/covers/frere_jacques/cover.png",
+    "audio": {
+      "sourceFormat": "json-notes",
+      "runtimeFormat": "zx-kit-playback",
+      "chip": "AY-3-8910 (ABC stereo)"
+    },
+    "rights": {
+      "composition": {
+        "status": "public-domain-eu",
+        "label": "Traditional French round documented in an eighteenth-century source; cataloged as public domain in the EU. This is not legal advice.",
+        "evidenceUrl": "https://fr.wikisource.org/wiki/Fr%C3%A8re_Jacques",
+        "legalBasisUrl": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=LEGISSUM%3Al26032"
+      },
+      "arrangement": {
+        "status": "all-rights-reserved",
+        "label": "AY round arrangement © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "source": {
+        "status": "all-rights-reserved",
+        "label": "JSON transcription source © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      },
+      "cover": {
+        "status": "all-rights-reserved",
+        "label": "ZX Spectrum cover artwork © 2026 Fox. All rights reserved.",
+        "holder": "Fox"
+      }
+    }
+  },
+  "ay": { "pan": { "A": -0.75, "B": 0, "C": 0.75 } },
+  "channels": {
+    "A": {
+      "label": "BELL BASS / LEFT",
+      "patterns": {
+        "bass": {
+          "notes": "C3 G2 C3 G2 F2 C3 G2 C3",
+          "options": { "dur": 250, "vol": 9 }
+        }
+      },
+      "arrangement": [{ "pattern": "bass", "repeat": 12 }]
+    },
+    "B": {
+      "label": "ROUND / CENTRE",
+      "patterns": {
+        "round": {
+          "notes": "r r r r C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4 r E4 F4 G4 r G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4",
+          "options": { "dur": 250, "vol": 8 }
+        }
+      },
+      "arrangement": [{ "pattern": "round", "repeat": 3 }]
+    },
+    "C": {
+      "label": "MELODY / RIGHT",
+      "patterns": {
+        "melody": {
+          "notes": "C4 D4 E4 C4 C4 D4 E4 C4 E4 F4 G4 r E4 F4 G4 r G4 A4 G4 F4 E4 C4 G4 A4 G4 F4 E4 C4 C4 G3 C4 r",
+          "options": { "dur": 250, "vol": 11 }
+        }
+      },
+      "arrangement": [{ "pattern": "melody", "repeat": 3 }]
+    }
+  }
+}
