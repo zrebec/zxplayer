@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026-09-11",
-    "cover": "/assets/covers/arctic_circuit/cover.png",
+    "cover": "assets/covers/arctic_circuit/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

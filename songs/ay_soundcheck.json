@@ -8,7 +8,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026",
-    "cover": "/assets/covers/ay_soundcheck/cover.png",
+    "cover": "assets/covers/ay_soundcheck/cover.png",
     "audio": {
       "sourceFormat": "json-events",
       "runtimeFormat": "zx-kit-playback",

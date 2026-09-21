@@ -495,6 +495,10 @@ Check that the file:
 - contains valid JSON with at least `id`, `title`, and `channels`;
 - was followed by `npm run build`.
 
+### Cover artwork does not load
+
+Check whether the requested URL is missing the subdirectory the site is served from — `…github.io/assets/…` instead of `…github.io/zxplayer/assets/…`. Catalogue cover paths must be **relative** (`assets/covers/<id>/cover.png`); a leading slash asks the domain root, which works on a local server rooted at `/` and 404s on GitHub Pages. `scripts/cover-url.js` resolves every path against the page and strips a stray leading slash, and `tests/cover-url.test.mjs` fails on any song that carries one.
+
 ### The page loads but there is no sound
 
 Select a song and press **Play** manually. Browser autoplay policy blocks Web Audio until a user gesture takes place.

@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1861",
-    "cover": "/assets/covers/korobeiniki/cover.png",
+    "cover": "assets/covers/korobeiniki/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

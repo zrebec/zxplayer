@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1844",
-    "cover": "/assets/covers/nad_tatrou_sa_blyska/cover.png",
+    "cover": "assets/covers/nad_tatrou_sa_blyska/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1875",
-    "cover": "/assets/covers/hall_of_mountain_king/cover.png",
+    "cover": "assets/covers/hall_of_mountain_king/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

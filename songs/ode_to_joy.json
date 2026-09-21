@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1824",
-    "cover": "/assets/covers/ode_to_joy/cover.png",
+    "cover": "assets/covers/ode_to_joy/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

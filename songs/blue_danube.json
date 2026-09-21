@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1867",
-    "cover": "/assets/covers/blue_danube/cover.png",
+    "cover": "assets/covers/blue_danube/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1580",
-    "cover": "/assets/covers/greensleeves/cover.png",
+    "cover": "assets/covers/greensleeves/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

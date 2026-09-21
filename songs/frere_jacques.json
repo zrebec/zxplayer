@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "c. 1780",
-    "cover": "/assets/covers/frere_jacques/cover.png",
+    "cover": "assets/covers/frere_jacques/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

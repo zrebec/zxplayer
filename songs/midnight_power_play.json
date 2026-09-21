@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026-09-12",
-    "cover": "/assets/covers/midnight_power_play/cover.png",
+    "cover": "assets/covers/midnight_power_play/cover.png",
     "audio": {
       "sourceFormat": "json-events",
       "runtimeFormat": "zx-kit-playback",

@@ -25,6 +25,7 @@ import {
   songHasAudibleAY,
   songUsesAYArrangement,
 } from './song-channel-availability.js';
+import { FALLBACK_COVER, resolveCoverUrl } from './cover-url.js';
 import { describeLibraryCount, filterSongLibrary } from './song-library-filter.js';
 
 const AY_CHANNELS = ['A', 'B', 'C'];
@@ -38,7 +39,7 @@ const PSG_FORMAT = 'psg';
 const PT3_FORMAT = 'pt3';
 const JSON_FORMAT = 'json';
 const PSG_DEFAULT_MACHINE = 'melodik';
-const DEFAULT_COVER = '/assets/covers/fallback/cover.png';
+const DEFAULT_COVER = FALLBACK_COVER;
 const RIGHTS_LABELS = {
   arrangement: 'Arrangement / module',
   composition: 'Composition',
@@ -190,7 +191,7 @@ function populateSongLibrary(songs) {
 
     const cover = document.createElement('img');
     cover.className = 'song-card__cover';
-    cover.src = catalog.cover ?? DEFAULT_COVER;
+    cover.src = coverUrl(catalog.cover);
     cover.alt = '';
     cover.loading = 'lazy';
     cover.addEventListener('error', useFallbackCover, { once: true });
@@ -251,7 +252,7 @@ function markSelectedSong(songId) {
 function renderSongDetails(song) {
   const catalog = song.catalog ?? {};
   const audio = catalog.audio ?? {};
-  const cover = catalog.cover ?? DEFAULT_COVER;
+  const cover = coverUrl(catalog.cover);
 
   if (songCover) {
     songCover.src = cover;
@@ -336,9 +337,19 @@ function formatRightsStatus(value) {
   return labels[value] ?? 'unverified';
 }
 
+/** The catalogue's cover paths are relative; `resolveCoverUrl` ties them to this page. */
+function coverUrl(cover) {
+  // A declaration, not a const: the render functions above call it, and a module-level
+  // arrow would sit in its temporal dead zone if anything ever rendered during load.
+  return resolveCoverUrl(cover, document.baseURI, DEFAULT_COVER);
+}
+
 function useFallbackCover(event) {
   const image = event.currentTarget;
-  if (image?.getAttribute('src') !== DEFAULT_COVER) image.src = DEFAULT_COVER;
+  const fallback = coverUrl(DEFAULT_COVER);
+  // `image.src` reads back absolute, so comparing against the resolved fallback is
+  // what stops a missing fallback from looping the error handler.
+  if (image?.src !== fallback) image.src = fallback;
 }
 
 function getLocalStorage() {

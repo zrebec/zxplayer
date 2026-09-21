@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026-09-12",
-    "cover": "/assets/covers/tilebound_rabbit/cover.png",
+    "cover": "assets/covers/tilebound_rabbit/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1868",
-    "cover": "/assets/covers/brahms_lullaby/cover.png",
+    "cover": "assets/covers/brahms_lullaby/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

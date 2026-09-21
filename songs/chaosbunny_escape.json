@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026",
-    "cover": "/assets/covers/chaosbunny_escape/cover.png",
+    "cover": "assets/covers/chaosbunny_escape/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

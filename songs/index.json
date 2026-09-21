@@ -9,7 +9,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/arctic_circuit/cover.png",
+        "cover": "assets/covers/arctic_circuit/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -49,7 +49,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026",
-        "cover": "/assets/covers/ay_soundcheck/cover.png",
+        "cover": "assets/covers/ay_soundcheck/cover.png",
         "audio": {
           "sourceFormat": "json-events",
           "runtimeFormat": "zx-kit-playback",
@@ -89,7 +89,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/bitshift_boulevard/cover.png",
+        "cover": "assets/covers/bitshift_boulevard/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -129,7 +129,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1868",
-        "cover": "/assets/covers/brahms_lullaby/cover.png",
+        "cover": "assets/covers/brahms_lullaby/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -170,7 +170,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "c. 1780",
-        "cover": "/assets/covers/frere_jacques/cover.png",
+        "cover": "assets/covers/frere_jacques/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -211,7 +211,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1580",
-        "cover": "/assets/covers/greensleeves/cover.png",
+        "cover": "assets/covers/greensleeves/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -252,7 +252,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026",
-        "cover": "/assets/covers/chaosbunny_escape/cover.png",
+        "cover": "assets/covers/chaosbunny_escape/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -292,7 +292,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1875",
-        "cover": "/assets/covers/hall_of_mountain_king/cover.png",
+        "cover": "assets/covers/hall_of_mountain_king/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -333,7 +333,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1858",
-        "cover": "/assets/covers/infernal_galop/cover.png",
+        "cover": "assets/covers/infernal_galop/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -374,7 +374,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1861",
-        "cover": "/assets/covers/korobeiniki/cover.png",
+        "cover": "assets/covers/korobeiniki/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -415,7 +415,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-12",
-        "cover": "/assets/covers/midnight_power_play/cover.png",
+        "cover": "assets/covers/midnight_power_play/cover.png",
         "audio": {
           "sourceFormat": "json-events",
           "runtimeFormat": "zx-kit-playback",
@@ -455,7 +455,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "c. 1725",
-        "cover": "/assets/covers/minuet_in_g/cover.png",
+        "cover": "assets/covers/minuet_in_g/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -496,7 +496,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1844",
-        "cover": "/assets/covers/nad_tatrou_sa_blyska/cover.png",
+        "cover": "assets/covers/nad_tatrou_sa_blyska/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -537,7 +537,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/neon_warren/cover.png",
+        "cover": "assets/covers/neon_warren/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -577,7 +577,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1824",
-        "cover": "/assets/covers/ode_to_joy/cover.png",
+        "cover": "assets/covers/ode_to_joy/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -618,7 +618,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/one_bit_night_shift/cover.png",
+        "cover": "assets/covers/one_bit_night_shift/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -658,7 +658,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/orbital_foundry/cover.png",
+        "cover": "assets/covers/orbital_foundry/cover.png",
         "audio": {
           "sourceFormat": "json-events",
           "runtimeFormat": "zx-kit-playback",
@@ -698,7 +698,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026",
-        "cover": "/assets/covers/stereo_ambulance/cover.png",
+        "cover": "assets/covers/stereo_ambulance/cover.png",
         "audio": {
           "sourceFormat": "json-effect",
           "runtimeFormat": "web-audio",
@@ -738,7 +738,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-11",
-        "cover": "/assets/covers/signal_over_tatras/cover.png",
+        "cover": "assets/covers/signal_over_tatras/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -778,7 +778,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1867",
-        "cover": "/assets/covers/blue_danube/cover.png",
+        "cover": "assets/covers/blue_danube/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -819,7 +819,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "2026-09-12",
-        "cover": "/assets/covers/tilebound_rabbit/cover.png",
+        "cover": "assets/covers/tilebound_rabbit/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -859,7 +859,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "1784",
-        "cover": "/assets/covers/turkish_march/cover.png",
+        "cover": "assets/covers/turkish_march/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",
@@ -900,7 +900,7 @@
       "catalog": {
         "releaseYear": 2026,
         "originalDate": "c. 1570",
-        "cover": "/assets/covers/wilhelmus/cover.png",
+        "cover": "assets/covers/wilhelmus/cover.png",
         "audio": {
           "sourceFormat": "json-notes",
           "runtimeFormat": "zx-kit-playback",

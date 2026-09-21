@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1784",
-    "cover": "/assets/covers/turkish_march/cover.png",
+    "cover": "assets/covers/turkish_march/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

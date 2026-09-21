@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "c. 1725",
-    "cover": "/assets/covers/minuet_in_g/cover.png",
+    "cover": "assets/covers/minuet_in_g/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

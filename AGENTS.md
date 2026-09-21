@@ -133,7 +133,8 @@ Každý push do `main` spúšťa `.github/workflows/ci-deploy.yml`; stránka na 
 1. Po každej zmene v `songs/` spusti `npm run build` a **commitni aj `songs/index.json`** — inak CI padne na kroku `git diff`.
 2. Pred commitom spusti `npm run format` (nie iba `format:check`) — CI formátovanie neopravuje, iba ho kontroluje.
 3. Ak pridávaš nový súbor, ktorý stránka načítava za behu, dopíš ho do `CONTENT` alebo `REQUIRED` v `scripts/build-site.mjs`. Nasadzuje sa len to, čo je v tom zozname.
-4. `_site/` je vygenerovaný adresár — je v `.gitignore` a nikdy sa necommituje.
+4. **Cesty k assetom píš relatívne, nikdy nezačínaj `/`.** Stránka beží v podadresári (`/zxplayer/`), takže `/assets/...` pýta koreň domény a vráti 404 — lokálne pritom funguje. Obaly rieši `scripts/cover-url.js`; test v `tests/cover-url.test.mjs` odmietne každú skladbu s `/` na začiatku.
+5. `_site/` je vygenerovaný adresár — je v `.gitignore` a nikdy sa necommituje.
 
 ---
 

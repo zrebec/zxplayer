@@ -148,9 +148,11 @@ test('generated catalog contains the complete twenty-three-song source library',
     catalog.songs.find((song) => song.id === 'stereo_ambulance').catalog.audio.chip,
     'procedural Web Audio effect',
   );
+  // Relative, not root-absolute: the page is served from a subdirectory on GitHub Pages
+  // (`/zxplayer/`), where a leading slash asks the domain root and 404s (`cover-url.js`).
   assert.equal(
     catalog.songs.find((song) => song.id === 'ay_soundcheck').catalog.cover,
-    '/assets/covers/ay_soundcheck/cover.png',
+    'assets/covers/ay_soundcheck/cover.png',
   );
 });
 
@@ -168,7 +170,7 @@ test('every bundled JSON song contains release, source, rights, and cover metada
 
     assert.equal(catalog.releaseYear, 2026, `${file}: releaseYear`);
     assert.ok(catalog.originalDate, `${file}: originalDate`);
-    const expectedCover = `/assets/covers/${song.id}/cover.png`;
+    const expectedCover = `assets/covers/${song.id}/cover.png`;
     assert.equal(catalog.cover, expectedCover, `${file}: cover`);
     assert.equal(catalog.rightsStatus, 'documented', `${file}: rightsStatus`);
     assert.ok(catalog.rights.source.label, `${file}: source label`);

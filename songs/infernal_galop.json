@@ -7,7 +7,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "1858",
-    "cover": "/assets/covers/infernal_galop/cover.png",
+    "cover": "assets/covers/infernal_galop/cover.png",
     "audio": {
       "sourceFormat": "json-notes",
       "runtimeFormat": "zx-kit-playback",

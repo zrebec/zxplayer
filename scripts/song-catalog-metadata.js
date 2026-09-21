@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-export const DEFAULT_COVER = '/assets/covers/fallback/cover.png';
+export const DEFAULT_COVER = 'assets/covers/fallback/cover.png';
 export const RIGHTS_KEYS = ['composition', 'arrangement', 'source', 'cover'];
 export const RIGHTS_STATUSES = ['public-domain-eu', 'all-rights-reserved', 'licensed', 'unverified'];
 

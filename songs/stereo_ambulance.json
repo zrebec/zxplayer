@@ -9,7 +9,7 @@
   "catalog": {
     "releaseYear": 2026,
     "originalDate": "2026",
-    "cover": "/assets/covers/stereo_ambulance/cover.png",
+    "cover": "assets/covers/stereo_ambulance/cover.png",
     "audio": {
       "sourceFormat": "json-effect",
       "runtimeFormat": "web-audio",
